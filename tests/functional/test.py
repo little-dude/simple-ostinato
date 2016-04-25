@@ -2,6 +2,20 @@ from simple_ostinato.drone import Drone
 from nose2.compat import unittest
 import copy
 import socket
+from . import utils
+
+DRONE_PID = None
+
+
+def setUpModule():
+    global DRONE_PID
+    utils.create_ports()
+    DRONE_PID = utils.start_drone()
+
+
+def tearDownModule():
+    utils.stop_drone(DRONE_PID)
+    utils.delete_ports()
 
 
 class TestDroneConnect(unittest.TestCase):
