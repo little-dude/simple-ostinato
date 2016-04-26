@@ -1,3 +1,4 @@
+subprocess32
 nose2
 pyshark
 pyroute2

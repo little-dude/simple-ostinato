@@ -1,8 +1,15 @@
-import subprocess
 import time
-import os
-import signal
 from pyroute2 import IPRoute
+import os
+import sys
+if os.name == 'posix' and sys.version_info[0] < 3:
+    import subprocess32 as subprocess
+else:
+    import subprocess
+
+
+global DRONE
+DRONE = None
 
 
 def link_down(name):
@@ -30,11 +37,16 @@ def delete_ports():
 
 
 def start_drone():
+    global DRONE
     with open(os.devnull, 'w') as devnull:
-        pid = subprocess.Popen('drone', stdout=devnull, stderr=devnull).pid
-    time.sleep(5)
-    return pid
+        DRONE = subprocess.Popen('drone', stdout=devnull, stderr=devnull)
+    time.sleep(7)
 
 
-def stop_drone(pid):
-    os.kill(pid, signal.SIGTERM)
+def kill_drone():
+    DRONE.terminate()
+    try:
+        DRONE.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        DRONE.kill()
+        DRONE.wait(timeout=10)

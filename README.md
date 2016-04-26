@@ -1,8 +1,17 @@
 # simple-ostinato
 
+[![Build Status](https://travis-ci.org/little-dude/simple-ostinato.svg?branch=master)](https://travis-ci.org/little-dude/simple-ostinato)
+
 A wrapper for the ostinato python client.
 
-## Example
+Documentation (work in progress):
+http://simple-ostinato.readthedocs.org/en/latest/
+
+``simple_ostinato`` is a python package that makes it easy to use the ostinato
+python agent ``python-ostinato``. It is basically a wrapper around
+``python-ostinato`` that hides the RPC engineering.
+
+### Example
 
 We assume that ``drone`` is already running on the localhost, and that we created a veth pair of interfaces with:
 

@@ -4,17 +4,14 @@ import copy
 import socket
 from . import utils
 
-DRONE_PID = None
-
 
 def setUpModule():
-    global DRONE_PID
     # utils.create_ports()
-    DRONE_PID = utils.start_drone()
+    utils.start_drone()
 
 
 def tearDownModule():
-    utils.stop_drone(DRONE_PID)
+    utils.kill_drone()
     # utils.delete_ports()
 
 

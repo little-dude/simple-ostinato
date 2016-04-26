@@ -1,5 +1,4 @@
 import time
-import pyshark
 from nose2.compat import unittest
 from . import utils
 from simple_ostinato import Drone
@@ -11,7 +10,7 @@ class BaseLayer(object):
     @classmethod
     def setUp(cls):
         # utils.create_ports()
-        cls._drone_pid = utils.start_drone()
+        utils.start_drone()
         cls.drone = Drone('localhost')
         cls.drone.fetch_ports()
         cls.p0 = cls.drone.get_port_by_name('vostinato0')[0]
@@ -22,7 +21,7 @@ class BaseLayer(object):
     @classmethod
     def tearDown(cls):
         try:
-            utils.stop_drone(cls._drone_pid)
+            utils.kill_drone()
         except:
             pass
         # utils.delete_ports()
