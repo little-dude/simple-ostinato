@@ -43,19 +43,12 @@ class Stream(object):
         stream_id (int): the stream ID.
     """
 
-    def debug_time(self, msg):
-        now = time.time()
-        print '{}. Time elapsed: {}'.format(msg, int(self.last_check - now))
-        self.last_check = now
-
     def __init__(self, port, stream_id, clean_layers=True):
         self.last_check = time.time()
         self.port = port
         self.layers = []
         self.stream_id = stream_id
-        self.debug_time('before fetch')
         self.fetch()
-        self.debug_time('after fetch')
         if clean_layers:
             self.del_layers(*self.layers.keys())
 
@@ -109,7 +102,6 @@ class Stream(object):
             self.add_layers(_protocol_factory(o_protocol))
 
     def _save_layers(self):
-        self.debug_time('saving layers')
         o_streams = self._fetch()
         o_stream = o_streams.stream[0]
         o_protocols = o_stream.protocol
@@ -135,9 +127,7 @@ class Stream(object):
                 o_protocol.protocol_id.id = layer._protocol_id
                 layer._save(o_protocol)
 
-        self.debug_time('modifying stream')
         self.drone._o_modify_stream(o_streams)
-        self.debug_time('done modifying stream')
 
     def add_layers(self, *layers):
         """
@@ -151,21 +141,17 @@ class Stream(object):
 
             layer (simple_ostinato.protocols.Protocol): the layer to add.
         """
-        self.debug_time('adding layers {}'.format(layers))
         for layer in layers:
             layer_name = layer.__class__.__name__
             if layer_name in self.layers:
                 err = '{} found twice in {} protocols'
                 raise Exception(err.format(layer_name, self))
             else:
-                self.debug_time('new layer {}'.format(layer_name))
                 self.layers[layer_name] = layer
                 self._save_layers()
 
     def del_layers(self, *layer_names):
-        self.debug_time('deleting layers {}'.format(layer_names))
         for name in layer_names:
-            self.debug_time('deleting layer {}'.format(layer_names))
             del self.layers[name]
             self._save_layers()
 
