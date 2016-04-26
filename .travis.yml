@@ -3,7 +3,6 @@ dist: trusty
 before_install:
 - sudo apt-get -qq update
 - sudo apt-get install -y ostinato
-- sudo drone &
 language: python
 python:
 - '2.7'
@@ -12,4 +11,7 @@ install:
 - travis_retry pip install -r requirements.txt
 - travis_retry pip install -r requirements-tests.txt
 script:
-- sudo nose2 --plugin nose2.plugins.layers -s tests -v
+- sudo ip link add vostinato0 type veth peer name vostinato1
+- sudo ip link set vostinato0 up
+- sudo ip link set vostinato1 up
+- sudo -E nose2 --plugin nose2.plugins.layers -s tests -v

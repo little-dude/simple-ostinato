@@ -9,13 +9,13 @@ DRONE_PID = None
 
 def setUpModule():
     global DRONE_PID
-    utils.create_ports()
+    # utils.create_ports()
     DRONE_PID = utils.start_drone()
 
 
 def tearDownModule():
     utils.stop_drone(DRONE_PID)
-    utils.delete_ports()
+    # utils.delete_ports()
 
 
 class TestDroneConnect(unittest.TestCase):
