@@ -7,7 +7,16 @@ Table of content
 ================
 
 .. toctree:: :maxdepth: 3
+    :caption: Usage
+
+    drone
+    streams
+    traffic
+    miscellaneous
+
+.. toctree:: :maxdepth: 3
     :caption: API
 
     simple_ostinato
     simple_ostinato.protocols
+
