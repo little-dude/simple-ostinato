@@ -1,0 +1,13 @@
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -y ostinato
+- sudo drone &
+language: python
+python:
+- '2.7'
+- pypy
+install:
+- travis_retry pip install -r requirements.txt
+- travis_retry pip install -r requirements-tests.txt
+script:
+- sudo nose2 --plugin nose2.plugins.layers -s tests -v
