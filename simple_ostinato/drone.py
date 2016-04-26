@@ -72,33 +72,25 @@ class Drone(object):
         o_ports = self._o_get_port_list(self._o_get_port_id_list())
         for o_port in o_ports.port:
             port_id = o_port.port_id.id
-            port = self.get_port(port_id)
+            port = self.get_port_by_id(port_id)
             if port is None:
                 self.ports.append(Port(self, port_id))
             else:
                 port.fetch()
 
-    def get_port(self, port_id):
-        """
-        Get a port from ``self.ports`` by ID.
-        """
+    def get_port_by_id(self, port_id):
         for port in self.ports:
             if port.port_id == port_id:
                 return port
 
-    def get_port_by_name(self, name):
+    def get_port(self, name):
         """
-        Get ports from ``self.ports`` by name.
-
-        By default it returns the list of all the ports with this name. In
-        practice, I think names are unique, so this method may change an just
-        return a port.
+        Get ports from ``self.ports`` by name. If the port is not found, None
+        is returned.
         """
-        ports = []
         for port in self.ports:
             if port.name == name:
-                ports.append(port)
-        return ports
+                return port
 
     # ------------------------------------------------------------------------
     # procol buffer wrappers

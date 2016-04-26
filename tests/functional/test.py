@@ -1,4 +1,4 @@
-from simple_ostinato import Drone
+from simple_ostinato import Drone, Port
 from nose2.compat import unittest
 import copy
 import socket
@@ -41,15 +41,15 @@ class TestPortFetchAndUpdate(unittest.TestCase):
         cls.drone.fetch_ports()
 
     def test_port_fetch(self):
-        assert len(self.drone.get_port_by_name('vostinato0')) == 1
-        assert len(self.drone.get_port_by_name('vostinato1')) == 1
-        vostinato0 = self.drone.get_port_by_name('vostinato0')[0]
+        assert isinstance(self.drone.get_port('vostinato0'), Port)
+        assert isinstance(self.drone.get_port('vostinato1'), Port)
+        vostinato0 = self.drone.get_port('vostinato0')
         assert vostinato0.name == 'vostinato0'
         assert vostinato0.is_enabled is True
         assert vostinato0.transmit_mode == 'SEQUENTIAL'
 
     def test_port_update(self):
-        port = self.drone.get_port_by_name('vostinato0')[0]
+        port = self.drone.get_port('vostinato0')
         assert port.transmit_mode == 'SEQUENTIAL'
         port.transmit_mode = 'INTERLEAVED'
         port.save()
@@ -63,7 +63,7 @@ class StreamCRUD(unittest.TestCase):
     def setUp(cls):
         cls.drone = Drone('localhost')
         cls.drone.fetch_ports()
-        cls.port = cls.drone.get_port_by_name('vostinato0')[0]
+        cls.port = cls.drone.get_port('vostinato0')
 
     def test_add_delete_many(self):
         for i in range(0, 100):

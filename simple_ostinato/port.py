@@ -347,11 +347,11 @@ class Port(object):
             'tx_pps': o_stats.tx_pps,
         }
 
-    def get_capture(self, save_path=None):
+    def get_capture(self, save_as=None):
         o_port_id = self._fetch().port[0].port_id
         o_buff = self.drone._o_get_capture_buffer(o_port_id)
-        if save_path:
-            self.save_path(o_buff, save_path)
+        if save_as:
+            self.save_capture(o_buff, save_as)
         return o_buff
 
     def save_capture(self, o_capture_buffer, path):

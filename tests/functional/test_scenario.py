@@ -13,8 +13,8 @@ class BaseLayer(object):
         utils.start_drone()
         cls.drone = Drone('localhost')
         cls.drone.fetch_ports()
-        cls.p0 = cls.drone.get_port_by_name('vostinato0')[0]
-        cls.p1 = cls.drone.get_port_by_name('vostinato1')[0]
+        cls.p0 = cls.drone.get_port('vostinato0')
+        cls.p1 = cls.drone.get_port('vostinato1')
         cls.p0.fetch_streams()
         cls.p1.fetch_streams()
 
