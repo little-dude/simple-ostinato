@@ -30,10 +30,9 @@ def delete_ports():
 
 
 def start_drone():
-    # with open(os.devnull, 'w') as devnull:
-    pid = subprocess.Popen('drone') # , stdout=devnull, stderr=devnull).pid
+    with open(os.devnull, 'w') as devnull:
+        pid = subprocess.Popen('drone', stdout=devnull, stderr=devnull).pid
     time.sleep(5)
-    subprocess.Popen(['netstat', '-anp'])
     return pid
 
 
