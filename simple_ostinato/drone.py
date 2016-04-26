@@ -150,3 +150,6 @@ class Drone(object):
 
     def _o_check_version(self, o_version_info):
         return self._drone.checkVersion(o_version_info)
+
+    def _o_save_capture_buffer(self, o_capture_buffer, path):
+        return self._drone.saveCaptureBuffer(o_capture_buffer, path)

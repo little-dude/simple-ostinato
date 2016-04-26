@@ -1,4 +1,4 @@
-from simple_ostinato.drone import Drone
+from simple_ostinato import Drone
 from nose2.compat import unittest
 import copy
 import socket

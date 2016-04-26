@@ -42,11 +42,13 @@ class Stream(object):
         stream_id (int): the stream ID.
     """
 
-    def __init__(self, port, stream_id):
+    def __init__(self, port, stream_id, clean_layers=True):
         self.port = port
         self.layers = []
         self.stream_id = stream_id
         self.fetch()
+        if clean_layers:
+            self.del_layers(*self.layers.keys())
 
     @property
     def port(self):
@@ -95,28 +97,36 @@ class Stream(object):
             if protocol_id == 0:
                 empty_protocols.append(o_protocol)
                 continue
-            protocol_name = constants._Protocols.get_key(protocol_id)
-            if protocol_name in self.layers:
-                err = '{} found twice in {} protocols'
-                raise Exception(err.format(protocol_name, self))
-            self.layers[protocol_name] = _protocol_factory(o_protocol)
+            self.add_layers(_protocol_factory(o_protocol))
 
-    def _save_layers(self, o_stream):
+    def _save_layers(self):
+        o_streams = self._fetch()
+        o_stream = o_streams.stream[0]
         o_protocols = o_stream.protocol
+        # remove the deleted layers, or update the existing ones
+        remove_list = []
+        for o_protocol in o_protocols:
+            protocol_name = _protocol_factory(o_protocol).__class__.__name__
+            if protocol_name not in self.layers:
+                remove_list.append(o_protocol)
+            else:
+                self.layers[protocol_name]._save(o_protocol)
+        for o_protocol in remove_list:
+            o_protocols.remove(o_protocol)
+        # add the new layers:
         for layer in self.layers.values():
             is_new_layer = True
             for o_protocol in o_protocols:
-                if layer.protocol_id == o_protocol.protocol_id.id:
+                if layer._protocol_id == o_protocol.protocol_id.id:
                     is_new_layer = False
-                    layer._save(o_protocol)
                     break
             if is_new_layer is True:
-                # the layer has not been added to the stream yet.
                 o_protocol = o_stream.protocol.add()
-                o_protocol.protocol_id.id = layer.protocol_id
+                o_protocol.protocol_id.id = layer._protocol_id
                 layer._save(o_protocol)
+        self.drone._o_modify_stream(o_streams)
 
-    def add_layer(self, layer):
+    def add_layers(self, *layers):
         """
         Add a layer to the stream. Note that it is added to the remote drone
         instance only after calling ``self.save()``.
@@ -128,7 +138,19 @@ class Stream(object):
 
             layer (simple_ostinato.protocols.Protocol): the layer to add.
         """
-        self.layers[layer.__class__.__name__] = layer
+        for layer in layers:
+            layer_name = layer.__class__.__name__
+            if layer_name in self.layers:
+                err = '{} found twice in {} protocols'
+                raise Exception(err.format(layer_name, self))
+            else:
+                self.layers[layer_name] = layer
+                self._save_layers()
+
+    def del_layers(self, *layer_names):
+        for name in layer_names:
+            del self.layers[name]
+            self._save_layers()
 
     def save(self):
         """
@@ -146,8 +168,8 @@ class Stream(object):
         o_stream.control.next = self._next
         o_stream.control.bursts_per_sec = self.bursts_per_sec
         o_stream.control.packets_per_sec = self.packets_per_sec
-        self._save_layers(o_stream)
         self.drone._o_modify_stream(o_streams)
+        self._save_layers()
 
     def fetch(self):
         """
@@ -205,7 +227,8 @@ class Stream(object):
     @property
     def is_enabled(self):
         """
-        Return ``True`` if the stream is enabled, ``False`` otherwise. By default, streams are not enabled.
+        Return ``True`` if the stream is enabled, ``False`` otherwise. By
+        default, streams are not enabled.
         """
         return self._is_enabled
 

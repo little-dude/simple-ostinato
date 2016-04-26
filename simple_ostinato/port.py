@@ -100,9 +100,7 @@ class Port(object):
         self._drone = weakref.ref(value)
 
     def _fetch(self):
-        o_port_ids = ost_pb.PortIdList()
-        o_port_ids.port_id.add().id = self.port_id
-        o_ports = self.drone._o_get_port_list(o_port_ids)
+        o_ports = self.drone._o_get_port_list(self._get_o_port_id_list())
         return o_ports
 
     def save(self):
@@ -270,7 +268,7 @@ class Port(object):
             new_id += 1
         return new_id
 
-    def add_stream(self):
+    def add_stream(self, *layers):
         """
         Create a new stream, on the remote drone instance, and return the
         corresponding Stream object. The object is also added to
@@ -283,6 +281,7 @@ class Port(object):
         self.drone._o_add_stream(o_stream_ids)
         new_stream = Stream(self, stream_id)
         self.streams.append(new_stream)
+        new_stream.add_layers(*layers)
         return new_stream
 
     def del_stream(self, stream_id):
@@ -308,28 +307,60 @@ class Port(object):
             else:
                 stream.disable()
             stream.save()
-        o_port_ids = ost_pb.PortIdList()
-        o_port_ids.port_id.add().id = self.port_id
-        self.drone._o_start_transmit(o_port_ids)
+        self.drone._o_start_transmit(self._get_o_port_id_list())
 
     def stop_send(self):
-        o_port_ids = ost_pb.PortIdList()
-        o_port_ids.port_id.add().id = self.port_id
-        self.drone._o_stop_transmit(o_port_ids)
+        self.drone._o_stop_transmit(self._get_o_port_id_list())
 
     def start_capture(self, block=-1, stop=False):
-        o_port_ids = ost_pb.PortIdList()
-        o_port_ids.port_id.add().id = self.port_id
-        self.drone._o_start_capture(o_port_ids)
+        self.drone._o_start_capture(self._get_o_port_id_list())
         if block > 0:
             time.sleep(block)
             if stop:
                 self.stop_capture()
 
     def stop_capture(self):
+        self.drone._o_stop_capture(self._get_o_port_id_list())
+
+    def clear_stats(self):
+        self.drone._o_clear_stats(self._get_o_port_id_list())
+
+    def get_stats(self):
+        o_stats = self.drone._o_port_stats_list(self._get_o_port_id_list())
+        o_stats = o_stats.port_stats[0]
+        return {
+            'rx_bps': o_stats.rx_bps,
+            'rx_bytes': o_stats.rx_bytes,
+            'rx_bytes_nic': o_stats.rx_bytes_nic,
+            'rx_drops': o_stats.rx_drops,
+            'rx_errors': o_stats.rx_errors,
+            'rx_fifo_errors': o_stats.rx_fifo_errors,
+            'rx_frame_errors': o_stats.rx_frame_errors,
+            'rx_pkts': o_stats.rx_pkts,
+            'rx_pkts_nic': o_stats.rx_pkts_nic,
+            'rx_pps': o_stats.rx_pps,
+            'tx_bps': o_stats.tx_bps,
+            'tx_bytes': o_stats.tx_bytes,
+            'tx_bytes_nic': o_stats.tx_bytes_nic,
+            'tx_pkts': o_stats.tx_pkts,
+            'tx_pkts_nic': o_stats.tx_pkts_nic,
+            'tx_pps': o_stats.tx_pps,
+        }
+
+    def get_capture(self, save_path=None):
+        o_port_id = self._fetch().port[0].port_id
+        o_buff = self.drone._o_get_capture_buffer(o_port_id)
+        if save_path:
+            self.save_path(o_buff, save_path)
+        return o_buff
+
+    def save_capture(self, o_capture_buffer, path):
+        self.drone._o_save_capture_buffer(o_capture_buffer, path)
+
+    def _get_o_port_id_list(self):
         o_port_ids = ost_pb.PortIdList()
         o_port_ids.port_id.add().id = self.port_id
-        self.drone._o_stop_capture(o_port_ids)
+        return o_port_ids
 
     def __str__(self):
         string = '{} (id={}, enabled={})'

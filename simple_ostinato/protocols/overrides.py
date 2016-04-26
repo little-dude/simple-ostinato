@@ -235,6 +235,22 @@ class IPv4(autogenerates._IPv4):
         self._source._mask = ext.src_ip_mask
 
     @property
+    def _header_length(self):
+        return self._ver_hdrlen
+
+    @property
+    def _version(self):
+        return self._ver_hdrlen
+
+    @_header_length.setter
+    def _header_length(self, value):
+        self._ver_hdrlen = value
+
+    @_version.setter
+    def _version(self, value):
+        self._ver_hdrlen = value
+
+    @property
     def version(self):
         return (self._ver_hdrlen & 0xf0) >> 4
 
