@@ -8,7 +8,7 @@ from .. import utils
 
 class MacAddress(object):
 
-    class Mode(utils.Enum):
+    class _Mode(utils.Enum):
         INCREMENT = mac_pb2.Mac.e_mm_dec
         FIXED = mac_pb2.Mac.e_mm_fixed
         DECREMENT = mac_pb2.Mac.e_mm_inc
@@ -50,16 +50,17 @@ class MacAddress(object):
 
     @property
     def mode(self):
-        return self.Mode.get_key(self._mode)
+        return self._Mode.get_key(self._mode)
 
     @mode.setter
     def mode(self, value):
-        self._mode = self.Mode.get_value(value)
+        self._mode = self._Mode.get_value(value)
 
 
 class Mac(autogenerates._Mac):
 
     __metaclass__ = baseclass.make_protocol_class
+
     @property
     def source(self):
         return self._source
@@ -117,7 +118,7 @@ class Mac(autogenerates._Mac):
 
 class IPv4Address(object):
 
-    class Mode(utils.Enum):
+    class _Mode(utils.Enum):
         DECREMENT = ip4_pb2.Ip4.e_im_dec_host
         FIXED = ip4_pb2.Ip4.e_im_fixed
         INCREMENT = ip4_pb2.Ip4.e_im_inc_host
@@ -168,14 +169,16 @@ class IPv4Address(object):
 
     @property
     def mode(self):
-        return self.Mode.get_key(self._mode)
+        return self._Mode.get_key(self._mode)
 
     @mode.setter
     def mode(self, value):
-        self._mode = self.Mode.get_value(value)
+        self._mode = self._Mode.get_value(value)
 
 
 class IPv4(autogenerates._IPv4):
+
+    __metaclass__ = baseclass.make_protocol_class
 
     @property
     def source(self):
@@ -251,7 +254,9 @@ class IPv4(autogenerates._IPv4):
 
 class Payload(autogenerates._Payload):
 
-    class Mode(utils.Enum):
+    __metaclass__ = baseclass.make_protocol_class
+
+    class _Mode(utils.Enum):
         DECREMENT_BYTE = payload_pb2.Payload.e_dp_dec_byte
         FIXED_WORD = payload_pb2.Payload.e_dp_fixed_word
         INCREMENT_BYTE = payload_pb2.Payload.e_dp_inc_byte
@@ -259,11 +264,13 @@ class Payload(autogenerates._Payload):
 
     @property
     def mode(self):
-        return self.Mode.get_key(self._mode)
+        return self._Mode.get_key(self._mode)
 
     @mode.setter
     def mode(self, value):
-        self._mode = self.Mode.get_value(value)
+        self._mode = self._Mode.get_value(value)
+
 
 class Ethernet(autogenerates._Ethernet):
-    pass
+
+    __metaclass__ = baseclass.make_protocol_class

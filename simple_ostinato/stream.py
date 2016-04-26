@@ -1,3 +1,6 @@
+"""
+This module provide a class to manipulate streams.
+"""
 from ostinato.protocols.protocol_pb2 import StreamControl
 from ostinato.core import ost_pb
 import weakref
@@ -6,19 +9,19 @@ from . import protocols
 from . import constants
 
 
-class SendMode(utils.Enum):
+class _SendMode(utils.Enum):
 
     FIXED = StreamControl.SendMode.Value('e_sm_fixed')
     CONTINUOUS = StreamControl.SendMode.Value('e_sm_continuous')
 
 
-class SendUnit(utils.Enum):
+class _SendUnit(utils.Enum):
 
     PACKETS = StreamControl.SendUnit.Value('e_su_packets')
     BURSTS = StreamControl.SendUnit.Value('e_su_bursts')
 
 
-class SendNext(utils.Enum):
+class _SendNext(utils.Enum):
 
     STOP = StreamControl.NextWhat.Value('e_nw_stop')
     GOTO_NEXT = StreamControl.NextWhat.Value('e_nw_goto_next')
@@ -27,13 +30,29 @@ class SendNext(utils.Enum):
 
 class Stream(object):
 
+    """
+    Represent a stream configured on a port. Besides all the stream
+    configuration parameters, a stream class has `layers` which define the
+    packets to be sent.
+
+    Args:
+
+        port (simple_ostinato.port.Port): the port instance on which the stream
+            is defined.
+        stream_id (int): the stream ID.
+    """
+
     def __init__(self, port, stream_id):
         self.port = port
+        self.layers = []
         self.stream_id = stream_id
         self.fetch()
 
     @property
     def port(self):
+        """
+        Reference to the port on which this stream is configured.
+        """
         if not hasattr(self, '_port'):
             return None
         return self._port()
@@ -44,11 +63,28 @@ class Stream(object):
 
     @property
     def drone(self):
+        """
+        Reference to the ``simple_ostinato.drone.Drone`` instance. This is
+        mostly for internal use.
+        """
         return self.port.drone
 
     @drone.setter
     def drone(self, value):
         raise ValueError('Read-only attribute')
+
+    @property
+    def layers(self):
+        """
+        Dictionnary of all the layers configured for this stream. For now,
+        layers cannot be removed. To remove layers, the entire stream must be
+        deleted and another one re-created.
+        """
+        return self._layers
+
+    @layers.setter
+    def layers(self, value):
+        self._layers = value
 
     def _fetch_layers(self, o_stream):
         o_protocols = o_stream.protocol
@@ -63,7 +99,7 @@ class Stream(object):
             if protocol_name in self.layers:
                 err = '{} found twice in {} protocols'
                 raise Exception(err.format(protocol_name, self))
-            self.layers[protocol_name] = protocol_factory(o_protocol)
+            self.layers[protocol_name] = _protocol_factory(o_protocol)
 
     def _save_layers(self, o_stream):
         o_protocols = o_stream.protocol
@@ -81,9 +117,23 @@ class Stream(object):
                 layer._save(o_protocol)
 
     def add_layer(self, layer):
+        """
+        Add a layer to the stream. Note that it is added to the remote drone
+        instance only after calling ``self.save()``.
+
+        There is not equivalent ``self.del_layer``, so the whole stream must be
+        deleted and recreated to remove a layer.
+
+        Args:
+
+            layer (simple_ostinato.protocols.Protocol): the layer to add.
+        """
         self.layers[layer.__class__.__name__] = layer
 
     def save(self):
+        """
+        Save the current stream configuration (including the protocols).
+        """
         o_streams = self._fetch()
         o_stream = o_streams.stream[0]
         o_stream.core.is_enabled = self.is_enabled
@@ -100,6 +150,10 @@ class Stream(object):
         self.drone._o_modify_stream(o_streams)
 
     def fetch(self):
+        """
+        Fetch the stream configuration on the remote drone instance (including
+        all the layers).
+        """
         o_stream = self._fetch().stream[0]
         self.name = o_stream.core.name
         self.is_enabled = o_stream.core.is_enabled
@@ -123,6 +177,9 @@ class Stream(object):
 
     @property
     def name(self):
+        """
+        Name of the stream (optional)
+        """
         if not hasattr(self, '_name'):
             return ''
         return self._name
@@ -132,13 +189,24 @@ class Stream(object):
         self._name = value
 
     def enable(self):
+        """
+        Enable the stream. It is equivalent to setting ``self.is_enabled`` to
+        ``True``.
+        """
         self._is_enabled = True
 
     def disable(self):
+        """
+        Disable the stream. It is equivalent to setting ``self.is_enabled`` to
+        ``False``.
+        """
         self._is_enabled = False
 
     @property
     def is_enabled(self):
+        """
+        Return ``True`` if the stream is enabled, ``False`` otherwise. By default, streams are not enabled.
+        """
         return self._is_enabled
 
     @is_enabled.setter
@@ -149,22 +217,41 @@ class Stream(object):
 
     @property
     def unit(self):
-        return SendUnit.get_key(self._unit)
+        """
+        Unit to send. It must be either `"PACKETS"` (the default) or `BURSTS`.
+        """
+        return _SendUnit.get_key(self._unit)
 
     @unit.setter
     def unit(self, unit):
-        self._unit = SendUnit.get_value(unit)
+        self._unit = _SendUnit.get_value(unit)
 
     @property
     def mode(self):
-        return SendMode.get_key(self._mode)
+        """
+        Sending mode. It must be either `"FIXED"` (the default) or
+        `"CONTINUOUS"`.
+
+        If set to `"FIXED"`, a fixed number of packets or bursts is sent. If
+        ``self.unit`` is set to `"PACKETS"`, then ``self.num_packets`` packets
+        are sent. If it is set to ``"BURSTS"`` then ``self.num_bursts`` bursts
+        are sent.
+
+        If set to `"CONTINUOUS"`, packets or bursts are sent continuously until
+        the port stop transmitting.
+        """
+        return _SendMode.get_key(self._mode)
 
     @mode.setter
     def mode(self, mode):
-        self._mode = SendMode.get_value(mode)
+        self._mode = _SendMode.get_value(mode)
 
     @property
     def num_packets(self):
+        """
+        Number of packets to send. This is ignored if ``self.mode`` is set to
+        `"CONTINUOUS"` or if ``self.unit`` is set to `"BURSTS"`.
+        """
         return self._num_packets
 
     @num_packets.setter
@@ -173,6 +260,10 @@ class Stream(object):
 
     @property
     def num_bursts(self):
+        """
+        Number of bursts to send. This is ignored if ``self.mode`` is set to
+        `"CONTINUOUS"` or if ``self.unit`` is set to `"PACKETS"`.
+        """
         return self._num_bursts
 
     @num_bursts.setter
@@ -181,6 +272,10 @@ class Stream(object):
 
     @property
     def packets_per_burst(self):
+        """
+        Number of packets per burst. This is ignored if ``self.mode`` is set to
+        `"CONTINUOUS"` or if ``self.unit`` is set to `"PACKETS"`
+        """
         return self._packets_per_burst
 
     @packets_per_burst.setter
@@ -189,14 +284,25 @@ class Stream(object):
 
     @property
     def next(self):
-        return SendNext.get_key(self._next)
+        """
+        What to do after the current stream finishes. It is ignored if
+        ``self.mode`` is set to `"CONTINUOUS"`.
+
+        - `"STOP"`: stop after this stream
+        - `"GOTO_NEXT"`: send the next enabled stream
+        - `"GOTO_ID"`: send a stream with a given ID.
+        """
+        return _SendNext.get_key(self._next)
 
     @next.setter
     def next(self, value):
-        self._next = SendNext.get_value(value)
+        self._next = _SendNext.get_value(value)
 
     @property
     def bursts_per_sec(self):
+        """
+        Number of bursts to send per second.
+        """
         return self._bursts_per_sec
 
     @bursts_per_sec.setter
@@ -205,6 +311,9 @@ class Stream(object):
 
     @property
     def packets_per_sec(self):
+        """
+        Number of bursts to send per second.
+        """
         return self._packets_per_sec
 
     @packets_per_sec.setter
@@ -219,7 +328,7 @@ class Stream(object):
         return 'Stream (id={}, name={})'.format(self.stream_id, name)
 
 
-def protocol_factory(o_protocol):
+def _protocol_factory(o_protocol):
     proto_cls_mapping = {
         constants._Protocols.MAC: protocols.Mac,
         constants._Protocols.ETHERNET_II: protocols.Ethernet,

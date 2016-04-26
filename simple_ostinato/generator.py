@@ -1,5 +1,4 @@
 import os
-import textwrap
 from jinja2 import Environment, PackageLoader
 from . import constants
 
@@ -15,14 +14,14 @@ class _Generator(object):
             self.mask = mask
             self.ext_name = ext_name
             if computed is True:
-                doc = '{}\nBy default, this attribute is computed automatically.'.format(doc)
-            self.doc = textwrap.wrap(doc, 79)
+                doc = '{}. By default, this attribute is computed automatically.'.format(doc)
+            self.doc = doc
 
     def __init__(self, attributes, class_name=None, protocol_id=None, extension=None, doc=None):
         self.class_name = class_name
         self.protocol_id = protocol_id
         self.extension = extension
-        self.doc = textwrap.wrap(doc, 79)
+        self.doc = doc
         self.attributes = []
         for attribute_name, attribute in attributes.iteritems():
             self.attributes.append(self.Attribute(attribute_name, *attribute))
@@ -84,7 +83,7 @@ def generate_classes():
     data = []
     for protocol in protocols:
         data.append(_Generator(**protocol))
-    env = Environment(loader=PackageLoader('ostinato_client', 'templates'))
+    env = Environment(loader=PackageLoader('simple_ostinato', 'templates'))
     template = env.get_template('protocols.tpl')
     pkg_dir = os.path.dirname(os.path.realpath(__file__))
     target = os.path.join(pkg_dir, 'protocols', 'autogenerates.py')

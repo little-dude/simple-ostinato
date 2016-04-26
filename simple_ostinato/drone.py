@@ -1,6 +1,7 @@
 """
 The module defines the ``Drone`` class, which is a wrapper for all the protocol
-buffer methods. It is usually the object to create when using ``ostinato-simple``:
+buffer methods. It is usually the object to create when using
+``ostinato-simple``:
 
 .. code-block:: python
 
@@ -51,9 +52,15 @@ class Drone(object):
         self._drone.connect()
 
     def disconnect(self):
+        """
+        Disconnect from the remote drone instance.
+        """
         self._drone.disconnect()
 
     def reconnect(self):
+        """
+        Reconnect to the remote drone instance.
+        """
         self._drone.disconnect()
         self._drone.connect()
 
@@ -72,11 +79,21 @@ class Drone(object):
                 port.fetch()
 
     def get_port(self, port_id):
+        """
+        Get a port from ``self.ports`` by ID.
+        """
         for port in self.ports:
             if port.port_id == port_id:
                 return port
 
     def get_port_by_name(self, name):
+        """
+        Get ports from ``self.ports`` by name.
+
+        By default it returns the list of all the ports with this name. In
+        practice, I think names are unique, so this method may change an just
+        return a port.
+        """
         ports = []
         for port in self.ports:
             if port.name == name:

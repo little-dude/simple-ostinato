@@ -14,7 +14,7 @@ class _{{class.class_name}}(baseclass.Protocol):
     {{ class.doc }}
     """
 
-    protocol_id = {{ class.protocol_id}}
+    _protocol_id = {{ class.protocol_id}}
     _extension = {{ class.extension }}
 
     def __init__(self{% for attribute in class.attributes %}, {{ attribute.name}}={% if attribute.default_value is string %}'{% endif %}{{attribute.default_value}}{% if attribute.default_value is string %}'{% endif %}{% endfor %}, **kwargs):

@@ -3,20 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to simple-ostinato's documentation!
-===========================================
+Table of content
+================
 
-Contents:
+.. toctree:: :maxdepth: 3
+    :caption: API
 
-.. toctree::
-   :maxdepth: 2
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+    simple_ostinato
+    simple_ostinato.protocols

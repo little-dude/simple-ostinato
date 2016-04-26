@@ -11,10 +11,10 @@ from .. import utils
 class _Mac(baseclass.Protocol):
 
     """
-    ['Represent the MAC layer. Since we make a distiction between the MAC layer and', 'the Ethernet layer, this layer defines the source and destination MAC', 'addresses.']
+    Represent the MAC layer. Since we make a distiction between the MAC layer and the Ethernet layer, this layer defines the source and destination MAC addresses.
     """
 
-    protocol_id = 100
+    _protocol_id = 100
     _extension = mac_pb2.mac
 
     def __init__(self, source='FF:FF:FF:FF:FF:FF', destination='00:00:00:00:00:00', **kwargs):
@@ -23,7 +23,7 @@ class _Mac(baseclass.Protocol):
     @property
     def source(self):
         """
-        ['Source MAC address']
+        Source MAC address
         """
         return utils.to_str(self._source)
 
@@ -40,7 +40,7 @@ class _Mac(baseclass.Protocol):
     @property
     def destination(self):
         """
-        ['Destination MAC address']
+        Destination MAC address
         """
         return utils.to_str(self._destination)
 
@@ -58,10 +58,10 @@ class _Mac(baseclass.Protocol):
 class _Ethernet(baseclass.Protocol):
 
     """
-    ['Represent the ethernet layer. Since we make a distinction between the MAC layer', 'and the Ethernet layer, this layer only defines the ethernet type']
+    Represent the ethernet layer. Since we make a distinction between the MAC layer and the Ethernet layer, this layer only defines the ethernet type
     """
 
-    protocol_id = 200
+    _protocol_id = 200
     _extension = eth2_pb2.eth2
 
     def __init__(self, ether_type='0x0800', **kwargs):
@@ -70,7 +70,7 @@ class _Ethernet(baseclass.Protocol):
     @property
     def ether_type(self):
         """
-        ['Ethernet type field. 0x800 is for IPv4 inner packets.']
+        Ethernet type field. 0x800 is for IPv4 inner packets.
         """
         return utils.to_str(self._ether_type)
 
@@ -88,10 +88,10 @@ class _Ethernet(baseclass.Protocol):
 class _IPv4(baseclass.Protocol):
 
     """
-    ['Represent the IPv4 layer.']
+    Represent the IPv4 layer.
     """
 
-    protocol_id = 301
+    _protocol_id = 301
     _extension = ip4_pb2.ip4
 
     def __init__(self, protocol=0, flags=0, dscp=0, ttl=127, header_length=5, fragments_offset=0, tos=0, destination='127.0.0.1', source='127.0.0.1', version=4, identification=0, checksum=0, total_length=0, **kwargs):
@@ -100,7 +100,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def protocol(self):
         """
-        ['Indicates the protocol that is encapsulated in the IP packet.']
+        Indicates the protocol that is encapsulated in the IP packet.
         """
         return utils.to_str(self._protocol)
 
@@ -117,7 +117,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def flags(self):
         """
-        ["A three bits field: bit 0 is reserved, bit 1 is the Don't Fragment (DF) flag,", 'and bit 2 is the More Fragments (MF) flags']
+        A three bits field: bit 0 is reserved, bit 1 is the Don't Fragment (DF) flag, and bit 2 is the More Fragments (MF) flags
         """
         return utils.to_str(self._flags)
 
@@ -134,7 +134,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def dscp(self):
         """
-        ['Differentiated Services Code Point (DSCP) field (previously known as Type Of', 'Service (TOS) field']
+        Differentiated Services Code Point (DSCP) field (previously known as Type Of Service (TOS) field
         """
         return utils.to_str(self._dscp)
 
@@ -151,7 +151,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def ttl(self):
         """
-        ['Time To Live (TTL) field.']
+        Time To Live (TTL) field.
         """
         return utils.to_str(self._ttl)
 
@@ -168,7 +168,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def header_length(self):
         """
-        ['Internet Header Length (IHL): number of 4 bytes words in the header. The', 'minimum valid value is 5, and maximum valid value is 15. By default, this', 'attribute is computed automatically.']
+        Internet Header Length (IHL): number of 4 bytes words in the header. The minimum valid value is 5, and maximum valid value is 15.. By default, this attribute is computed automatically.
         """
         return utils.to_str(self._header_length)
 
@@ -185,7 +185,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def fragments_offset(self):
         """
-        ['The Fragment Offset field indicates the offset of a packet fragment in the', 'original IP packet']
+        The Fragment Offset field indicates the offset of a packet fragment in the original IP packet
         """
         return utils.to_str(self._fragments_offset)
 
@@ -202,7 +202,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def tos(self):
         """
-        ['Type Of Service (TOS) field. This field is now the Differentiated Services Code', 'Point (DSCP) field.']
+        Type Of Service (TOS) field. This field is now the Differentiated Services Code Point (DSCP) field.
         """
         return utils.to_str(self._tos)
 
@@ -219,7 +219,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def destination(self):
         """
-        ['Destination IP address']
+        Destination IP address
         """
         return utils.to_str(self._destination)
 
@@ -236,7 +236,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def source(self):
         """
-        ['Source IP address']
+        Source IP address
         """
         return utils.to_str(self._source)
 
@@ -253,7 +253,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def version(self):
         """
-        ['Version of the protocol (usually 4 or 6)']
+        Version of the protocol (usually 4 or 6)
         """
         return utils.to_str(self._version)
 
@@ -270,7 +270,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def identification(self):
         """
-        ['Identification field. This is used to identify packet fragments']
+        Identification field. This is used to identify packet fragments
         """
         return utils.to_str(self._identification)
 
@@ -287,7 +287,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def checksum(self):
         """
-        ['Header checksum By default, this attribute is computed automatically.']
+        Header checksum. By default, this attribute is computed automatically.
         """
         return utils.to_str(self._checksum)
 
@@ -304,7 +304,7 @@ class _IPv4(baseclass.Protocol):
     @property
     def total_length(self):
         """
-        ['Total length of the IP packet in bytes. The minimum valid value is 20, and the', 'maxium is 65,535 By default, this attribute is computed automatically.']
+        Total length of the IP packet in bytes. The minimum valid value is 20, and the maxium is 65,535. By default, this attribute is computed automatically.
         """
         return utils.to_str(self._total_length)
 
@@ -322,10 +322,10 @@ class _IPv4(baseclass.Protocol):
 class _Payload(baseclass.Protocol):
 
     """
-    ['Represent the payload. This layer can be encapsulated in any other layer']
+    Represent the payload. This layer can be encapsulated in any other layer
     """
 
-    protocol_id = 101
+    _protocol_id = 101
     _extension = payload_pb2.payload
 
     def __init__(self, pattern='00 00 00 00', mode='FIXED_WORD', **kwargs):
@@ -334,7 +334,7 @@ class _Payload(baseclass.Protocol):
     @property
     def pattern(self):
         """
-        ['Payload initial word. Depending on the chosen mode, this word will be repeated', 'unchanged, incremented/decremented, or randomized']
+        Payload initial word. Depending on the chosen mode, this word will be repeated unchanged, incremented/decremented, or randomized
         """
         return utils.to_str(self._pattern)
 
@@ -351,7 +351,7 @@ class _Payload(baseclass.Protocol):
     @property
     def mode(self):
         """
-        ['Mode to generate the payload content']
+        Mode to generate the payload content
         """
         return utils.to_str(self._mode)
 
