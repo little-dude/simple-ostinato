@@ -1,6 +1,5 @@
 from simple_ostinato import Drone, Port
 from nose2.compat import unittest
-import copy
 import socket
 from . import utils
 
@@ -74,9 +73,8 @@ class StreamCRUD(unittest.TestCase):
         self.port.streams = []
         self.port.fetch_streams()
         assert len(self.port.streams) == 100
-        streams = copy.deepcopy(self.port.streams)
-        for stream in streams:
-            self.port.del_stream(stream.stream_id)
+        while self.port.streams:
+            self.port.del_stream(self.port.streams[-1].stream_id)
         assert len(self.port.streams) == 0
         self.port.streams = []
         self.port.fetch_streams()
