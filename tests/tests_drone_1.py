@@ -4,17 +4,20 @@ import socket
 from . import utils
 
 
-def setUpModule():
-    # utils.create_ports()
-    utils.start_drone()
+class BaseLayer(object):
 
+    @classmethod
+    def setUp(cls):
+        utils.start_drone()
 
-def tearDownModule():
-    utils.kill_drone()
-    # utils.delete_ports()
+    @classmethod
+    def tearDown(cls):
+        utils.kill_drone()
 
 
 class TestDroneConnect(unittest.TestCase):
+
+    layer = BaseLayer
 
     def test_instantiate_and_connect(self):
         Drone('localhost')
@@ -33,6 +36,8 @@ class TestDroneConnect(unittest.TestCase):
 
 
 class TestPortFetchAndUpdate(unittest.TestCase):
+
+    layer = BaseLayer
 
     @classmethod
     def setUp(cls):
@@ -57,6 +62,8 @@ class TestPortFetchAndUpdate(unittest.TestCase):
 
 
 class StreamCRUD(unittest.TestCase):
+
+    layer = BaseLayer
 
     @classmethod
     def setUp(cls):

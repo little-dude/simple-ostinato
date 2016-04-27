@@ -42,7 +42,7 @@ def start_drone():
     LOG.info('starting drone')
     with open(os.devnull, 'w') as devnull:
         DRONE = subprocess.Popen('drone', stdout=devnull, stderr=devnull)
-        LOG.info('drone start with pid {}'.format(DRONE.pid))
+        LOG.info('drone started with pid {}'.format(DRONE.pid))
     time.sleep(7)
 
 
@@ -51,6 +51,7 @@ def kill_drone():
     DRONE.terminate()
     try:
         DRONE.wait(timeout=10)
+        LOG.info('drone exited gracefully')
     except subprocess.TimeoutExpired:
         LOG.info('could not terminate drone properly, kill it.')
         DRONE.kill()

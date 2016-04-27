@@ -9,7 +9,6 @@ class BaseLayer(object):
 
     @classmethod
     def setUp(cls):
-        # utils.create_ports()
         utils.start_drone()
         cls.drone = Drone('localhost')
         cls.drone.fetch_ports()
@@ -20,11 +19,7 @@ class BaseLayer(object):
 
     @classmethod
     def tearDown(cls):
-        try:
-            utils.kill_drone()
-        except:
-            pass
-        # utils.delete_ports()
+        utils.kill_drone()
 
 
 class SimpleStreams(unittest.TestCase):
@@ -34,11 +29,6 @@ class SimpleStreams(unittest.TestCase):
     def test_send_and_capture(self):
         port_tx = self.layer.p0
         port_rx = self.layer.p1
-
-        # before creating the stream, ensure the transmit mode is not
-        # INTERLEAVE:
-        port_tx.fetch()
-        assert port_tx.transmit_mode == 'SEQUENTIAL'
 
         stream = port_tx.add_stream(
             Mac(source='00:11:22:aa:bb:cc', destination='00:01:02:03:04:05'),
