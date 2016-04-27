@@ -8,6 +8,10 @@ from .. import utils
 
 class MacAddress(object):
 
+    """
+    Represent a MAC address
+    """
+
     class _Mode(utils.Enum):
         INCREMENT = mac_pb2.Mac.e_mm_dec
         FIXED = mac_pb2.Mac.e_mm_fixed
@@ -20,6 +24,13 @@ class MacAddress(object):
         self.step = step
 
     def from_dict(self, values):
+        """
+        Get the MAC address configuration from a dictionary.
+
+        >>> mymac = MacAddress()
+        >>> mymac.from_dict({'address': '00:11:22:33:44:55', 'mode': \
+'INCREMENT', 'count': 255, 'step': 1})
+        """
         if 'address' in values:
             self.address = values['address']
         if 'mode' in values:
@@ -30,6 +41,9 @@ class MacAddress(object):
             self.step = values['step']
 
     def to_dict(self):
+        """
+        Return the MAC address configuration as a dictionary
+        """
         return {
             'address': self.address,
             'mode': self.mode,
@@ -42,6 +56,11 @@ class MacAddress(object):
 
     @property
     def address(self):
+        """
+        The MAC address value. If :attr:`mode` is set to ``INCREMENT``,
+        ``DECREMENT`` or ``RANDOM``, it is the address of the inital frame, the
+        next being calculated from this one.
+        """
         return str(netaddr.EUI(self._address))
 
     @address.setter
@@ -50,6 +69,19 @@ class MacAddress(object):
 
     @property
     def mode(self):
+        """
+        If there are several frames in the stream, the mode determine how the
+        MAC address of the frames are calculated.
+
+        - ``FIXED``: all the frames will have the MAC address :attr:`address`
+        - ``INCREMENT``: the MAC addresses are incremented by :attr:`step` \
+            for each frame, starting from :attr:`address`. After the \
+            :attr:`count` th frame, it restarts from :attr:`address`.
+        - ``DECREMENT``: the MAC addresses are decremented by :attr:`step` \
+            for each frame, starting from :attr:`address`. After the \
+            :attr:`count` th frame, it restarts from :attr:`address`.
+        - ``RANDOM``: the MAC addresses are random
+        """
         return self._Mode.get_key(self._mode)
 
     @mode.setter
@@ -63,6 +95,9 @@ class Mac(autogenerates._Mac):
 
     @property
     def source(self):
+        """
+        Source MAC address. It works exactly as :attr:`destination`.
+        """
         return self._source
 
     @source.setter
@@ -78,6 +113,38 @@ class Mac(autogenerates._Mac):
 
     @property
     def destination(self):
+        """
+        Destination MAC address. Under the hood, it is a :class:`MacAddress`:
+
+            >>> mac = Mac()
+            >>> dst = MacAddress()
+            >>> dst.address = '00:00:00:aa:bb:cc'
+            >>> dst.mode = 'INCREMENT'
+            >>> dst.count = 255
+            >>> dst.step = 8
+            >>> mac.destination = dst
+
+        However, for simple cases, it's cumbersome, so it also accepts a string
+        or an in representing the MAC address value as input. Internally, a
+        :class:`MacAddress` object is created. Here is an equivalent version of
+        the above example:
+
+            >>> mac = Mac()
+            >>> mac.destination = '00:00:00:aa:bb:cc'
+            >>> mac.destination.mode = 'INCREMENT'
+            >>> mac.destination.count = 255
+            >>> mac.destination.step = 8
+
+        Note the the MacAddress object is not returned when accessing this
+        attribute. Only a string representation of the MAC address value:
+
+            >>> isinstance(mac.destination, MacAddress)
+            False
+            >>> isinstance(mac.destination, str)
+            True
+            >>> print mac.destination
+            00:00:00:aa:bb:cc
+        """
         return self._destination
 
     @destination.setter
@@ -118,6 +185,10 @@ class Mac(autogenerates._Mac):
 
 class IPv4Address(object):
 
+    """
+    Represent an IPv4 address.
+    """
+
     class _Mode(utils.Enum):
         DECREMENT = ip4_pb2.Ip4.e_im_dec_host
         FIXED = ip4_pb2.Ip4.e_im_fixed
@@ -131,6 +202,13 @@ class IPv4Address(object):
         self.mask = mask
 
     def from_dict(self, values):
+        """
+        Configure the IP address from a dictionary.
+
+            >>> ip = IPv4Address()
+            >>> ip.from_dict({'address': '1.0.0.1', 'mode': 'RANDOM', 'count': \
+'10', 'mask': '255.0.225.255'})
+        """
         if 'address' in values:
             self.address = values['address']
         if 'mode' in values:
@@ -141,6 +219,9 @@ class IPv4Address(object):
             self.mask = values['mask']
 
     def to_dict(self):
+        """
+        Return the IP address configuration as a dictionary
+        """
         return {
             'address': self.address,
             'mode': self.mode,
@@ -153,6 +234,10 @@ class IPv4Address(object):
 
     @property
     def mask(self):
+        """
+        Control which bytes are affected when :attr:`mode` is not set to
+        ``FIXED``.
+        """
         return str(netaddr.IPAddress(self._mask))
 
     @mask.setter
@@ -161,6 +246,11 @@ class IPv4Address(object):
 
     @property
     def address(self):
+        """
+        Actual value of the IPv4 address. If :attr:`mode` is one of
+        ``INCREMENT``, ``DECREMENT`` or ``RANDOM``, it is the address of the
+        initial packet, the next being calculated from this one.
+        """
         return str(netaddr.IPAddress(self._address))
 
     @address.setter
@@ -169,6 +259,21 @@ class IPv4Address(object):
 
     @property
     def mode(self):
+        """
+        If there are several packets in the stream, the mode determines how the
+        IPv4 address of the packets are calculated.
+
+        - ``FIXED``: all the packets will have the IPv4 address :attr:`address`
+        - ``INCREMENT``: the IPv4 addresses are incremented by :attr:`step` \
+            for each frame, starting from :attr:`address`. After the \
+            :attr:`count` th pakcet, it restarts from :attr:`address`. \
+            :attr:`mask` controls which bytes are incremented.
+        - ``DECREMENT``: the IPv4 addresses are decremented by :attr:`step` \
+            for each packet, starting from :attr:`address`. After the \
+            :attr:`count` th packet, it restarts from :attr:`address`. \
+            :attr:`mask` controls which bytes are incremented.
+        - ``RANDOM``: bytes specified by :attr:`mask` are random
+        """
         return self._Mode.get_key(self._mode)
 
     @mode.setter
@@ -182,6 +287,9 @@ class IPv4(autogenerates._IPv4):
 
     @property
     def source(self):
+        """
+        Source IPv4 address. See :attr:`destination`.
+        """
         return self._source
 
     @source.setter
@@ -197,6 +305,38 @@ class IPv4(autogenerates._IPv4):
 
     @property
     def destination(self):
+        """
+        IPv4 destination address. Under the hood, it is a :class:`IPv4Address`:
+
+            >>> pkt = IPv4()
+            >>> dst = IPv4Address()
+            >>> dst.address = '1.2.3.4'
+            >>> dst.mode = 'INCREMENT'
+            >>> dst.mask = '255.0.255.255'
+            >>> dst.count = 50
+            >>> pkt.destination = dst
+
+        However, for simple cases, it's cumbersome, so it also accepts a string
+        or an in representing the IPv4 address value as input. Internally, a
+        :class:`IPAddress` object is created. Here is an equivalent version of
+        the above example:
+
+            >>> pkt = IPv4()
+            >>> pkt.destination = '1.2.3.4'
+            >>> pkt.destination.mode = 'INCREMENT'
+            >>> pkt.destination.count = 50
+            >>> pkt.destination.mask = '255.0.255.255'
+
+        Note the the :class:`Ipv4Address` object is not returned when accessing
+        this attribute. Only a string representation of the IP address value:
+
+            >>> isinstance(pkt.destination, IPv4Address)
+            False
+            >>> isinstance(pkt.destination, str)
+            True
+            >>> print pkt.destination
+            '1.2.3.4'
+        """
         return self._destination
 
     @destination.setter
@@ -252,6 +392,9 @@ class IPv4(autogenerates._IPv4):
 
     @property
     def version(self):
+        """
+        Version of the IP protocol. For IPv4, it is  normally set to ``4``.
+        """
         return (self._ver_hdrlen & 0xf0) >> 4
 
     @version.setter
@@ -261,6 +404,9 @@ class IPv4(autogenerates._IPv4):
 
     @property
     def header_length(self):
+        """
+        Header length, in words of 5 bytes.
+        """
         return self._ver_hdrlen & 0x0f
 
     @header_length.setter

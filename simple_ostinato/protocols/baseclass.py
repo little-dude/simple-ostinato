@@ -51,6 +51,9 @@ class Protocol(object):
         return properties
 
     def to_dict(self):
+        """
+        Return the object configuration as a dictionnary.
+        """
         ret = {}
         for attribute in self._get_properties():
             value = getattr(self, attribute)
@@ -63,6 +66,11 @@ class Protocol(object):
         return ret
 
     def from_dict(self, dict_):
+        """
+        Set the object configuration from a dictionary. Keys must be the same
+        as the attributes names, and values but by valid values for these
+        attributes.
+        """
         for attribute, value in dict_.items():
             if attribute not in self._get_properties():
                 raise ValueError('{} not found'.format(attribute))

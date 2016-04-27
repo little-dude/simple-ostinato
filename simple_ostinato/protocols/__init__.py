@@ -1,3 +1,3 @@
-from .overrides import Mac, IPv4, Payload, Ethernet
+from .overrides import MacAddress, Mac, Ethernet, IPv4Address, IPv4, Payload
 
-__all__ = ['Mac', 'Ethernet', 'IPv4', 'Payload']
+__all__ = ['MacAddress', 'Mac', 'Ethernet', 'IPv4Address', 'IPv4', 'Payload']
