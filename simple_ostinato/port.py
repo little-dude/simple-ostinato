@@ -32,6 +32,7 @@ class Port(object):
         self.drone = drone
         self.port_id = port_id
         self.streams = []
+        self.log = self.drone.log.getChild('port[{}]'.format(port_id))
         self.fetch()
 
     @property
@@ -83,6 +84,7 @@ class Port(object):
         """
         Save the current port configuration on the remote drone instance.
         """
+        self.log.info('saving configuration')
         o_ports = self._fetch()
         o_port = o_ports.port[0]
         o_port.name = self.name
@@ -97,6 +99,7 @@ class Port(object):
         """
         Fetch the current port configuration from the remote drone instance.
         """
+        self.log.info('fetching configuration')
         o_port = self._fetch().port[0]
         self.name = o_port.name
         self.description = o_port.description
@@ -120,6 +123,7 @@ class Port(object):
         Fetch the streams configured on this port, from the remote drone
         instance. The streams are stored in :attr:`streams`.
         """
+        self.log.info('fetching streams')
         o_streams = self._fetch_streams()
         for o_stream in o_streams.stream:
             stream_id = o_stream.stream_id.id
@@ -149,6 +153,9 @@ class Port(object):
 
     @name.setter
     def name(self, value):
+        if value and getattr(self, '_name', None) is None:
+            self.log.info('port name is "{}"'.format(value))
+            self.log.name = '{}.{}'.format(self.drone.log.name, value)
         self._name = str(value)
 
     @property
@@ -212,7 +219,7 @@ class Port(object):
             raise TypeError('Expected boolean')
         self._is_exclusive_control = value
 
-    class TransmitMode(utils.Enum):
+    class _TransmitMode(utils.Enum):
 
         SEQUENTIAL = ost_pb.kSequentialTransmit
         INTERLEAVED = ost_pb.kInterleavedTransmit
@@ -222,11 +229,11 @@ class Port(object):
         """
         Can be ``SEQUENTIAL`` or ``INTERLEAVED``.
         """
-        return self.TransmitMode.get_key(self._transmit_mode)
+        return self._TransmitMode.get_key(self._transmit_mode)
 
     @transmit_mode.setter
     def transmit_mode(self, value):
-        self._transmit_mode = self.TransmitMode.get_value(value)
+        self._transmit_mode = self._TransmitMode.get_value(value)
 
     @property
     def user_name(self):
@@ -274,6 +281,7 @@ class Port(object):
 
             stream_id (int): id of the stream to delete from the port.
         """
+        self.log.info('deleting stream with id {}'.format(stream_id))
         o_stream_ids = ost_pb.StreamIdList()
         o_stream_ids.port_id.id = self.port_id
         o_stream_ids.stream_id.add().id = stream_id
@@ -290,6 +298,7 @@ class Port(object):
                 is provided, the corresponding streams will be enabled, and \
                 the other disabled.
         """
+        self.log.info('start sending')
         if streams is None:
             streams = self.streams
         for stream in self.streams:
@@ -304,6 +313,7 @@ class Port(object):
         """
         Stop sending
         """
+        self.log.info('stop sending')
         self.drone._o_stop_transmit(self._get_o_port_id_list())
 
     def start_capture(self, block=-1, stop=False):
@@ -319,6 +329,7 @@ class Port(object):
             stop (bool): if True, and if ``block`` is a positive integer, the \
                 capture will be stopped after ``block`` seconds.
         """
+        self.log.info('start capturing')
         self.drone._o_start_capture(self._get_o_port_id_list())
         if block > 0:
             time.sleep(block)
@@ -329,18 +340,21 @@ class Port(object):
         """
         Stop the current capture
         """
+        self.log.info('stop capturing')
         self.drone._o_stop_capture(self._get_o_port_id_list())
 
     def clear_stats(self):
         """
         Clear the port statistics
         """
+        self.log.info('clearing statistics')
         self.drone._o_clear_stats(self._get_o_port_id_list())
 
     def get_stats(self):
         """
         Fetch the port statistics, and return them as a dictionary.
         """
+        self.log.info('fetching statistics')
         o_stats = self.drone._o_port_stats_list(self._get_o_port_id_list())
         o_stats = o_stats.port_stats[0]
         return {
@@ -379,6 +393,7 @@ class Port(object):
         return o_buff
 
     def save_capture(self, o_capture_buffer, path):
+        self.log.info('saving capture as {}'.format(path))
         self.drone._o_save_capture_buffer(o_capture_buffer, path)
 
     def _get_o_port_id_list(self):
@@ -387,5 +402,5 @@ class Port(object):
         return o_port_ids
 
     def __str__(self):
-        string = '{} (id={}, enabled={})'
-        return string.format(self.name, self.id, self.is_enabled)
+        name = getattr(self, 'name', '??')
+        return 'port[{}:{}]'.format(self.port_id, name)

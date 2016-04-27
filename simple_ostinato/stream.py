@@ -48,6 +48,7 @@ class Stream(object):
         self.port = port
         self.layers = []
         self.stream_id = stream_id
+        self.log = port.log.getChild(str(self))
         self.fetch()
         if clean_layers:
             self.del_layers(*self.layers.keys())
@@ -91,6 +92,7 @@ class Stream(object):
         self._layers = value
 
     def _fetch_layers(self, o_stream):
+        self.log.debug('fetching layers')
         o_protocols = o_stream.protocol
         empty_protocols = []
         self.layers = {}
@@ -157,6 +159,7 @@ class Stream(object):
         """
         Save the current stream configuration (including the protocols).
         """
+        self.log.info('saving current state')
         o_streams = self._fetch()
         o_stream = o_streams.stream[0]
         o_stream.core.is_enabled = self.is_enabled
@@ -177,6 +180,7 @@ class Stream(object):
         Fetch the stream configuration on the remote drone instance (including
         all the layers).
         """
+        self.log.info('fetching state')
         o_stream = self._fetch().stream[0]
         self.name = o_stream.core.name
         self.is_enabled = o_stream.core.is_enabled
@@ -189,6 +193,7 @@ class Stream(object):
         self.bursts_per_sec = o_stream.control.bursts_per_sec
         self.packets_per_sec = o_stream.control.packets_per_sec
         self._fetch_layers(o_stream)
+        self.log.debug('state after fetch: {}'.format(self.to_dict()))
 
     def _fetch(self):
         o_stream_ids = ost_pb.StreamIdList()
@@ -209,6 +214,12 @@ class Stream(object):
 
     @name.setter
     def name(self, value):
+        if value and getattr(self, '_name', None) is None:
+            self.log.info('stream name is "{}"'.format(value))
+            self.log.name = '{}.{}'.format(self.port.log.name, value)
+        elif value != self.name:
+            self.log.info('renaming stream to "{}"'.format(value))
+            self.log.name = '{}.{}'.format(self.port.log.name, value)
         self._name = value
 
     def enable(self):
@@ -347,10 +358,27 @@ class Stream(object):
 
     def __str__(self):
         if not self.name:
-            name = 'None'
-        else:
-            name = self.name
-        return 'Stream (id={}, name={})'.format(self.stream_id, name)
+            return 'stream[{}]'.format(self.stream_id)
+        return 'stream[{}:{}]'.format(self.stream_id, self.name)
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'is_enabled': self.is_enabled,
+            'unit': self.unit,
+            'mode': self.mode,
+            'num_bursts': self.num_bursts,
+            'num_packets': self.num_packets,
+            'packets_per_burst': self.packets_per_burst,
+            'next': self.next,
+            'bursts_per_sec': self.bursts_per_sec,
+            'packets_per_sec': self.packets_per_sec,
+            'layers': self.layers
+        }
+
+    def from_dict(self, dictionary):
+        for key, value in dictionary.iteritems():
+            setattr(self, key, value)
 
 
 def _protocol_factory(o_protocol):
