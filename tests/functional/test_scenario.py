@@ -35,6 +35,11 @@ class SimpleStreams(unittest.TestCase):
         port_tx = self.layer.p0
         port_rx = self.layer.p1
 
+        # before creating the stream, ensure the transmit mode is not
+        # INTERLEAVE:
+        port_tx.fetch()
+        assert port_tx.transmit_mode == 'SEQUENTIAL'
+
         stream = port_tx.add_stream(
             Mac(source='00:11:22:aa:bb:cc', destination='00:01:02:03:04:05'),
             Ethernet(),
