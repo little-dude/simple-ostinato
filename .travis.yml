@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 before_install:
 - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/pstavirs:/ostinato/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/ostinato.list"
-- wget http://download.opensuse.org/repositories/home:pstavirs:ostinato/xUbuntu_14.04/Release.key ; sudo apt-key add - < Release.key  
+- wget http://download.opensuse.org/repositories/home:pstavirs:ostinato/xUbuntu_14.04/Release.key ; sudo apt-key add - < Release.key
 - sudo apt-get -qq update
 - sudo apt-get install -y --force-yes ostinato
 language: python
@@ -16,4 +16,4 @@ script:
 - sudo ip link add vostinato0 type veth peer name vostinato1
 - sudo ip link set vostinato0 up
 - sudo ip link set vostinato1 up
-- sudo env PATH=$PATH VIRTUAL_ENV=$VIRTUAL_ENV nose2 --plugin nose2.plugins.layers -s tests -v
+- sudo env PATH=$PATH VIRTUAL_ENV=$VIRTUAL_ENV nose2 -s tests -v
