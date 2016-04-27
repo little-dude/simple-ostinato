@@ -445,3 +445,178 @@ class Payload(autogenerates._Payload):
 class Ethernet(autogenerates._Ethernet):
 
     __metaclass__ = baseclass.make_protocol_class
+
+
+class Udp(autogenerates._Udp):
+
+    __metaclass__ = baseclass.make_protocol_class
+
+
+class Tcp(autogenerates._Tcp):
+
+    __metaclass__ = baseclass.make_protocol_class
+
+    @property
+    def _header_length(self):
+        return (self._hrn & 0b11110000) >> 4
+
+    @property
+    def _reserved(self):
+        return (self._hrn & 0b00001110) >> 1
+
+    @property
+    def _flag_ns(self):
+        return self._hrn & 0b00000001
+
+    @_header_length.setter
+    def _header_length(self, value):
+        hrn = getattr(self, '_hrn', 0)
+        self._hrn = (hrn & 0b00001111) + ((value << 4) & 0b11110000)
+
+    @_reserved.setter
+    def _reserved(self, value):
+        hrn = getattr(self, '_hrn', 0)
+        self._hrn = (hrn & 0b11110001) + ((value << 1) & 0b00001110)
+
+    @_flag_ns.setter
+    def _flag_ns(self, value):
+        hrn = getattr(self, '_hrn', 0)
+        self._hrn = (hrn & 0b11110001) + (value & 0b00000001)
+
+    def _save_header_length(self, ext):
+        ext.hdrlen_rsvd = self._hrn
+
+    def _save_reserved(self, ext):
+        ext.hdrlen_rsvd = self._hrn
+
+    def _save_flag_ns(self, ext):
+        ext.hdrlen_rsvd = self._hrn
+
+    def _fetch_header_length(self, ext):
+        self._hrn = ext.hdrlen_rsvd
+
+    def _fetch_reserved(self, ext):
+        self._hrn = ext.hdrlen_rsvd
+
+    def _fetch_flag_ns(self, ext):
+        self._hrn = ext.hdrlen_rsvd
+
+    @property
+    def _flag_cwr(self):
+        return (self._flags & 0b10000000) >> 7
+
+    @_flag_cwr.setter
+    def _flag_cwr(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b01111111) + ((value << 7) & 0b10000000)
+
+    def _save_flag_cwr(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_cwr(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_ece(self):
+        return (self._flags & 0b01000000) >> 6
+
+    @_flag_ece.setter
+    def _flag_ece(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b10111111) + ((value << 6) & 0b01000000)
+
+    def _save_flag_ece(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_ece(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_urg(self):
+        return (self._flags & 0b00100000) >> 5
+
+    @_flag_urg.setter
+    def _flag_urg(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b11011111) + ((value << 5) & 0b00100000)
+
+    def _save_flag_urg(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_urg(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_ack(self):
+        return (self._flags & 0b00010000) >> 4
+
+    @_flag_ack.setter
+    def _flag_ack(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b11101111) + ((value << 4) & 0b00010000)
+
+    def _save_flag_ack(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_ack(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_psh(self):
+        return (self._flags & 0b00001000) >> 3
+
+    @_flag_psh.setter
+    def _flag_psh(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b11110111) + ((value << 3) & 0b00001000)
+
+    def _save_flag_psh(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_psh(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_rst(self):
+        return (self._flags & 0b00000100) >> 2
+
+    @_flag_rst.setter
+    def _flag_rst(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b11111011) + ((value << 2) & 0b00000100)
+
+    def _save_flag_rst(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_rst(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_syn(self):
+        return (self._flags & 0b00000010) >> 1
+
+    @_flag_syn.setter
+    def _flag_syn(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = (flags & 0b11111101) + ((value << 1) & 0b00000010)
+
+    def _save_flag_syn(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_syn(self, ext):
+        self._flags = ext.flags
+
+    @property
+    def _flag_fin(self):
+        return self._flags & 0b00000001
+
+    @_flag_fin.setter
+    def _flag_fin(self, value):
+        flags = getattr(self, '_flags', 0)
+        self._flags = flags & 0b11111110 + value & 0b00000010
+
+    def _save_flag_fin(self, ext):
+        ext.flags = self._flags
+
+    def _fetch_flag_fin(self, ext):
+        self._flags = ext.flags

@@ -358,6 +358,8 @@ def _protocol_factory(o_protocol):
         constants._Protocols.MAC: protocols.Mac,
         constants._Protocols.ETHERNET_II: protocols.Ethernet,
         constants._Protocols.IP4: protocols.IPv4,
+        constants._Protocols.TCP: protocols.Tcp,
+        constants._Protocols.UDP: protocols.Udp,
         constants._Protocols.PAYLOAD: protocols.Payload,
     }
     protocol_id = o_protocol.protocol_id.id
