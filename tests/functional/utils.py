@@ -1,3 +1,4 @@
+import logging
 import time
 from pyroute2 import IPRoute
 import os
@@ -8,8 +9,8 @@ else:
     import subprocess
 
 
-global DRONE
 DRONE = None
+LOG = logging.getLogger(__name__)
 
 
 def link_down(name):
@@ -38,15 +39,20 @@ def delete_ports():
 
 def start_drone():
     global DRONE
+    LOG.info('starting drone')
     with open(os.devnull, 'w') as devnull:
         DRONE = subprocess.Popen('drone', stdout=devnull, stderr=devnull)
+        LOG.info('drone start with pid {}'.format(DRONE.pid))
     time.sleep(7)
 
 
 def kill_drone():
+    LOG.info('terminating drone properly')
     DRONE.terminate()
     try:
         DRONE.wait(timeout=10)
     except subprocess.TimeoutExpired:
+        LOG.info('could not terminate drone properly, kill it.')
         DRONE.kill()
         DRONE.wait(timeout=10)
+        LOG.info('drone has been killed')
