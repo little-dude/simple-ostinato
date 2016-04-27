@@ -1,45 +1,6 @@
 """
 This module implement a class that represents a remote port, controlled by a
-`Drone` instance. Multiple actions can be performed on a port:
-
-- adding and deleting streams
-- start/stop sending sending streams
-- start/stop capturing traffic
-
-Example:
-
-.. code-block:: python
-
-    import time
-    from simple_ostinato.drone import Drone
-
-    # Connect to a drone instance, fetch the ports, and start using one of
-    # them:
-    drone = Drone('localhost')
-    drone.fetch_ports()
-    port = drone.ports[0]
-
-    # List the streams that are already configured on this port:
-    port.fetch_streams()
-    for stream in port.streams:
-        print stream.name
-
-    # Create a new stream
-    new_stream = port.add_stream()
-    # configure the stream. This is covered in `simple_ostinato.stream`
-    # [...]
-
-    # Start sending traffic, and wait a little bit
-    port.send(streams=[1,2,4])
-    time.sleep(5)
-
-    # Stop sending
-    port.stop_sending()
-
-    # Capture for 5 other seconds
-    port.start_capture()
-    time.sleep(5)
-    port.stop_capture()
+:class:`Drone` instance.
 """
 import weakref
 import time
@@ -56,14 +17,14 @@ class Port(object):
 
     Args:
 
-        drone (simple_ostinato.drone.Drone): an object that wraps the
-            underlying protocol buffer calls.
+        drone (:class:`Drone`): an object that wraps the underlying protocol
+            buffer calls.
         port_id (int): id of the port.
 
     Attributes:
 
         streams (dict): a dictionnary with all the streams configured on this
-            port. It can be refreshed with ``self.fetch_streams()``.
+            port. It can be refreshed with :meth:`fetch_streams()`.
         port_id (int): id of the port
     """
 
@@ -76,19 +37,30 @@ class Port(object):
     @property
     def drone(self):
         """
-        ``simple_ostinato.drone.Drone`` object, used internally to perform the
-        protocol buffer calls.
+        :class:`Drone` object, used internally to \
+            perform the protocol buffer calls.
         """
         if not hasattr(self, '_drone'):
             return None
         return self._drone()
 
     def get_stream(self, stream_id):
+        """
+        Return a the :class:`Stream` object corresponding to the given stream
+        ID (:class:`int`)
+        """
         for stream in self.streams:
             if stream.stream_id == stream_id:
                 return stream
 
     def get_streams_by_name(self, name):
+        """
+        Return a list of :class:`Stream` s that have the given name
+        (:class:str). Since most often names are unique, it is common to get a
+        stream doing:
+
+            >>> my_stream_foo = my_port.get_streams_by_name('stream_foo')[0]
+        """
         streams = []
         for stream in self.streams:
             if stream.name == name:
@@ -97,6 +69,10 @@ class Port(object):
 
     @drone.setter
     def drone(self, value):
+        """
+        A reference to the :class:`Drone` object. This is mostly for internal
+        use.
+        """
         self._drone = weakref.ref(value)
 
     def _fetch(self):
@@ -142,7 +118,7 @@ class Port(object):
     def fetch_streams(self):
         """
         Fetch the streams configured on this port, from the remote drone
-        instance. The streams are stored in ``self.streams``.
+        instance. The streams are stored in :attr:`streams`.
         """
         o_streams = self._fetch_streams()
         for o_stream in o_streams.stream:
@@ -244,6 +220,7 @@ class Port(object):
     @property
     def transmit_mode(self):
         """
+        Can be ``SEQUENTIAL`` or ``INTERLEAVED``.
         """
         return self.TransmitMode.get_key(self._transmit_mode)
 
@@ -272,7 +249,12 @@ class Port(object):
         """
         Create a new stream, on the remote drone instance, and return the
         corresponding Stream object. The object is also added to
-        ``self.streams``.
+        :attr:`streams`.
+
+        Layers must be instances of :class:`simple_ostinato.protocols.Protocol`
+
+            >>> from simple_ostinato import protocols
+            >>> my_port.add_stream(protocols.Mac(), protocols.Ethernet())
         """
         o_stream_ids = ost_pb.StreamIdList()
         o_stream_ids.port_id.id = self.port_id
@@ -299,6 +281,15 @@ class Port(object):
         self.streams.remove(self.get_stream(stream_id))
 
     def start_send(self, streams=None):
+        """
+        Start transmitting the streams that are enabled on this port.
+
+        Args:
+
+            streams (list): a list of :class:`Stream` to send. If such a list \
+                is provided, the corresponding streams will be enabled, and \
+                the other disabled.
+        """
         if streams is None:
             streams = self.streams
         for stream in self.streams:
@@ -310,9 +301,24 @@ class Port(object):
         self.drone._o_start_transmit(self._get_o_port_id_list())
 
     def stop_send(self):
+        """
+        Stop sending
+        """
         self.drone._o_stop_transmit(self._get_o_port_id_list())
 
     def start_capture(self, block=-1, stop=False):
+        """
+        Start capturing. By default, this method is non-blocking and returns
+        immediately, and :meth:`stop_send()` must be called to stop the
+        capture.
+
+        Args:
+
+            block (int): make this method blocking for ``block`` seconds
+
+            stop (bool): if True, and if ``block`` is a positive integer, the \
+                capture will be stopped after ``block`` seconds.
+        """
         self.drone._o_start_capture(self._get_o_port_id_list())
         if block > 0:
             time.sleep(block)
@@ -320,12 +326,21 @@ class Port(object):
                 self.stop_capture()
 
     def stop_capture(self):
+        """
+        Stop the current capture
+        """
         self.drone._o_stop_capture(self._get_o_port_id_list())
 
     def clear_stats(self):
+        """
+        Clear the port statistics
+        """
         self.drone._o_clear_stats(self._get_o_port_id_list())
 
     def get_stats(self):
+        """
+        Fetch the port statistics, and return them as a dictionary.
+        """
         o_stats = self.drone._o_port_stats_list(self._get_o_port_id_list())
         o_stats = o_stats.port_stats[0]
         return {
@@ -348,6 +363,15 @@ class Port(object):
         }
 
     def get_capture(self, save_as=None):
+        """
+        Get the lastest capture and return is as a string.
+
+        Args:
+
+            save_as (str): if provided, the capture will also be saved as a \
+                pcap file at the specified location `on the host that runs \
+                drone`.
+        """
         o_port_id = self._fetch().port[0].port_id
         o_buff = self.drone._o_get_capture_buffer(o_port_id)
         if save_as:

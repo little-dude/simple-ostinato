@@ -35,7 +35,7 @@ class Drone(object):
             instance you want to connect to.
         connect (bool): if True, attempt to connect to the remote instance when
             the object is initialized. Otherwise, it can be done manually later
-            with ``Drone.connect()``
+            with :meth:`connect()`
     """
 
     def __init__(self, host, connect=True):
@@ -67,7 +67,7 @@ class Drone(object):
     def fetch_ports(self):
         """
         Get the list of all the ports on the remote host. They are stored in
-        the ``self.ports`` dictionnary.
+        the :attr:`ports` dictionnary.
         """
         o_ports = self._o_get_port_list(self._o_get_port_id_list())
         for o_port in o_ports.port:
@@ -85,8 +85,8 @@ class Drone(object):
 
     def get_port(self, name):
         """
-        Get ports from ``self.ports`` by name. If the port is not found, None
-        is returned.
+        Get ports from :attr:`ports` by name. If the port is not found,
+        ``None`` is returned.
         """
         for port in self.ports:
             if port.name == name:

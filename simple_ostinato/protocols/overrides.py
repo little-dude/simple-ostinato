@@ -17,7 +17,8 @@ class MacAddress(object):
         FIXED = mac_pb2.Mac.e_mm_fixed
         DECREMENT = mac_pb2.Mac.e_mm_inc
 
-    def __init__(self, address='00:00:00:00:00:00', mode='FIXED', count=16, step=1):
+    def __init__(self, address='00:00:00:00:00:00', mode='FIXED',
+                 count=16, step=1):
         self.address = address
         self.mode = mode
         self.count = count
@@ -195,7 +196,8 @@ class IPv4Address(object):
         INCREMENT = ip4_pb2.Ip4.e_im_inc_host
         RANDOM = ip4_pb2.Ip4.e_im_random_host
 
-    def __init__(self, address='0.0.0.0', mode='FIXED', count=16, mask='255.255.255.0'):
+    def __init__(self, address='0.0.0.0', mode='FIXED', count=16,
+                 mask='255.255.255.0'):
         self.address = address
         self.mode = mode
         self.count = count
@@ -206,8 +208,8 @@ class IPv4Address(object):
         Configure the IP address from a dictionary.
 
             >>> ip = IPv4Address()
-            >>> ip.from_dict({'address': '1.0.0.1', 'mode': 'RANDOM', 'count': \
-'10', 'mask': '255.0.225.255'})
+            >>> ip.from_dict({'address': '1.0.0.1', 'mode': 'RANDOM', 'count':\
+ '10', 'mask': '255.0.225.255'})
         """
         if 'address' in values:
             self.address = values['address']
@@ -426,6 +428,13 @@ class Payload(autogenerates._Payload):
 
     @property
     def mode(self):
+        """
+        The mode can be one of:
+        - ``DECREMENT_BYTE``
+        - ``FIXED_WORD``
+        - ``INCREMENT_BYTE``
+        - ``RANDOM``
+        """
         return self._Mode.get_key(self._mode)
 
     @mode.setter

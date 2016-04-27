@@ -38,7 +38,7 @@ class Stream(object):
 
     Args:
 
-        port (simple_ostinato.port.Port): the port instance on which the stream
+        port (:class:`Port`): the port instance on which the stream
             is defined.
         stream_id (int): the stream ID.
     """
@@ -68,7 +68,7 @@ class Stream(object):
     @property
     def drone(self):
         """
-        Reference to the ``simple_ostinato.drone.Drone`` instance. This is
+        Reference to the :class:`Drone` instance. This is
         mostly for internal use.
         """
         return self.port.drone
@@ -132,10 +132,10 @@ class Stream(object):
     def add_layers(self, *layers):
         """
         Add a layer to the stream. Note that it is added to the remote drone
-        instance only after calling ``self.save()``.
+        instance only after calling :meth:`save()`.
 
-        There is not equivalent ``self.del_layer``, so the whole stream must be
-        deleted and recreated to remove a layer.
+        There is not equivalent :meth:`del_layers()`, so the whole stream must
+        be deleted and recreated to remove a layer.
 
         Args:
 
@@ -215,14 +215,14 @@ class Stream(object):
 
     def enable(self):
         """
-        Enable the stream. It is equivalent to setting ``self.is_enabled`` to
+        Enable the stream. It is equivalent to setting :attr:`is_enabled` to
         ``True``.
         """
         self._is_enabled = True
 
     def disable(self):
         """
-        Disable the stream. It is equivalent to setting ``self.is_enabled`` to
+        Disable the stream. It is equivalent to setting :attr:`is_enabled` to
         ``False``.
         """
         self._is_enabled = False
@@ -244,7 +244,8 @@ class Stream(object):
     @property
     def unit(self):
         """
-        Unit to send. It must be either `"PACKETS"` (the default) or `BURSTS`.
+        Unit to send. It must be either ``PACKETS`` (the default) or
+        ``BURSTS``.
         """
         return _SendUnit.get_key(self._unit)
 
@@ -255,15 +256,15 @@ class Stream(object):
     @property
     def mode(self):
         """
-        Sending mode. It must be either `"FIXED"` (the default) or
-        `"CONTINUOUS"`.
+        Sending mode. It must be either ``FIXED`` (the default) or
+        ``CONTINUOUS``.
 
-        If set to `"FIXED"`, a fixed number of packets or bursts is sent. If
-        ``self.unit`` is set to `"PACKETS"`, then ``self.num_packets`` packets
-        are sent. If it is set to ``"BURSTS"`` then ``self.num_bursts`` bursts
+        If set to ``FIXED``, a fixed number of packets or bursts is sent. If
+        :attr:`unit` is set to ``PACKETS``, then :attr:`num_packets` packets
+        are sent. If it is set to ``BURSTS`` then :attr:`num_bursts` bursts
         are sent.
 
-        If set to `"CONTINUOUS"`, packets or bursts are sent continuously until
+        If set to ``CONTINUOUS``, packets or bursts are sent continuously until
         the port stop transmitting.
         """
         return _SendMode.get_key(self._mode)
@@ -275,8 +276,8 @@ class Stream(object):
     @property
     def num_packets(self):
         """
-        Number of packets to send. This is ignored if ``self.mode`` is set to
-        `"CONTINUOUS"` or if ``self.unit`` is set to `"BURSTS"`.
+        Number of packets to send. This is ignored if :attr:`mode` is set to
+        ``CONTINUOUS`` or if :attr:`unit` is set to ``BURSTS``.
         """
         return self._num_packets
 
@@ -287,8 +288,8 @@ class Stream(object):
     @property
     def num_bursts(self):
         """
-        Number of bursts to send. This is ignored if ``self.mode`` is set to
-        `"CONTINUOUS"` or if ``self.unit`` is set to `"PACKETS"`.
+        Number of bursts to send. This is ignored if :attr:`mode` is set to
+        ``CONTINUOUS`` or if :attr:`unit` is set to ``PACKETS``.
         """
         return self._num_bursts
 
@@ -299,8 +300,8 @@ class Stream(object):
     @property
     def packets_per_burst(self):
         """
-        Number of packets per burst. This is ignored if ``self.mode`` is set to
-        `"CONTINUOUS"` or if ``self.unit`` is set to `"PACKETS"`
+        Number of packets per burst. This is ignored if :attr:`mode` is set to
+        ``CONTINUOUS`` or if :attr:`unit` is set to ``PACKETS``
         """
         return self._packets_per_burst
 
@@ -312,11 +313,11 @@ class Stream(object):
     def next(self):
         """
         What to do after the current stream finishes. It is ignored if
-        ``self.mode`` is set to `"CONTINUOUS"`.
+        :attr:`mode` is set to ``CONTINUOUS``.
 
-        - `"STOP"`: stop after this stream
-        - `"GOTO_NEXT"`: send the next enabled stream
-        - `"GOTO_ID"`: send a stream with a given ID.
+        - ``STOP``: stop after this stream
+        - ``GOTO_NEXT``: send the next enabled stream
+        - ``GOTO_ID``: send a stream with a given ID.
         """
         return _SendNext.get_key(self._next)
 
