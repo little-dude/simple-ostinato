@@ -148,12 +148,10 @@ class Stream(object):
                 raise Exception(err.format(layer_name, self))
             else:
                 self.layers[layer_name] = layer
-                self._save_layers()
 
     def del_layers(self, *layer_names):
         for name in layer_names:
             del self.layers[name]
-            self._save_layers()
 
     def save(self):
         """
