@@ -319,6 +319,406 @@ class _IPv4(baseclass.Protocol):
         self._total_length = ext.totlen
 
 
+class _Udp(baseclass.Protocol):
+
+    """
+    Represent an UDP datagram
+    """
+
+    _protocol_id = 401
+    _extension = udp_pb2.udp
+
+    def __init__(self, source=49152, length=0, destination=49153, checksum=0, **kwargs):
+        super(_Udp, self).__init__(source=source, length=length, destination=destination, checksum=checksum, **kwargs)
+
+    @property
+    def source(self):
+        """
+        Source port number
+        """
+        return utils.to_str(self._source)
+
+    @source.setter
+    def source(self, value):
+        self._source = utils.parse(value)
+
+    def _save_source(self, ext):
+        ext.src_port = self._source
+
+    def _fetch_source(self, ext):
+        self._source = ext.src_port
+
+    @property
+    def length(self):
+        """
+        Length of the UDP datagram (header and payload).. By default, this attribute is computed automatically.
+        """
+        return utils.to_str(self._length)
+
+    @length.setter
+    def length(self, value):
+        self._length = utils.parse(value)
+
+    def _save_length(self, ext):
+        ext.totlen = self._length
+
+    def _fetch_length(self, ext):
+        self._length = ext.totlen
+
+    @property
+    def destination(self):
+        """
+        Destination port number
+        """
+        return utils.to_str(self._destination)
+
+    @destination.setter
+    def destination(self, value):
+        self._destination = utils.parse(value)
+
+    def _save_destination(self, ext):
+        ext.dst_port = self._destination
+
+    def _fetch_destination(self, ext):
+        self._destination = ext.dst_port
+
+    @property
+    def checksum(self):
+        """
+        Checksum of the datagram, calculated based on the IP pseudo-header.. By default, this attribute is computed automatically.
+        """
+        return utils.to_str(self._checksum)
+
+    @checksum.setter
+    def checksum(self, value):
+        self._checksum = utils.parse(value)
+
+    def _save_checksum(self, ext):
+        ext.cksum = self._checksum
+
+    def _fetch_checksum(self, ext):
+        self._checksum = ext.cksum
+
+
+class _Tcp(baseclass.Protocol):
+
+    """
+    Represent an TCP datagram
+    """
+
+    _protocol_id = 400
+    _extension = tcp_pb2.tcp
+
+    def __init__(self, flag_ack=0, header_length=0, reserved=0, ack_num=0, flag_rst=0, window_size=0, destination=49153, flag_psh=0, urgent_pointer=0, source=49152, flag_ece=0, flag_urg=0, sequence_num=0, checksum=0, flag_syn=0, flag_cwr=0, flag_fin=0, flag_ns=0, **kwargs):
+        super(_Tcp, self).__init__(flag_ack=flag_ack, header_length=header_length, reserved=reserved, ack_num=ack_num, flag_rst=flag_rst, window_size=window_size, destination=destination, flag_psh=flag_psh, urgent_pointer=urgent_pointer, source=source, flag_ece=flag_ece, flag_urg=flag_urg, sequence_num=sequence_num, checksum=checksum, flag_syn=flag_syn, flag_cwr=flag_cwr, flag_fin=flag_fin, flag_ns=flag_ns, **kwargs)
+
+    @property
+    def flag_ack(self):
+        """
+        ACK flag
+        """
+        return utils.to_str(self._flag_ack)
+
+    @flag_ack.setter
+    def flag_ack(self, value):
+        self._flag_ack = utils.parse(value)
+
+    def _save_flag_ack(self, ext):
+        ext.flags = self._flag_ack
+
+    def _fetch_flag_ack(self, ext):
+        self._flag_ack = ext.flags
+
+    @property
+    def header_length(self):
+        """
+        Size of the TCP header in 4 bytes words. This field is also known as "Data offset". By default, this attribute is computed automatically.
+        """
+        return utils.to_str(self._header_length)
+
+    @header_length.setter
+    def header_length(self, value):
+        self._header_length = utils.parse(value)
+
+    def _save_header_length(self, ext):
+        ext.hdrlen_rsvd = self._header_length
+
+    def _fetch_header_length(self, ext):
+        self._header_length = ext.hdrlen_rsvd
+
+    @property
+    def reserved(self):
+        """
+        Reserved for future use and must be set to 0. By default, this attribute is computed automatically.
+        """
+        return utils.to_str(self._reserved)
+
+    @reserved.setter
+    def reserved(self, value):
+        self._reserved = utils.parse(value)
+
+    def _save_reserved(self, ext):
+        ext.hdrlen_rsvd = self._reserved
+
+    def _fetch_reserved(self, ext):
+        self._reserved = ext.hdrlen_rsvd
+
+    @property
+    def ack_num(self):
+        """
+        Acknowledgement number
+        """
+        return utils.to_str(self._ack_num)
+
+    @ack_num.setter
+    def ack_num(self, value):
+        self._ack_num = utils.parse(value)
+
+    def _save_ack_num(self, ext):
+        ext.ack_num = self._ack_num
+
+    def _fetch_ack_num(self, ext):
+        self._ack_num = ext.ack_num
+
+    @property
+    def flag_rst(self):
+        """
+        Reset the connection
+        """
+        return utils.to_str(self._flag_rst)
+
+    @flag_rst.setter
+    def flag_rst(self, value):
+        self._flag_rst = utils.parse(value)
+
+    def _save_flag_rst(self, ext):
+        ext.flags = self._flag_rst
+
+    def _fetch_flag_rst(self, ext):
+        self._flag_rst = ext.flags
+
+    @property
+    def window_size(self):
+        """
+        Size of the receive window, which specifies the number of window size units that the sender of this segment is currently willing to receive
+        """
+        return utils.to_str(self._window_size)
+
+    @window_size.setter
+    def window_size(self, value):
+        self._window_size = utils.parse(value)
+
+    def _save_window_size(self, ext):
+        ext.window = self._window_size
+
+    def _fetch_window_size(self, ext):
+        self._window_size = ext.window
+
+    @property
+    def destination(self):
+        """
+        Destination port number
+        """
+        return utils.to_str(self._destination)
+
+    @destination.setter
+    def destination(self, value):
+        self._destination = utils.parse(value)
+
+    def _save_destination(self, ext):
+        ext.dst_port = self._destination
+
+    def _fetch_destination(self, ext):
+        self._destination = ext.dst_port
+
+    @property
+    def flag_psh(self):
+        """
+        Push function
+        """
+        return utils.to_str(self._flag_psh)
+
+    @flag_psh.setter
+    def flag_psh(self, value):
+        self._flag_psh = utils.parse(value)
+
+    def _save_flag_psh(self, ext):
+        ext.flags = self._flag_psh
+
+    def _fetch_flag_psh(self, ext):
+        self._flag_psh = ext.flags
+
+    @property
+    def urgent_pointer(self):
+        """
+        Urgent pointer.
+        """
+        return utils.to_str(self._urgent_pointer)
+
+    @urgent_pointer.setter
+    def urgent_pointer(self, value):
+        self._urgent_pointer = utils.parse(value)
+
+    def _save_urgent_pointer(self, ext):
+        ext.urg_ptr = self._urgent_pointer
+
+    def _fetch_urgent_pointer(self, ext):
+        self._urgent_pointer = ext.urg_ptr
+
+    @property
+    def source(self):
+        """
+        Source port number
+        """
+        return utils.to_str(self._source)
+
+    @source.setter
+    def source(self, value):
+        self._source = utils.parse(value)
+
+    def _save_source(self, ext):
+        ext.src_port = self._source
+
+    def _fetch_source(self, ext):
+        self._source = ext.src_port
+
+    @property
+    def flag_ece(self):
+        """
+        ECN-Echo flag. Its meaning depends on the :attr:`syn` field value.
+        """
+        return utils.to_str(self._flag_ece)
+
+    @flag_ece.setter
+    def flag_ece(self, value):
+        self._flag_ece = utils.parse(value)
+
+    def _save_flag_ece(self, ext):
+        ext.flags = self._flag_ece
+
+    def _fetch_flag_ece(self, ext):
+        self._flag_ece = ext.flags
+
+    @property
+    def flag_urg(self):
+        """
+        Urgent pointer flag.
+        """
+        return utils.to_str(self._flag_urg)
+
+    @flag_urg.setter
+    def flag_urg(self, value):
+        self._flag_urg = utils.parse(value)
+
+    def _save_flag_urg(self, ext):
+        ext.flags = self._flag_urg
+
+    def _fetch_flag_urg(self, ext):
+        self._flag_urg = ext.flags
+
+    @property
+    def sequence_num(self):
+        """
+        Sequence number of the datagram. Its meaning depends on the :attr:`syn` flag value.
+        """
+        return utils.to_str(self._sequence_num)
+
+    @sequence_num.setter
+    def sequence_num(self, value):
+        self._sequence_num = utils.parse(value)
+
+    def _save_sequence_num(self, ext):
+        ext.seq_num = self._sequence_num
+
+    def _fetch_sequence_num(self, ext):
+        self._sequence_num = ext.seq_num
+
+    @property
+    def checksum(self):
+        """
+        Checksum of the datagram, calculated based on the IP pseudo-header. Its meaning depends on the value og the :attr:`ack` flag.
+        """
+        return utils.to_str(self._checksum)
+
+    @checksum.setter
+    def checksum(self, value):
+        self._checksum = utils.parse(value)
+
+    def _save_checksum(self, ext):
+        ext.cksum = self._checksum
+
+    def _fetch_checksum(self, ext):
+        self._checksum = ext.cksum
+
+    @property
+    def flag_syn(self):
+        """
+        Synchronize sequence numbers
+        """
+        return utils.to_str(self._flag_syn)
+
+    @flag_syn.setter
+    def flag_syn(self, value):
+        self._flag_syn = utils.parse(value)
+
+    def _save_flag_syn(self, ext):
+        ext.flags = self._flag_syn
+
+    def _fetch_flag_syn(self, ext):
+        self._flag_syn = ext.flags
+
+    @property
+    def flag_cwr(self):
+        """
+        Congestion Window Reduced flag
+        """
+        return utils.to_str(self._flag_cwr)
+
+    @flag_cwr.setter
+    def flag_cwr(self, value):
+        self._flag_cwr = utils.parse(value)
+
+    def _save_flag_cwr(self, ext):
+        ext.flags = self._flag_cwr
+
+    def _fetch_flag_cwr(self, ext):
+        self._flag_cwr = ext.flags
+
+    @property
+    def flag_fin(self):
+        """
+        No more data from sender
+        """
+        return utils.to_str(self._flag_fin)
+
+    @flag_fin.setter
+    def flag_fin(self, value):
+        self._flag_fin = utils.parse(value)
+
+    def _save_flag_fin(self, ext):
+        ext.flags = self._flag_fin
+
+    def _fetch_flag_fin(self, ext):
+        self._flag_fin = ext.flags
+
+    @property
+    def flag_ns(self):
+        """
+        ECN-nonce concealment protection (experimental)
+        """
+        return utils.to_str(self._flag_ns)
+
+    @flag_ns.setter
+    def flag_ns(self, value):
+        self._flag_ns = utils.parse(value)
+
+    def _save_flag_ns(self, ext):
+        ext.hdrlen_rsvd = self._flag_ns
+
+    def _fetch_flag_ns(self, ext):
+        self._flag_ns = ext.hdrlen_rsvd
+
+
 class _Payload(baseclass.Protocol):
 
     """
