@@ -3,7 +3,6 @@ This module provide a class to manipulate streams.
 """
 from ostinato.protocols.protocol_pb2 import StreamControl
 from ostinato.core import ost_pb
-import weakref
 import time
 from . import utils
 from . import protocols
@@ -58,13 +57,14 @@ class Stream(object):
         """
         Reference to the port on which this stream is configured.
         """
-        if not hasattr(self, '_port'):
-            return None
-        return self._port()
+        return getattr(self, '_port', None)
 
     @port.setter
     def port(self, value):
-        self._port = weakref.ref(value)
+        if self.port is None:
+            self._port = value
+        else:
+            raise ValueError('This attribute can only be set once')
 
     @property
     def drone(self):
