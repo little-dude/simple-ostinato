@@ -1,0 +1,5 @@
+[run]
+branch = True
+source = simple_ostinato
+include = simple_ostinato/*
+omit = simple_ostinato/generator.py

@@ -1,6 +1,7 @@
 # simple-ostinato
 
 [![Build Status](https://travis-ci.org/little-dude/simple-ostinato.svg?branch=master)](https://travis-ci.org/little-dude/simple-ostinato)
+[![Coverage Status](https://coveralls.io/repos/github/little-dude/simple-ostinato/badge.svg?branch=master)](https://coveralls.io/github/little-dude/simple-ostinato?branch=master)
 
 A wrapper for the ostinato python client.
 
