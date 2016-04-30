@@ -35,4 +35,25 @@ class _{{class.class_name}}(baseclass.Protocol):
         ext.{{ attribute.ext_name }} = self._{{ attribute.name }}
 
     def _fetch_{{ attribute.name }}(self, ext):
-        self._{{ attribute.name }} = ext.{{ attribute.ext_name }}{% endfor %}{% endfor %}
+        self._{{ attribute.name }} = ext.{{ attribute.ext_name }}{% endfor %}
+
+    def __str__(self):
+        return '{{ class.class_name }}({% for attribute in class.attributes %}{{ attribute.name }}={},{% endfor %})'.format({% for attribute in class.attributes %}self.{{ attribute.name }},{% endfor %})
+
+    def to_dict(self):
+        """
+        Return the {{ class.class_name }} layer configuration as a
+        dictionnary.
+        """
+        return { {% for attribute in class.attributes %}
+            '{{ attribute.name }}': self.{{ attribute.name }},{% endfor %}
+        }
+
+    def from_dict(self):
+        """
+        Set the {{ class.class_name }} layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value){% endfor %}
