@@ -1,5 +1,8 @@
+import os
+import time
 from nose2.compat import unittest
 from simple_ostinato import protocols
+import pyshark
 from . import utils
 from . import test_ports
 
@@ -8,6 +11,7 @@ class BaseLayer(test_ports.PortsFetchedLayer):
 
     @classmethod
     def setUp(cls):
+        utils.create_veth_pair('ost_veth')
         cls.drone = utils.restart_drone()
         cls.ost1 = cls.drone.get_port('ost1')
         cls.ost2 = cls.drone.get_port('ost2')
@@ -15,10 +19,15 @@ class BaseLayer(test_ports.PortsFetchedLayer):
         cls.ost4 = cls.drone.get_port('ost4')
         cls.ost5 = cls.drone.get_port('ost5')
         cls.ost6 = cls.drone.get_port('ost6')
+        cls.tx1 = cls.drone.get_port('ost_veth0')
+        cls.rx1 = cls.drone.get_port('ost_veth1')
 
     @classmethod
     def tearDown(cls):
+        if os.path.isfile('capture.pcap'):
+            os.remove('capture.pcap')
         utils.kill_drone()
+        utils.delete_veth_pair('ost_veth')
 
 
 class StreamCRUD(unittest.TestCase):
@@ -218,3 +227,62 @@ class StreamCRUD(unittest.TestCase):
         assert other_stream.packets_per_burst == 999
         assert other_stream.packets_per_sec == 999
         assert other_stream.bursts_per_sec == 999
+
+    def test_traffic(self):
+        tx = self.layer.tx1
+        rx = self.layer.rx1
+
+        stream = tx.add_stream(protocols.Mac(),
+                               protocols.Ethernet(),
+                               protocols.IPv4(),
+                               protocols.Tcp(),
+                               protocols.Payload())
+        stream.packets_per_sec = 100
+        stream.num_packets = 10
+        stream.save()
+        stats_dict = {
+            'rx_bps': 0,
+            'rx_bytes': 0,
+            'rx_bytes_nic': 0,
+            'rx_drops': 0,
+            'rx_errors': 0,
+            'rx_fifo_errors': 0,
+            'rx_frame_errors': 0,
+            'rx_pkts': 0,
+            'rx_pkts_nic': 0,
+            'rx_pps': 0,
+            'tx_bps': 0,
+            'tx_bytes': 0,
+            'tx_bytes_nic': 0,
+            'tx_pkts': 0,
+            'tx_pkts_nic': 0,
+            'tx_pps': 0,
+        }
+        tx.clear_stats()
+        assert tx.get_stats() == stats_dict
+        rx.clear_stats()
+        assert rx.get_stats() == stats_dict
+        rx.start_capture()
+        tx.start_send()
+        time.sleep(1)
+        rx.stop_capture()
+        tx.stop_send()
+
+        tx_stats = tx.get_stats()
+        rx_stats = rx.get_stats()
+        rx.get_capture(save_as='capture.pcap')
+        assert tx_stats['tx_pkts'] == 10
+        assert rx_stats['rx_pkts'] == 10
+        assert tx_stats['tx_bytes'] == 600
+        assert rx_stats['rx_bytes'] == 600
+        for packet in pyshark.FileCapture('capture.pcap'):
+            assert packet['eth'].dst == 'ff:ff:ff:ff:ff:ff'
+            assert packet['eth'].src == '00:00:00:00:00:00'
+            assert int(packet['eth'].type, 16) == 2048
+            assert packet['ip'].dst == '127.0.0.1'
+            assert packet['ip'].src == '127.0.0.1'
+            assert int(packet['ip'].flags, 16) == 0
+            assert int(packet['ip'].len) == 46
+            assert int(packet['ip'].ttl) == 127
+            assert int(packet['ip'].version) == 4
+            assert packet['ip'].checksum == '0x00003dc8'
