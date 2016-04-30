@@ -41,11 +41,11 @@ We first create a valid stream as shown in the previous section, but on
     stream.packets_per_sec = 50
     stream.is_enabled = True
     stream.save()
-    stream.add_layers(
+    stream.layers = [
         Mac(source='00:00:11:11:22:22', destination='FF:FF:FF:FF:FF:FF'),
         Ethernet(ether_type=0x800),
         IPv4(source='10.0.0.1', destination='10.0.0.2'),
-        Payload())
+        Payload()]
 
 `veth1` will be capturing traffic:
 
@@ -119,11 +119,11 @@ Complete example
     stream.packets_per_sec = 50
     stream.is_enabled = True
     stream.save()
-    stream.add_layers(
+    stream.layers = [
         Mac(source='00:00:11:11:22:22', destination='FF:FF:FF:FF:FF:FF'),
         Ethernet(ether_type=0x800),
         IPv4(source='10.0.0.1', destination='10.0.0.2'),
-        Payload())
+        Payload()]
 
     rx_port = drone.get_port('veth1')
 

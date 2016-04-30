@@ -63,23 +63,25 @@ class in ``simple_ostinato.protocols``:
     mac = Mac()
     mac.source = '00:00:11:11:22:22'
     mac.destination = 'FF:FF:FF:FF:FF:FF'
-    stream.add_layers(mac)
+    stream.layers.append(mac)
 
     eth = Ethernet()
     eth.ether_type = 0x800
-    stream.add_layers(eth)
+    stream.layers.append(eth)
 
     ip = IPv4()
     ip.source = '10.0.0.1'
     ip.destination = '10.0.0.2'
-    stream.add_layers(ip)
+    stream.layers.append(ip)
 
     payload = Payload()
-    stream.add_layers(payload)
+    stream.layers.append(payload)
 
-Note that ``add_layers`` accepts multiple layers, so we could have created the
-layer an then do: ``add_layers(mac, eth, ip)``. Again, order matters, so this
-would not work for example: ``add_layers(eth, ip, mac)``.
+    # finally, save the stream
+    stream.save()
+
+Since :attr:`simple_ostinato.stream.Stream.layers` is a simple list, we could
+have writtend directly ``stream.layers = [mac, eth, ip, payload]``.
 
 Also, all the attributes of the layers can be passed to the class constructor,
 so the above could be just written:
@@ -88,18 +90,20 @@ so the above could be just written:
 
     from simple_ostinato.protocols import Mac, Ethernet, IPv4, Payload
 
-    stream.add_layers(
+    stream.layers = [
         Mac(source='00:00:11:11:22:22', destination='FF:FF:FF:FF:FF:FF'),
         Ethernet(ether_type=0x800),
         IPv4(source='10.0.0.1', destination='10.0.0.2'),
-        Payload())
+        Payload()]
 
-To remove a layer, use ``Stream.del_layers()``. For instance, to delete the
-``Payload`` and ``IPv4`` layers:
+To remove a layer, remove it from the
+:attr:`simple_ostinato.stream.Stream.layers` list, and save the stream. For
+instance, to delete the ``Payload`` and ``IPv4`` layers:
 
 .. code-block:: python
 
-    stream.del_layers('Payload', 'IPv4')
+    del stream.layers[-1]
+    del stream.layers[-1]
 
 
 --------
@@ -142,14 +146,14 @@ Complete example
     stream.save()
 
     # Add layers
-    stream.add_layers(
+    stream.layers = [
         Mac(source='00:00:11:11:22:22', destination='FF:FF:FF:FF:FF:FF'),
         Ethernet(ether_type=0x800),
         IPv4(source='10.0.0.1', destination='10.0.0.2'),
-        Payload())
+        Payload()]
 
-    # Delete layers
-    stream.del_layers('Payload', 'IPv4')
+    # Delete the ip and payload layers
+    stream.layers = stream.layers[:-2]
 
     # Delete stream
     lo.del_stream(stream.stream_id)
