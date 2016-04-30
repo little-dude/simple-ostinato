@@ -251,7 +251,7 @@ class Port(object):
         self.drone._o_add_stream(o_stream_ids)
         new_stream = Stream(self, stream_id)
         self.streams.append(new_stream)
-        new_stream.add_layers(*layers)
+        new_stream.layers = list(layers)
         return new_stream
 
     def del_stream(self, stream_id):
