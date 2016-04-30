@@ -259,9 +259,11 @@ class StreamCRUD(unittest.TestCase):
             'tx_pps': 0,
         }
         tx.clear_stats()
-        assert tx.get_stats() == stats_dict
         rx.clear_stats()
-        assert rx.get_stats() == stats_dict
+        tx_stats = tx.get_stats()
+        rx_stats = rx.get_stats()
+        assert tx_stats == stats_dict, str(tx_stats)
+        assert rx_stats == stats_dict
         rx.start_capture()
         tx.start_send()
         time.sleep(1)
@@ -285,4 +287,4 @@ class StreamCRUD(unittest.TestCase):
             assert int(packet['ip'].len) == 46
             assert int(packet['ip'].ttl) == 127
             assert int(packet['ip'].version) == 4
-            assert packet['ip'].checksum == '0x00003dc8'
+            assert int(packet['ip'].checksum, 16) == 15816
