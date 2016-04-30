@@ -17,7 +17,7 @@ class _Mac(baseclass.Protocol):
     _protocol_id = 100
     _extension = mac_pb2.mac
 
-    def __init__(self, source='FF:FF:FF:FF:FF:FF', destination='00:00:00:00:00:00', **kwargs):
+    def __init__(self, source='00:00:00:00:00:00', destination='FF:FF:FF:FF:FF:FF', **kwargs):
         super(_Mac, self).__init__(source=source, destination=destination, **kwargs)
 
     @property

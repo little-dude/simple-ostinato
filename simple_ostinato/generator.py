@@ -35,8 +35,8 @@ def generate_classes():
             'protocol_id':  constants._Protocols.MAC,
             'extension':    'mac_pb2.mac',
             'attributes': {
-                'destination': (0, '00:00:00:00:00:00', 0xffffffffffff, 'dst_mac', False, 'Destination MAC address'),
-                'source':      (6, 'FF:FF:FF:FF:FF:FF', 0xffffffffffff, 'src_mac', False, 'Source MAC address'),
+                'destination': (0, 'FF:FF:FF:FF:FF:FF', 0xffffffffffff, 'dst_mac', False, 'Destination MAC address'),
+                'source':      (6, '00:00:00:00:00:00', 0xffffffffffff, 'src_mac', False, 'Source MAC address'),
             },
         },
         {
