@@ -3,7 +3,6 @@ This module provide a class to manipulate streams.
 """
 from ostinato.protocols.protocol_pb2 import StreamControl
 from ostinato.core import ost_pb
-import weakref
 import time
 from . import utils
 from . import protocols
@@ -43,28 +42,30 @@ class Stream(object):
         stream_id (int): the stream ID.
     """
 
-    def __init__(self, port, stream_id, clean_layers=True):
+    def __init__(self, port, stream_id, layers=None, clean_layers=True):
         self.last_check = time.time()
         self.port = port
-        self.layers = []
         self.stream_id = stream_id
         self.log = port.log.getChild(str(self))
         self.fetch()
         if clean_layers:
-            self.del_layers(*self.layers.keys())
+            self.layers = []
+        if layers:
+            self.layers.extend(layers)
 
     @property
     def port(self):
         """
         Reference to the port on which this stream is configured.
         """
-        if not hasattr(self, '_port'):
-            return None
-        return self._port()
+        return getattr(self, '_port', None)
 
     @port.setter
     def port(self, value):
-        self._port = weakref.ref(value)
+        if self.port is None:
+            self._port = value
+        else:
+            raise ValueError('This attribute can only be set once')
 
     @property
     def drone(self):
@@ -81,9 +82,7 @@ class Stream(object):
     @property
     def layers(self):
         """
-        Dictionnary of all the layers configured for this stream. For now,
-        layers cannot be removed. To remove layers, the entire stream must be
-        deleted and another one re-created.
+        Dictionnary of all the layers configured for this stream.
         """
         return self._layers
 
@@ -94,66 +93,27 @@ class Stream(object):
     def _fetch_layers(self, o_stream):
         self.log.debug('fetching layers')
         o_protocols = o_stream.protocol
-        empty_protocols = []
-        self.layers = {}
+        self.layers = []
         for o_protocol in o_protocols:
             protocol_id = o_protocol.protocol_id.id
             if protocol_id == 0:
-                empty_protocols.append(o_protocol)
                 continue
-            self.add_layers(_protocol_factory(o_protocol))
+            self.layers.append(_protocol_factory(o_protocol))
 
     def _save_layers(self):
+        # remove the existing layers
         o_streams = self._fetch()
         o_stream = o_streams.stream[0]
         o_protocols = o_stream.protocol
-        # remove the deleted layers, or update the existing ones
-        remove_list = []
-        for o_protocol in o_protocols:
-            protocol_name = _protocol_factory(o_protocol).__class__.__name__
-            if protocol_name not in self.layers:
-                remove_list.append(o_protocol)
-            else:
-                self.layers[protocol_name]._save(o_protocol)
-        for o_protocol in remove_list:
-            o_protocols.remove(o_protocol)
-        # add the new layers:
-        for layer in self.layers.values():
-            is_new_layer = True
-            for o_protocol in o_protocols:
-                if layer._protocol_id == o_protocol.protocol_id.id:
-                    is_new_layer = False
-                    break
-            if is_new_layer is True:
-                o_protocol = o_stream.protocol.add()
-                o_protocol.protocol_id.id = layer._protocol_id
-                layer._save(o_protocol)
-
+        while len(o_protocols) > 0:
+            o_protocols.remove(o_protocols[-1])
+        # add the layers from self.layers
+        for layer in self.layers:
+            o_protocol = o_stream.protocol.add()
+            o_protocol.protocol_id.id = layer._protocol_id
+            layer._save(o_protocol)
+        # apply the changes
         self.drone._o_modify_stream(o_streams)
-
-    def add_layers(self, *layers):
-        """
-        Add a layer to the stream. Note that it is added to the remote drone
-        instance only after calling :meth:`save()`.
-
-        There is not equivalent :meth:`del_layers()`, so the whole stream must
-        be deleted and recreated to remove a layer.
-
-        Args:
-
-            layer (simple_ostinato.protocols.Protocol): the layer to add.
-        """
-        for layer in layers:
-            layer_name = layer.__class__.__name__
-            if layer_name in self.layers:
-                err = '{} found twice in {} protocols'
-                raise Exception(err.format(layer_name, self))
-            else:
-                self.layers[layer_name] = layer
-
-    def del_layers(self, *layer_names):
-        for name in layer_names:
-            del self.layers[name]
 
     def save(self):
         """
@@ -162,16 +122,16 @@ class Stream(object):
         self.log.info('saving current state')
         o_streams = self._fetch()
         o_stream = o_streams.stream[0]
-        o_stream.core.is_enabled = self.is_enabled
-        o_stream.core.name = self.name
+        o_stream.core.is_enabled = self._is_enabled
+        o_stream.core.name = self._name
         o_stream.control.unit = self._unit
         o_stream.control.mode = self._mode
-        o_stream.control.num_bursts = self.num_bursts
-        o_stream.control.num_packets = self.num_packets
-        o_stream.control.packets_per_burst = self.packets_per_burst
+        o_stream.control.num_bursts = self._num_bursts
+        o_stream.control.num_packets = self._num_packets
+        o_stream.control.packets_per_burst = self._packets_per_burst
         o_stream.control.next = self._next
-        o_stream.control.bursts_per_sec = self.bursts_per_sec
-        o_stream.control.packets_per_sec = self.packets_per_sec
+        o_stream.control.bursts_per_sec = self._bursts_per_sec
+        o_stream.control.packets_per_sec = self._packets_per_sec
         self.drone._o_modify_stream(o_streams)
         self._save_layers()
 
@@ -182,16 +142,16 @@ class Stream(object):
         """
         self.log.info('fetching state')
         o_stream = self._fetch().stream[0]
-        self.name = o_stream.core.name
-        self.is_enabled = o_stream.core.is_enabled
+        self._name = o_stream.core.name
+        self._is_enabled = o_stream.core.is_enabled
         self._unit = o_stream.control.unit
         self._mode = o_stream.control.mode
-        self.num_bursts = o_stream.control.num_bursts
-        self.num_packets = o_stream.control.num_packets
-        self.packets_per_burst = o_stream.control.packets_per_burst
+        self._num_bursts = o_stream.control.num_bursts
+        self._num_packets = o_stream.control.num_packets
+        self._packets_per_burst = o_stream.control.packets_per_burst
         self._next = o_stream.control.next
-        self.bursts_per_sec = o_stream.control.bursts_per_sec
-        self.packets_per_sec = o_stream.control.packets_per_sec
+        self._bursts_per_sec = o_stream.control.bursts_per_sec
+        self._packets_per_sec = o_stream.control.packets_per_sec
         self._fetch_layers(o_stream)
         self.log.debug('state after fetch: {}'.format(self.to_dict()))
 

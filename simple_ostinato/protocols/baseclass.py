@@ -1,4 +1,3 @@
-import pprint
 import inspect
 """
 """
@@ -49,36 +48,6 @@ class Protocol(object):
             if isinstance(cls_attribute, property):
                 properties.append(name)
         return properties
-
-    def to_dict(self):
-        """
-        Return the object configuration as a dictionnary.
-        """
-        ret = {}
-        for attribute in self._get_properties():
-            value = getattr(self, attribute)
-            if getattr(value, 'to_dict', None) is not None:
-                value = value.to_dict()
-            if isinstance(value, (dict, int)):
-                ret[attribute] = value
-            else:
-                ret[attribute] = str(value)
-        return ret
-
-    def from_dict(self, dict_):
-        """
-        Set the object configuration from a dictionary. Keys must be the same
-        as the attributes names, and values but by valid values for these
-        attributes.
-        """
-        for attribute, value in dict_.items():
-            if attribute not in self._get_properties():
-                raise ValueError('{} not found'.format(attribute))
-            setattr(self, attribute, value)
-
-    def __str__(self):
-        content = pprint.pformat(self.to_dict())
-        return '{}: {}'.format(self.__class__.__name__, content)
 
     def _save(self, o_protocol):
         ext = o_protocol.Extensions[self._extension]

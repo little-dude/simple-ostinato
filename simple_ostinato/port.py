@@ -2,7 +2,6 @@
 This module implement a class that represents a remote port, controlled by a
 :class:`Drone` instance.
 """
-import weakref
 import time
 from ostinato.core import ost_pb
 from .stream import Stream
@@ -41,9 +40,7 @@ class Port(object):
         :class:`Drone` object, used internally to \
             perform the protocol buffer calls.
         """
-        if not hasattr(self, '_drone'):
-            return None
-        return self._drone()
+        return getattr(self, '_drone', None)
 
     def get_stream(self, stream_id):
         """
@@ -74,7 +71,10 @@ class Port(object):
         A reference to the :class:`Drone` object. This is mostly for internal
         use.
         """
-        self._drone = weakref.ref(value)
+        if self.drone is None:
+            self._drone = value
+        else:
+            raise ValueError('can set this attribute only once')
 
     def _fetch(self):
         o_ports = self.drone._o_get_port_list(self._get_o_port_id_list())
@@ -87,12 +87,12 @@ class Port(object):
         self.log.info('saving configuration')
         o_ports = self._fetch()
         o_port = o_ports.port[0]
-        o_port.name = self.name
-        o_port.description = self.description
-        o_port.notes = self.notes
-        o_port.is_enabled = self.is_enabled
+        o_port.name = self._name
+        # o_port.description = self.description
+        # o_port.notes = self.notes
+        o_port.is_enabled = self._is_enabled
         o_port.transmit_mode = self._transmit_mode
-        o_port.user_name = self.user_name
+        o_port.user_name = self._user_name
         self.drone._o_modify_port(o_ports)
 
     def fetch(self):
@@ -101,12 +101,12 @@ class Port(object):
         """
         self.log.info('fetching configuration')
         o_port = self._fetch().port[0]
-        self.name = o_port.name
-        self.description = o_port.description
-        self.notes = o_port.notes
-        self.is_enabled = o_port.is_enabled
+        self._name = o_port.name
+        # self.description = o_port.description
+        # self.notes = o_port.notes
+        self._is_enabled = o_port.is_enabled
         self._transmit_mode = o_port.transmit_mode
-        self.user_name = o_port.user_name
+        self._user_name = o_port.user_name
 
     def _fetch_stream_ids(self):
         o_port_ids = ost_pb.PortIdList()
@@ -149,36 +149,33 @@ class Port(object):
         """
         Name of the port. This is a read-only attribute.
         """
-        return self._name
+        return getattr(self, '_name', None)
 
     @name.setter
     def name(self, value):
-        if value and getattr(self, '_name', None) is None:
-            self.log.info('port name is "{}"'.format(value))
-            self.log.name = '{}.{}'.format(self.drone.log.name, value)
-        self._name = str(value)
+        raise ValueError('Read-only attribute')
 
-    @property
-    def description(self):
-        """
-        Optional description for the port.
-        """
-        return self._description
+    # @property
+    # def description(self):
+    #     """
+    #     Optional description for the port.
+    #     """
+    #     return self._description
 
-    @description.setter
-    def description(self, value):
-        self._description = str(value)
+    # @description.setter
+    # def description(self, value):
+    #     self._description = str(value)
 
-    @property
-    def notes(self):
-        """
-        Optional note for the port.
-        """
-        return self._notes
+    # @property
+    # def notes(self):
+    #     """
+    #     Optional note for the port.
+    #     """
+    #     return self._notes
 
-    @notes.setter
-    def notes(self, value):
-        self._notes = str(value)
+    # @notes.setter
+    # def notes(self, value):
+    #     self._notes = str(value)
 
     @property
     def is_enabled(self):
@@ -189,23 +186,7 @@ class Port(object):
 
     @is_enabled.setter
     def is_enabled(self, value):
-        if not isinstance(value, bool):
-            raise TypeError('Expected boolean')
-        self._is_enabled = value
-
-    def enable(self):
-        """
-        Enable the port.
-        It is actually a shortcut for ``self.is_enabled = True``.
-        """
-        self.is_enabled = True
-
-    def disable(self):
-        """
-        Disable the port.
-        It is actually a shortcut for ``self.is_enabled = False``.
-        """
-        self.is_enabled = False
+        raise ValueError('Read-only attribute')
 
     @property
     def is_exclusive_control(self):
@@ -270,7 +251,7 @@ class Port(object):
         self.drone._o_add_stream(o_stream_ids)
         new_stream = Stream(self, stream_id)
         self.streams.append(new_stream)
-        new_stream.add_layers(*layers)
+        new_stream.layers = list(layers)
         return new_stream
 
     def del_stream(self, stream_id):
@@ -350,6 +331,23 @@ class Port(object):
         self.log.info('clearing statistics')
         self.drone._o_clear_stats(self._get_o_port_id_list())
 
+    def to_dict(self):
+        return {'name': self.name,
+                'transmit_mode': self.transmit_mode,
+                'is_enabled': self.is_enabled,
+                'streams': self.streams}
+
+    def from_dict(self, values):
+        for key, value in values.iteritems():
+            if key in ['name', 'is_enabled']:
+                self.log.warning(
+                    'ignoring "{}" (read only attribute)'.format(key))
+            elif key == 'streams':
+                self.log.warning(
+                    'ignoring key "streams", use "add_stream()" instead')
+            else:
+                setattr(self, key, value)
+
     def get_stats(self):
         """
         Fetch the port statistics, and return them as a dictionary.
@@ -402,5 +400,6 @@ class Port(object):
         return o_port_ids
 
     def __str__(self):
-        name = getattr(self, 'name', '??')
-        return 'port[{}:{}]'.format(self.port_id, name)
+        if not self.name:
+            return 'port[{}]'.format(self.port_id)
+        return 'port[{}:{}]'.format(self.port_id, self.name)
