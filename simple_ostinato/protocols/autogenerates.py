@@ -54,6 +54,28 @@ class _Mac(baseclass.Protocol):
     def _fetch_destination(self, ext):
         self._destination = ext.dst_mac
 
+    def __str__(self):
+        return 'Mac(source={},destination={},)'.format(self.source,self.destination,)
+
+    def to_dict(self):
+        """
+        Return the Mac layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'source': self.source,
+            'destination': self.destination,
+        }
+
+    def from_dict(self):
+        """
+        Set the Mac layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
+
 
 class _Ethernet(baseclass.Protocol):
 
@@ -83,6 +105,27 @@ class _Ethernet(baseclass.Protocol):
 
     def _fetch_ether_type(self, ext):
         self._ether_type = ext.type
+
+    def __str__(self):
+        return 'Ethernet(ether_type={},)'.format(self.ether_type,)
+
+    def to_dict(self):
+        """
+        Return the Ethernet layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'ether_type': self.ether_type,
+        }
+
+    def from_dict(self):
+        """
+        Set the Ethernet layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
 
 
 class _IPv4(baseclass.Protocol):
@@ -318,6 +361,39 @@ class _IPv4(baseclass.Protocol):
     def _fetch_total_length(self, ext):
         self._total_length = ext.totlen
 
+    def __str__(self):
+        return 'IPv4(protocol={},flags={},dscp={},ttl={},header_length={},fragments_offset={},tos={},destination={},source={},version={},identification={},checksum={},total_length={},)'.format(self.protocol,self.flags,self.dscp,self.ttl,self.header_length,self.fragments_offset,self.tos,self.destination,self.source,self.version,self.identification,self.checksum,self.total_length,)
+
+    def to_dict(self):
+        """
+        Return the IPv4 layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'protocol': self.protocol,
+            'flags': self.flags,
+            'dscp': self.dscp,
+            'ttl': self.ttl,
+            'header_length': self.header_length,
+            'fragments_offset': self.fragments_offset,
+            'tos': self.tos,
+            'destination': self.destination,
+            'source': self.source,
+            'version': self.version,
+            'identification': self.identification,
+            'checksum': self.checksum,
+            'total_length': self.total_length,
+        }
+
+    def from_dict(self):
+        """
+        Set the IPv4 layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
+
 
 class _Udp(baseclass.Protocol):
 
@@ -399,6 +475,30 @@ class _Udp(baseclass.Protocol):
     def _fetch_checksum(self, ext):
         self._checksum = ext.cksum
 
+    def __str__(self):
+        return 'Udp(source={},length={},destination={},checksum={},)'.format(self.source,self.length,self.destination,self.checksum,)
+
+    def to_dict(self):
+        """
+        Return the Udp layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'source': self.source,
+            'length': self.length,
+            'destination': self.destination,
+            'checksum': self.checksum,
+        }
+
+    def from_dict(self):
+        """
+        Set the Udp layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
+
 
 class _Tcp(baseclass.Protocol):
 
@@ -432,7 +532,7 @@ class _Tcp(baseclass.Protocol):
     @property
     def header_length(self):
         """
-        Size of the TCP header in 4 bytes words. This field is also known as "Data offset". By default, this attribute is computed automatically.
+        Size of the TCP header in 4 bytes words. This field is also known as "Data offset"
         """
         return utils.to_str(self._header_length)
 
@@ -449,7 +549,7 @@ class _Tcp(baseclass.Protocol):
     @property
     def reserved(self):
         """
-        Reserved for future use and must be set to 0. By default, this attribute is computed automatically.
+        Reserved for future use and must be set to 0
         """
         return utils.to_str(self._reserved)
 
@@ -636,7 +736,7 @@ class _Tcp(baseclass.Protocol):
     @property
     def checksum(self):
         """
-        Checksum of the datagram, calculated based on the IP pseudo-header. Its meaning depends on the value og the :attr:`ack` flag.
+        Checksum of the datagram, calculated based on the IP pseudo-header. Its meaning depends on the value og the :attr:`ack` flag.. By default, this attribute is computed automatically.
         """
         return utils.to_str(self._checksum)
 
@@ -718,6 +818,44 @@ class _Tcp(baseclass.Protocol):
     def _fetch_flag_ns(self, ext):
         self._flag_ns = ext.hdrlen_rsvd
 
+    def __str__(self):
+        return 'Tcp(flag_ack={},header_length={},reserved={},ack_num={},flag_rst={},window_size={},destination={},flag_psh={},urgent_pointer={},source={},flag_ece={},flag_urg={},sequence_num={},checksum={},flag_syn={},flag_cwr={},flag_fin={},flag_ns={},)'.format(self.flag_ack,self.header_length,self.reserved,self.ack_num,self.flag_rst,self.window_size,self.destination,self.flag_psh,self.urgent_pointer,self.source,self.flag_ece,self.flag_urg,self.sequence_num,self.checksum,self.flag_syn,self.flag_cwr,self.flag_fin,self.flag_ns,)
+
+    def to_dict(self):
+        """
+        Return the Tcp layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'flag_ack': self.flag_ack,
+            'header_length': self.header_length,
+            'reserved': self.reserved,
+            'ack_num': self.ack_num,
+            'flag_rst': self.flag_rst,
+            'window_size': self.window_size,
+            'destination': self.destination,
+            'flag_psh': self.flag_psh,
+            'urgent_pointer': self.urgent_pointer,
+            'source': self.source,
+            'flag_ece': self.flag_ece,
+            'flag_urg': self.flag_urg,
+            'sequence_num': self.sequence_num,
+            'checksum': self.checksum,
+            'flag_syn': self.flag_syn,
+            'flag_cwr': self.flag_cwr,
+            'flag_fin': self.flag_fin,
+            'flag_ns': self.flag_ns,
+        }
+
+    def from_dict(self):
+        """
+        Set the Tcp layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
+
 
 class _Payload(baseclass.Protocol):
 
@@ -764,3 +902,25 @@ class _Payload(baseclass.Protocol):
 
     def _fetch_mode(self, ext):
         self._mode = ext.pattern_mode
+
+    def __str__(self):
+        return 'Payload(pattern={},mode={},)'.format(self.pattern,self.mode,)
+
+    def to_dict(self):
+        """
+        Return the Payload layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'pattern': self.pattern,
+            'mode': self.mode,
+        }
+
+    def from_dict(self):
+        """
+        Set the Payload layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
