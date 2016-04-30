@@ -170,3 +170,51 @@ class StreamCRUD(unittest.TestCase):
         assert isinstance(stream.layers[2], protocols.IPv4)
         assert isinstance(stream.layers[3], protocols.Tcp)
         assert isinstance(stream.layers[4], protocols.Payload)
+
+    def test_from_dict(self):
+        port = self.layer.ost5
+        stream = port.add_stream()
+        layers = [protocols.Mac(),
+                  protocols.Ethernet(),
+                  protocols.IPv4(),
+                  protocols.Udp(),
+                  protocols.Payload()]
+        stream.from_dict({
+            'is_enabled': True,
+            'bursts_per_sec': 999,
+            'unit': 'BURSTS',
+            'layers': layers,
+            'name': 'test_from_dict',
+            'packets_per_sec': 999,
+            'next': 'STOP',
+            'num_bursts': 999,
+            'num_packets': 999,
+            'mode': 'CONTINUOUS',
+            'packets_per_burst': 999,
+        })
+        stream.save()
+        stream.fetch()
+        assert stream.name == 'test_from_dict'
+        assert stream.unit == 'BURSTS'
+        assert stream.mode == 'CONTINUOUS'
+        assert stream.next == 'STOP'
+        assert stream.is_enabled is True
+        assert stream.num_bursts == 999
+        assert stream.num_packets == 999
+        assert stream.packets_per_burst == 999
+        assert stream.packets_per_sec == 999
+        assert stream.bursts_per_sec == 999
+
+        other_port = self.layer.get_fresh_port('ost5')
+        other_port.fetch_streams()
+        other_stream = other_port.streams[0]
+        assert other_stream.name == 'test_from_dict'
+        assert other_stream.unit == 'BURSTS'
+        assert other_stream.mode == 'CONTINUOUS'
+        assert other_stream.next == 'STOP'
+        assert other_stream.is_enabled is True
+        assert other_stream.num_bursts == 999
+        assert other_stream.num_packets == 999
+        assert other_stream.packets_per_burst == 999
+        assert other_stream.packets_per_sec == 999
+        assert other_stream.bursts_per_sec == 999
