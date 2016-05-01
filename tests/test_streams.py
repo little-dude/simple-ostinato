@@ -97,7 +97,7 @@ class StreamCRUD(unittest.TestCase):
         assert stream.packets_per_burst == 10
         assert stream.packets_per_sec == 1
         assert stream.bursts_per_sec == 1
-        assert stream.port == port
+        assert stream.port_id == port.port_id
 
     def test_update_attributes(self):
         port = self.layer.ost3

@@ -44,7 +44,8 @@ class Stream(object):
 
     def __init__(self, port, stream_id, layers=None, clean_layers=True):
         self.last_check = time.time()
-        self.port = port
+        self.port_id = port.port_id
+        self._drone = port._drone
         self.stream_id = stream_id
         self.log = port.log.getChild(str(self))
         self.fetch()
@@ -52,32 +53,6 @@ class Stream(object):
             self.layers = []
         if layers:
             self.layers.extend(layers)
-
-    @property
-    def port(self):
-        """
-        Reference to the port on which this stream is configured.
-        """
-        return getattr(self, '_port', None)
-
-    @port.setter
-    def port(self, value):
-        if self.port is None:
-            self._port = value
-        else:
-            raise ValueError('This attribute can only be set once')
-
-    @property
-    def drone(self):
-        """
-        Reference to the :class:`Drone` instance. This is
-        mostly for internal use.
-        """
-        return self.port.drone
-
-    @drone.setter
-    def drone(self, value):
-        raise ValueError('Read-only attribute')
 
     @property
     def layers(self):
@@ -113,7 +88,7 @@ class Stream(object):
             o_protocol.protocol_id.id = layer._protocol_id
             layer._save(o_protocol)
         # apply the changes
-        self.drone._o_modify_stream(o_streams)
+        self._drone.modifyStream(o_streams)
 
     def save(self):
         """
@@ -132,7 +107,7 @@ class Stream(object):
         o_stream.control.next = self._next
         o_stream.control.bursts_per_sec = self._bursts_per_sec
         o_stream.control.packets_per_sec = self._packets_per_sec
-        self.drone._o_modify_stream(o_streams)
+        self._drone.modifyStream(o_streams)
         self._save_layers()
 
     def fetch(self):
@@ -157,10 +132,10 @@ class Stream(object):
 
     def _fetch(self):
         o_stream_ids = ost_pb.StreamIdList()
-        o_stream_ids.port_id.id = self.port.port_id
+        o_stream_ids.port_id.id = self.port_id
         o_stream_id = o_stream_ids.stream_id.add()
         o_stream_id.id = self.stream_id
-        o_streams = self.drone._o_get_stream_list(o_stream_ids)
+        o_streams = self._drone.getStreamConfig(o_stream_ids)
         return o_streams
 
     @property
@@ -174,12 +149,6 @@ class Stream(object):
 
     @name.setter
     def name(self, value):
-        if value and getattr(self, '_name', None) is None:
-            self.log.info('stream name is "{}"'.format(value))
-            self.log.name = '{}.{}'.format(self.port.log.name, value)
-        elif value != self.name:
-            self.log.info('renaming stream to "{}"'.format(value))
-            self.log.name = '{}.{}'.format(self.port.log.name, value)
         self._name = value
 
     def enable(self):
