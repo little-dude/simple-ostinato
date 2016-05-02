@@ -277,6 +277,11 @@ class StreamCRUD(unittest.TestCase):
         assert rx_stats['rx_pkts'] == 10
         assert tx_stats['tx_bytes'] == 600
         assert rx_stats['rx_bytes'] == 600
+        if utils.is_pypy():
+            # due to a bug in pypy, lxml (on which pyshark relied) is broken
+            # for pypy, so this code crashes.
+            # https://www.mail-archive.com/pypy-dev%40python.org/msg06518.html
+            return
         for packet in pyshark.FileCapture('capture.pcap'):
             assert packet['eth'].dst == 'ff:ff:ff:ff:ff:ff'
             assert packet['eth'].src == '00:00:00:00:00:00'

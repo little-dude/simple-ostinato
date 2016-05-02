@@ -1,3 +1,4 @@
+import platform
 from simple_ostinato import Drone
 import logging
 import time
@@ -98,3 +99,9 @@ def restart_drone(connect=True, fetch_ports=True):
         return drone
     drone.fetch_ports()
     return drone
+
+
+def is_pypy():
+    if platform.python_implementation() == 'PyPy':
+        return True
+    return False
