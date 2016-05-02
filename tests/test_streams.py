@@ -97,7 +97,7 @@ class StreamCRUD(unittest.TestCase):
         assert stream.packets_per_burst == 10
         assert stream.packets_per_sec == 1
         assert stream.bursts_per_sec == 1
-        assert stream.port == port
+        assert stream.port_id == port.port_id
 
     def test_update_attributes(self):
         port = self.layer.ost3
@@ -259,9 +259,11 @@ class StreamCRUD(unittest.TestCase):
             'tx_pps': 0,
         }
         tx.clear_stats()
-        assert tx.get_stats() == stats_dict
         rx.clear_stats()
-        assert rx.get_stats() == stats_dict
+        tx_stats = tx.get_stats()
+        rx_stats = rx.get_stats()
+        assert tx_stats == stats_dict, str(tx_stats)
+        assert rx_stats == stats_dict
         rx.start_capture()
         tx.start_send()
         time.sleep(1)
@@ -275,6 +277,11 @@ class StreamCRUD(unittest.TestCase):
         assert rx_stats['rx_pkts'] == 10
         assert tx_stats['tx_bytes'] == 600
         assert rx_stats['rx_bytes'] == 600
+        if utils.is_pypy():
+            # due to a bug in pypy, lxml (on which pyshark relied) is broken
+            # for pypy, so this code crashes.
+            # https://www.mail-archive.com/pypy-dev%40python.org/msg06518.html
+            return
         for packet in pyshark.FileCapture('capture.pcap'):
             assert packet['eth'].dst == 'ff:ff:ff:ff:ff:ff'
             assert packet['eth'].src == '00:00:00:00:00:00'
@@ -285,4 +292,4 @@ class StreamCRUD(unittest.TestCase):
             assert int(packet['ip'].len) == 46
             assert int(packet['ip'].ttl) == 127
             assert int(packet['ip'].version) == 4
-            assert packet['ip'].checksum == '0x00003dc8'
+            assert int(packet['ip'].checksum, 16) == 15816

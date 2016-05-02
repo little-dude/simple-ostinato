@@ -28,19 +28,11 @@ class Port(object):
     """
 
     def __init__(self, drone, port_id):
-        self.drone = drone
+        self._drone = drone._drone
         self.port_id = port_id
         self.streams = []
-        self.log = self.drone.log.getChild('port[{}]'.format(port_id))
+        self.log = drone.log.getChild('port[{}]'.format(port_id))
         self.fetch()
-
-    @property
-    def drone(self):
-        """
-        :class:`Drone` object, used internally to \
-            perform the protocol buffer calls.
-        """
-        return getattr(self, '_drone', None)
 
     def get_stream(self, stream_id):
         """
@@ -65,19 +57,8 @@ class Port(object):
                 streams.append(stream)
         return streams
 
-    @drone.setter
-    def drone(self, value):
-        """
-        A reference to the :class:`Drone` object. This is mostly for internal
-        use.
-        """
-        if self.drone is None:
-            self._drone = value
-        else:
-            raise ValueError('can set this attribute only once')
-
     def _fetch(self):
-        o_ports = self.drone._o_get_port_list(self._get_o_port_id_list())
+        o_ports = self._drone.getPortConfig(self._get_o_port_id_list())
         return o_ports
 
     def save(self):
@@ -93,7 +74,7 @@ class Port(object):
         o_port.is_enabled = self._is_enabled
         o_port.transmit_mode = self._transmit_mode
         o_port.user_name = self._user_name
-        self.drone._o_modify_port(o_ports)
+        self._drone.modifyPort(o_ports)
 
     def fetch(self):
         """
@@ -112,11 +93,11 @@ class Port(object):
         o_port_ids = ost_pb.PortIdList()
         o_port_id = o_port_ids.port_id.add()
         o_port_id.id = self.port_id
-        return self.drone._o_get_stream_id_list(o_port_id)
+        return self._drone.getStreamIdList(o_port_id)
 
     def _fetch_streams(self):
         o_stream_ids = self._fetch_stream_ids()
-        return self.drone._o_get_stream_list(o_stream_ids)
+        return self._drone.getStreamConfig(o_stream_ids)
 
     def fetch_streams(self):
         """
@@ -248,7 +229,7 @@ class Port(object):
         o_stream_ids.port_id.id = self.port_id
         stream_id = self._get_new_stream_id()
         o_stream_ids.stream_id.add().id = stream_id
-        self.drone._o_add_stream(o_stream_ids)
+        self._drone.addStream(o_stream_ids)
         new_stream = Stream(self, stream_id)
         self.streams.append(new_stream)
         new_stream.layers = list(layers)
@@ -266,7 +247,7 @@ class Port(object):
         o_stream_ids = ost_pb.StreamIdList()
         o_stream_ids.port_id.id = self.port_id
         o_stream_ids.stream_id.add().id = stream_id
-        self.drone._o_delete_stream(o_stream_ids)
+        self._drone.deleteStream(o_stream_ids)
         self.streams.remove(self.get_stream(stream_id))
 
     def start_send(self, streams=None):
@@ -288,14 +269,14 @@ class Port(object):
             else:
                 stream.disable()
             stream.save()
-        self.drone._o_start_transmit(self._get_o_port_id_list())
+        self._drone.startTransmit(self._get_o_port_id_list())
 
     def stop_send(self):
         """
         Stop sending
         """
         self.log.info('stop sending')
-        self.drone._o_stop_transmit(self._get_o_port_id_list())
+        self._drone.stopTransmit(self._get_o_port_id_list())
 
     def start_capture(self, block=-1, stop=False):
         """
@@ -311,7 +292,7 @@ class Port(object):
                 capture will be stopped after ``block`` seconds.
         """
         self.log.info('start capturing')
-        self.drone._o_start_capture(self._get_o_port_id_list())
+        self._drone.startCapture(self._get_o_port_id_list())
         if block > 0:
             time.sleep(block)
             if stop:
@@ -322,14 +303,14 @@ class Port(object):
         Stop the current capture
         """
         self.log.info('stop capturing')
-        self.drone._o_stop_capture(self._get_o_port_id_list())
+        self._drone.stopCapture(self._get_o_port_id_list())
 
     def clear_stats(self):
         """
         Clear the port statistics
         """
         self.log.info('clearing statistics')
-        self.drone._o_clear_stats(self._get_o_port_id_list())
+        self._drone.clearStats(self._get_o_port_id_list())
 
     def to_dict(self):
         return {'name': self.name,
@@ -353,7 +334,7 @@ class Port(object):
         Fetch the port statistics, and return them as a dictionary.
         """
         self.log.info('fetching statistics')
-        o_stats = self.drone._o_port_stats_list(self._get_o_port_id_list())
+        o_stats = self._drone.getStats(self._get_o_port_id_list())
         o_stats = o_stats.port_stats[0]
         return {
             'rx_bps': o_stats.rx_bps,
@@ -385,14 +366,14 @@ class Port(object):
                 drone`.
         """
         o_port_id = self._fetch().port[0].port_id
-        o_buff = self.drone._o_get_capture_buffer(o_port_id)
+        o_buff = self._drone.getCaptureBuffer(o_port_id)
         if save_as:
             self.save_capture(o_buff, save_as)
         return o_buff
 
     def save_capture(self, o_capture_buffer, path):
         self.log.info('saving capture as {}'.format(path))
-        self.drone._o_save_capture_buffer(o_capture_buffer, path)
+        self._drone.saveCaptureBuffer(o_capture_buffer, path)
 
     def _get_o_port_id_list(self):
         o_port_ids = ost_pb.PortIdList()
