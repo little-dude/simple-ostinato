@@ -125,7 +125,7 @@ class TestPortConfig(unittest.TestCase):
         port.from_dict({'name': 'should_be_ignored',
                         'transmit_mode': 'INTERLEAVED',
                         'is_enabled': False,
-                        'streams': 'should_be_ignored'})
+                        'streams': []})
         assert port.is_enabled is True
         assert port.transmit_mode == 'INTERLEAVED'
         assert port.name == 'ost5'

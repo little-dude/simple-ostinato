@@ -1,3 +1,4 @@
+import json
 import platform
 from simple_ostinato import Drone
 import logging
@@ -105,3 +106,27 @@ def is_pypy():
     if platform.python_implementation() == 'PyPy':
         return True
     return False
+
+
+def load_json(filename):
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    filepath = os.path.join(this_dir, 'data', filename)
+    with open(filepath, 'r') as f:
+        return json.load(f)
+
+
+def send_and_receive(tx, rx, duration=1, clear_stats=True, save_as=None):
+    if clear_stats:
+        tx.clear_stats()
+        rx.clear_stats()
+    rx.start_capture()
+    tx.start_send()
+    time.sleep(duration)
+    tx.stop_send()
+    rx.stop_capture()
+    capture = rx.get_capture(save_as=save_as)
+    return (capture, tx.get_stats(), rx.get_stats())
+
+
+def sanitize_dict(dictionary):
+    return json.loads(json.dumps(dictionary))
