@@ -41,13 +41,13 @@ class Protocol(object):
         for attribute, value in kwargs.iteritems():
             setattr(self, attribute, value)
 
-    def _get_properties(self):
-        properties = []
-        for name in dir(self.__class__):
-            cls_attribute = getattr(self.__class__, name)
-            if isinstance(cls_attribute, property):
-                properties.append(name)
-        return properties
+    # def _get_properties(self):
+    #     properties = []
+    #     for name in dir(self.__class__):
+    #         cls_attribute = getattr(self.__class__, name)
+    #         if isinstance(cls_attribute, property):
+    #             properties.append(name)
+    #     return properties
 
     def _save(self, o_protocol):
         ext = o_protocol.Extensions[self._extension]
