@@ -20,3 +20,12 @@ script:
 - sudo env PATH=$PATH VIRTUAL_ENV=$VIRTUAL_ENV nose2 -v -s tests --with-coverage --fail-fast
 after_success:
 - coveralls
+deploy:
+  provider: pypi
+  user: little-dude
+  password:
+    secure: WOkTVlNGBwyYzs8K58YHLrTjmj9Y5Pnnk01mpe2aKUD97rZn/F4MjOI4bmftQFTn73xlcIb5g0GzfNX1Qmoomj1diaFQ6jWkptILyFhFUbvwxlnggGKhawrgirCoAH0/neDDU78OjGcnybNuaHodonJN7etEKoDOCKeCB8SKwoKmnrzlPECPOHw/exM37J16ooQJCQEk11c9u2LrhoCrKpiiiDw43DtA7i6NmXZelrk3Hgx7zt8/43vkuHcmHVp0lXfmRe8EL7khz8r3/Jcjm5/jMnqV+XKmgRY7DCaLIKEtK4JsouU+T9F/QzLKl5/N1NGY9OGJq22k6IsZ3rBereey4f6LYHIXZwmHZu6StBmqenQUIEtol3A3vcOf+P6FmYw9grFP5Vco9FBmEX4qWli2jbdhLfpnQw0eDq+3BF2bNvTVFrpnT3v117c7vhS7vmSXNmSqHdc6w9zQx/HD6eOCYMucseKA4z6i5zngwayFZhBVQBUVv5j9pBN1PcbZKLnK2FDUxAejNd8BbNmudxxJWEaEZLU+bnLk9UEuMsR0L6F656AUGrM26t1pDZ2IdYV8JYFd5VzshV5zvNPKA2TbcC23fSsmK7Fi2c5FxmBCaErxnBN/DI3Xkl+6JBRkfhdcSW16J3GztFfwHDxDb6oKZ5jPF89oAgOMfIuhTD0=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: little-dude/simple-ostinato
