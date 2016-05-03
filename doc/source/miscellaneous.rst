@@ -27,8 +27,34 @@ on the remote drone instance, use the ``save`` methods:
   special case: when adding or deleting a layer, the operation is always
   applied on the remote drone instance.
 
----------------
-Variable fields
----------------
+-----------------------------
+Saving/Loading configurations
+-----------------------------
 
-TODO (not yet implemented)
+:class:`simple_ostinato.Port` and :class:`simple_ostinato.Stream` classes have
+a ``to_dict()`` and ``from_dict()`` method, which respectively dump and load
+the object configuration to/from a dictionary. It can be useful to save stream,
+or port configurations as json or yaml.
+
+For example:
+
+.. code-block:: python
+
+    import json
+
+    # save the "my_port" configuration (including all the streams) in a file
+    with open('myport.json', 'w') as f:
+        json.dump(myport.to_dict(), f)
+
+    # later, load this configuration for another port when loading a
+    # configuration, the `name` and `is_enable` keys are ignored, since they
+    # are readonly properties. this allows to re-use the same configuration on
+    # different ports.
+    with open('myport.json', 'r') as f:
+        anotherport.from_dict(json.load(f))
+    anotherport.save()
+
+    # in case you only want to load the streams:
+    with open('myport.json', 'r') as f:
+        anotherport.from_dict({'streams': json.load(f)['streams']})
+    anotherport.save()

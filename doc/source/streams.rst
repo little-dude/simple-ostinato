@@ -106,6 +106,21 @@ instance, to delete the ``Payload`` and ``IPv4`` layers:
     del stream.layers[-1]
 
 
+Variable fields
+---------------
+
+Apart from a small number of exceptions, every field can be variable, `i.e.`
+being increment/decremented/randomized. To control this, each attribute has
+three other attributes associated:
+
+- ``<attribute_name>_mode``: can be ``FIXED`` (the default), ``INCREMENT``, ``DECREMENT``, or ``RANDOMIZED``
+- ``<attribute_name>_step``: is an integer that specify by how much the field should be incremented or decremented
+- ``<attribute_name>_count``: is an integer that specify after how many packets, the field should be reset to its inital value
+
+Some fields also have a ``<attribute_name>_override`` attribute. This field
+must be set to ``True`` in order to set a custom value. Otherwise, Ostinato
+computes a value automatically.
+
 --------
 Deletion
 --------
