@@ -1,4 +1,6 @@
+from ostinato.core import ost_pb
 import inspect
+from .. import utils
 """
 """
 
@@ -31,6 +33,13 @@ def make_protocol_class(name, bases, attributes):
     # return fix_docs(my_cls)
 
 
+class FieldMode(utils.Enum):
+    FIXED = -1
+    INCREMENT = ost_pb.VariableField.kIncrement
+    DECREMENT = ost_pb.VariableField.kDecrement
+    RANDOM = ost_pb.VariableField.kRandom
+
+
 class Protocol(object):
 
     """
@@ -50,13 +59,48 @@ class Protocol(object):
     #     return properties
 
     def _save(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
+        while o_protocol.variable_field:
+            o_protocol.variable_field.remove(o_protocol.variable_field[-1])
         for method in dir(self):
             if method.startswith('_save_'):
-                getattr(self, method)(ext)
+                getattr(self, method)(o_protocol)
 
     def _fetch(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
         for method in dir(self):
             if method.startswith('_fetch_'):
-                getattr(self, method)(ext)
+                getattr(self, method)(o_protocol)
+
+    @property
+    def fields(self):
+        fields = []
+        for field in self._fields:
+            fields.append(getattr(self, field))
+        return fields
+
+    # @variable_fields.setter
+    # def variable_fields(self, variable_fields):
+    #     self._variable_fields = variable_fields
+
+    # def set_variable_field(self, offset, mask, mode='INCREMENT', step=1):
+    #     variable_field = VariableField(offset, mask=mask, mode=mode, step=step)
+    #     for field in self.variable_fields:
+    #         if self._fields_overlap(field, variable_field):
+    #             raise ValueError('new field overlap with {}'.format(field))
+
+    # def get_variable_field(self, offset, mask):
+    #     for field in self.variable_fields:
+    #         if field.offset == offset and field.mask == mask:
+    #             return field
+
+    # def del_variable_field(self, offset, mask):
+    #     self.variable_fields.remove(self.get_variable_field(offset, mask))
+
+    # def _fields_overlap(field, offset, mask):
+    #     field_offset = field.offset
+    #     diff_offset = abs(field_offset - offset)
+    #     if diff_offset > 4:
+    #         return False
+    #     shift = diff_offset * 8
+    #     max_offset = max(offset, field.offset)
+    #     min_offset = min(offset, field.offset)
+    #     return (max_offset >> shift) & min_offset > 0

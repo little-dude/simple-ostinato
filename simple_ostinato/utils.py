@@ -38,7 +38,7 @@ def to_str(integer, padding=None, sep=':'):
 def parse(value):
     if isinstance(value, int):
         return value
-    if isinstance(value, str):
+    if isinstance(value, (unicode, str)):
         return hexstr_to_int(value)
     else:
         raise ValueError('Invalid value {}'.format(value))

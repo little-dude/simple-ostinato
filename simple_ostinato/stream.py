@@ -42,22 +42,20 @@ class Stream(object):
         stream_id (int): the stream ID.
     """
 
-    def __init__(self, port, stream_id, layers=None, clean_layers=True):
+    def __init__(self, port, stream_id, layers=None):
         self.last_check = time.time()
         self.port_id = port.port_id
         self._drone = port._drone
         self.stream_id = stream_id
         self.log = port.log.getChild(str(self))
         self.fetch()
-        if clean_layers:
-            self.layers = []
         if layers:
             self.layers.extend(layers)
 
     @property
     def layers(self):
         """
-        Dictionnary of all the layers configured for this stream.
+        List of all the layers configured for this stream.
         """
         return self._layers
 
@@ -71,9 +69,7 @@ class Stream(object):
         self.layers = []
         for o_protocol in o_protocols:
             protocol_id = o_protocol.protocol_id.id
-            if protocol_id == 0:
-                continue
-            self.layers.append(_protocol_factory(o_protocol))
+            self.layers.append(_protocol_factory(protocol_id, o_protocol))
 
     def _save_layers(self):
         # remove the existing layers
@@ -291,6 +287,9 @@ class Stream(object):
         return 'stream[{}:{}]'.format(self.stream_id, self.name)
 
     def to_dict(self):
+        layers = []
+        for layer in self.layers:
+            layers.append([layer._protocol_id, layer.to_dict()])
         return {
             'name': self.name,
             'is_enabled': self.is_enabled,
@@ -302,15 +301,23 @@ class Stream(object):
             'next': self.next,
             'bursts_per_sec': self.bursts_per_sec,
             'packets_per_sec': self.packets_per_sec,
-            'layers': self.layers
+            'layers': layers,
         }
 
     def from_dict(self, dictionary):
         for key, value in dictionary.iteritems():
-            setattr(self, key, value)
+            if key == 'layers':
+                layers = []
+                for (protocol_id, layer_dict) in value:
+                    layer = _protocol_factory(protocol_id)
+                    layer.from_dict(layer_dict)
+                    layers.append(layer)
+                self.layers = layers
+            else:
+                setattr(self, key, value)
 
 
-def _protocol_factory(o_protocol):
+def _protocol_factory(protocol_id, o_protocol=None):
     proto_cls_mapping = {
         constants._Protocols.MAC: protocols.Mac,
         constants._Protocols.ETHERNET_II: protocols.Ethernet,
@@ -319,8 +326,8 @@ def _protocol_factory(o_protocol):
         constants._Protocols.UDP: protocols.Udp,
         constants._Protocols.PAYLOAD: protocols.Payload,
     }
-    protocol_id = o_protocol.protocol_id.id
     protocol_cls = proto_cls_mapping[protocol_id]
     protocol = protocol_cls()
-    protocol._fetch(o_protocol)
+    if o_protocol:
+        protocol._fetch(o_protocol)
     return protocol

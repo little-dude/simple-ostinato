@@ -3,6 +3,7 @@ This module implement a class that represents a remote port, controlled by a
 :class:`Drone` instance.
 """
 import time
+import pprint
 from ostinato.core import ost_pb
 from .stream import Stream
 from . import utils
@@ -74,6 +75,8 @@ class Port(object):
         o_port.is_enabled = self._is_enabled
         o_port.transmit_mode = self._transmit_mode
         o_port.user_name = self._user_name
+        for stream in self.streams:
+            stream.save()
         self._drone.modifyPort(o_ports)
 
     def fetch(self):
@@ -250,25 +253,11 @@ class Port(object):
         self._drone.deleteStream(o_stream_ids)
         self.streams.remove(self.get_stream(stream_id))
 
-    def start_send(self, streams=None):
+    def start_send(self):
         """
         Start transmitting the streams that are enabled on this port.
-
-        Args:
-
-            streams (list): a list of :class:`Stream` to send. If such a list \
-                is provided, the corresponding streams will be enabled, and \
-                the other disabled.
         """
         self.log.info('start sending')
-        if streams is None:
-            streams = self.streams
-        for stream in self.streams:
-            if stream in streams:
-                stream.enable()
-            else:
-                stream.disable()
-            stream.save()
         self._drone.startTransmit(self._get_o_port_id_list())
 
     def stop_send(self):
@@ -313,10 +302,13 @@ class Port(object):
         self._drone.clearStats(self._get_o_port_id_list())
 
     def to_dict(self):
+        stream_dicts = []
+        for stream in self.streams:
+            stream_dicts.append(stream.to_dict())
         return {'name': self.name,
                 'transmit_mode': self.transmit_mode,
                 'is_enabled': self.is_enabled,
-                'streams': self.streams}
+                'streams': stream_dicts}
 
     def from_dict(self, values):
         for key, value in values.iteritems():
@@ -324,8 +316,11 @@ class Port(object):
                 self.log.warning(
                     'ignoring "{}" (read only attribute)'.format(key))
             elif key == 'streams':
-                self.log.warning(
-                    'ignoring key "streams", use "add_stream()" instead')
+                while self.streams:
+                    self.del_stream(self.streams[0])
+                for stream_dict in value:
+                    stream = self.add_stream()
+                    stream.from_dict(stream_dict)
             else:
                 setattr(self, key, value)
 
@@ -379,6 +374,12 @@ class Port(object):
         o_port_ids = ost_pb.PortIdList()
         o_port_ids.port_id.add().id = self.port_id
         return o_port_ids
+
+    def dump_streams(self):
+        streams = []
+        for stream in self.streams:
+            streams.append(stream.to_dict())
+        return pprint.pformat(streams)
 
     def __str__(self):
         if not self.name:

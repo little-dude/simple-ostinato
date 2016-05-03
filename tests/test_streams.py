@@ -1,5 +1,4 @@
 import os
-import time
 from nose2.compat import unittest
 from simple_ostinato import protocols
 import pyshark
@@ -38,66 +37,66 @@ class StreamCRUD(unittest.TestCase):
         port = self.layer.ost1
         for i in range(0, 100):
             port.add_stream()
-        assert len(port.streams) == 100
+        self.assertEqual(len(port.streams), 100)
         port.fetch_streams()
-        assert len(port.streams) == 100
+        self.assertEqual(len(port.streams), 100)
         port.streams = []
         port.fetch_streams()
-        assert len(port.streams) == 100
+        self.assertEqual(len(port.streams), 100)
 
         other_port = self.layer.get_fresh_port('ost1')
-        assert len(other_port.streams) == 0
+        self.assertEqual(len(other_port.streams), 0)
         other_port.fetch_streams()
-        assert len(other_port.streams) == 100
+        self.assertEqual(len(other_port.streams), 100)
 
         while port.streams:
             port.del_stream(port.streams[-1].stream_id)
 
-        assert len(port.streams) == 0
+        self.assertEqual(len(port.streams), 0)
         port.fetch_streams()
-        assert len(port.streams) == 0
+        self.assertEqual(len(port.streams), 0)
 
         other_port = self.layer.get_fresh_port('ost1')
         other_port.fetch_streams()
-        assert len(other_port.streams) == 0
+        self.assertEqual(len(other_port.streams), 0)
 
     def test_add_fetch_delete_simple(self):
         port = self.layer.ost1
-        assert len(port.streams) == 0
+        self.assertEqual(len(port.streams), 0)
         port.add_stream()
-        assert len(port.streams) == 1
+        self.assertEqual(len(port.streams), 1)
         port.streams = []
         port.fetch_streams()
-        assert len(port.streams) == 1
+        self.assertEqual(len(port.streams), 1)
 
         other_port = self.layer.get_fresh_port('ost1')
-        assert len(other_port.streams) == 0
+        self.assertEqual(len(other_port.streams), 0)
         other_port.fetch_streams()
-        assert len(other_port.streams) == 1
+        self.assertEqual(len(other_port.streams), 1)
 
         port.del_stream(port.streams[0].stream_id)
-        assert len(port.streams) == 0
+        self.assertEqual(len(port.streams), 0)
         port.fetch_streams()
-        assert len(port.streams) == 0
+        self.assertEqual(len(port.streams), 0)
 
         other_port = self.layer.get_fresh_port('ost1')
         other_port.fetch_streams()
-        assert len(other_port.streams) == 0
+        self.assertEqual(len(other_port.streams), 0)
 
     def test_stream_attributes(self):
         port = self.layer.ost2
         stream = port.add_stream()
-        assert stream.name == ''
-        assert stream.unit == 'PACKETS'
-        assert stream.mode == 'FIXED'
-        assert stream.next == 'GOTO_NEXT'
-        assert stream.is_enabled is False
-        assert stream.num_bursts == 1
-        assert stream.num_packets == 1
-        assert stream.packets_per_burst == 10
-        assert stream.packets_per_sec == 1
-        assert stream.bursts_per_sec == 1
-        assert stream.port_id == port.port_id
+        self.assertEqual(stream.name, '')
+        self.assertEqual(stream.unit, 'PACKETS')
+        self.assertEqual(stream.mode, 'FIXED')
+        self.assertEqual(stream.next, 'GOTO_NEXT')
+        self.assertEqual(stream.is_enabled, False)
+        self.assertEqual(stream.num_bursts, 1)
+        self.assertEqual(stream.num_packets, 1)
+        self.assertEqual(stream.packets_per_burst, 10)
+        self.assertEqual(stream.packets_per_sec, 1)
+        self.assertEqual(stream.bursts_per_sec, 1)
+        self.assertEqual(stream.port_id, port.port_id)
 
     def test_update_attributes(self):
         port = self.layer.ost3
@@ -114,30 +113,30 @@ class StreamCRUD(unittest.TestCase):
         stream.bursts_per_sec = 2
         stream.save()
         stream.fetch()
-        assert stream.name == 'test_stream'
-        assert stream.unit == 'BURSTS'
-        assert stream.mode == 'CONTINUOUS'
-        assert stream.next == 'STOP'
-        assert stream.is_enabled is True
-        assert stream.num_bursts == 2
-        assert stream.num_packets == 2
-        assert stream.packets_per_burst == 20
-        assert stream.packets_per_sec == 2
-        assert stream.bursts_per_sec == 2
+        self.assertEqual(stream.name, 'test_stream')
+        self.assertEqual(stream.unit, 'BURSTS')
+        self.assertEqual(stream.mode, 'CONTINUOUS')
+        self.assertEqual(stream.next, 'STOP')
+        self.assertEqual(stream.is_enabled, True)
+        self.assertEqual(stream.num_bursts, 2)
+        self.assertEqual(stream.num_packets, 2)
+        self.assertEqual(stream.packets_per_burst, 20)
+        self.assertEqual(stream.packets_per_sec, 2)
+        self.assertEqual(stream.bursts_per_sec, 2)
 
         other_port = self.layer.get_fresh_port('ost3')
         other_port.fetch_streams()
         other_stream = other_port.streams[0]
-        assert other_stream.name == 'test_stream'
-        assert other_stream.unit == 'BURSTS'
-        assert other_stream.mode == 'CONTINUOUS'
-        assert other_stream.next == 'STOP'
-        assert other_stream.is_enabled is True
-        assert other_stream.num_bursts == 2
-        assert other_stream.num_packets == 2
-        assert other_stream.packets_per_burst == 20
-        assert other_stream.packets_per_sec == 2
-        assert other_stream.bursts_per_sec == 2
+        self.assertEqual(other_stream.name, 'test_stream')
+        self.assertEqual(other_stream.unit, 'BURSTS')
+        self.assertEqual(other_stream.mode, 'CONTINUOUS')
+        self.assertEqual(other_stream.next, 'STOP')
+        self.assertEqual(other_stream.is_enabled, True)
+        self.assertEqual(other_stream.num_bursts, 2)
+        self.assertEqual(other_stream.num_packets, 2)
+        self.assertEqual(other_stream.packets_per_burst, 20)
+        self.assertEqual(other_stream.packets_per_sec, 2)
+        self.assertEqual(other_stream.bursts_per_sec, 2)
 
     def test_to_dict(self):
         port = self.layer.ost4
@@ -155,16 +154,16 @@ class StreamCRUD(unittest.TestCase):
             'mode': 'FIXED',
             'packets_per_burst': 10,
         }
-        assert stream.to_dict() == expected, str(stream.to_dict())
+        self.assertEqual(stream.to_dict(), expected)
 
         stream.save()
         stream.fetch()
-        assert stream.to_dict() == expected, str(stream.to_dict())
+        self.assertEqual(stream.to_dict(), expected)
 
         other_port = self.layer.get_fresh_port('ost4')
         other_port.fetch_streams()
         other_stream = other_port.streams[0]
-        assert other_stream.to_dict() == expected, str(stream.to_dict())
+        self.assertEqual(other_stream.to_dict(), expected)
 
         layers = [protocols.Mac(),
                   protocols.Ethernet(),
@@ -174,25 +173,20 @@ class StreamCRUD(unittest.TestCase):
         stream.layers = layers
         stream.save()
         stream.fetch()
-        assert isinstance(stream.layers[0], protocols.Mac)
-        assert isinstance(stream.layers[1], protocols.Ethernet)
-        assert isinstance(stream.layers[2], protocols.IPv4)
-        assert isinstance(stream.layers[3], protocols.Tcp)
-        assert isinstance(stream.layers[4], protocols.Payload)
+        self.assertTrue(isinstance(stream.layers[0], protocols.Mac))
+        self.assertTrue(isinstance(stream.layers[1], protocols.Ethernet))
+        self.assertTrue(isinstance(stream.layers[2], protocols.IPv4))
+        self.assertTrue(isinstance(stream.layers[3], protocols.Tcp))
+        self.assertTrue(isinstance(stream.layers[4], protocols.Payload))
 
     def test_from_dict(self):
         port = self.layer.ost5
         stream = port.add_stream()
-        layers = [protocols.Mac(),
-                  protocols.Ethernet(),
-                  protocols.IPv4(),
-                  protocols.Udp(),
-                  protocols.Payload()]
         stream.from_dict({
             'is_enabled': True,
             'bursts_per_sec': 999,
             'unit': 'BURSTS',
-            'layers': layers,
+            'layers': [],
             'name': 'test_from_dict',
             'packets_per_sec': 999,
             'next': 'STOP',
@@ -203,35 +197,34 @@ class StreamCRUD(unittest.TestCase):
         })
         stream.save()
         stream.fetch()
-        assert stream.name == 'test_from_dict'
-        assert stream.unit == 'BURSTS'
-        assert stream.mode == 'CONTINUOUS'
-        assert stream.next == 'STOP'
-        assert stream.is_enabled is True
-        assert stream.num_bursts == 999
-        assert stream.num_packets == 999
-        assert stream.packets_per_burst == 999
-        assert stream.packets_per_sec == 999
-        assert stream.bursts_per_sec == 999
+        self.assertEqual(stream.name, 'test_from_dict')
+        self.assertEqual(stream.unit, 'BURSTS')
+        self.assertEqual(stream.mode, 'CONTINUOUS')
+        self.assertEqual(stream.next, 'STOP')
+        self.assertEqual(stream.is_enabled, True)
+        self.assertEqual(stream.num_bursts, 999)
+        self.assertEqual(stream.num_packets, 999)
+        self.assertEqual(stream.packets_per_burst, 999)
+        self.assertEqual(stream.packets_per_sec, 999)
+        self.assertEqual(stream.bursts_per_sec, 999)
 
         other_port = self.layer.get_fresh_port('ost5')
         other_port.fetch_streams()
         other_stream = other_port.streams[0]
-        assert other_stream.name == 'test_from_dict'
-        assert other_stream.unit == 'BURSTS'
-        assert other_stream.mode == 'CONTINUOUS'
-        assert other_stream.next == 'STOP'
-        assert other_stream.is_enabled is True
-        assert other_stream.num_bursts == 999
-        assert other_stream.num_packets == 999
-        assert other_stream.packets_per_burst == 999
-        assert other_stream.packets_per_sec == 999
-        assert other_stream.bursts_per_sec == 999
+        self.assertEqual(other_stream.name, 'test_from_dict')
+        self.assertEqual(other_stream.unit, 'BURSTS')
+        self.assertEqual(other_stream.mode, 'CONTINUOUS')
+        self.assertEqual(other_stream.next, 'STOP')
+        self.assertEqual(other_stream.is_enabled, True)
+        self.assertEqual(other_stream.num_bursts, 999)
+        self.assertEqual(other_stream.num_packets, 999)
+        self.assertEqual(other_stream.packets_per_burst, 999)
+        self.assertEqual(other_stream.packets_per_sec, 999)
+        self.assertEqual(other_stream.bursts_per_sec, 999)
 
     def test_traffic(self):
         tx = self.layer.tx1
         rx = self.layer.rx1
-
         stream = tx.add_stream(protocols.Mac(),
                                protocols.Ethernet(),
                                protocols.IPv4(),
@@ -239,57 +232,53 @@ class StreamCRUD(unittest.TestCase):
                                protocols.Payload())
         stream.packets_per_sec = 100
         stream.num_packets = 10
+        stream.is_enabled = True
         stream.save()
-        stats_dict = {
-            'rx_bps': 0,
-            'rx_bytes': 0,
-            'rx_bytes_nic': 0,
-            'rx_drops': 0,
-            'rx_errors': 0,
-            'rx_fifo_errors': 0,
-            'rx_frame_errors': 0,
-            'rx_pkts': 0,
-            'rx_pkts_nic': 0,
-            'rx_pps': 0,
-            'tx_bps': 0,
-            'tx_bytes': 0,
-            'tx_bytes_nic': 0,
-            'tx_pkts': 0,
-            'tx_pkts_nic': 0,
-            'tx_pps': 0,
-        }
+        stats_dict = {'rx_bps': 0,
+                      'rx_bytes': 0,
+                      'rx_bytes_nic': 0,
+                      'rx_drops': 0,
+                      'rx_errors': 0,
+                      'rx_fifo_errors': 0,
+                      'rx_frame_errors': 0,
+                      'rx_pkts': 0,
+                      'rx_pkts_nic': 0,
+                      'rx_pps': 0,
+                      'tx_bps': 0,
+                      'tx_bytes': 0,
+                      'tx_bytes_nic': 0,
+                      'tx_pkts': 0,
+                      'tx_pkts_nic': 0,
+                      'tx_pps': 0}
         tx.clear_stats()
         rx.clear_stats()
         tx_stats = tx.get_stats()
         rx_stats = rx.get_stats()
-        assert tx_stats == stats_dict, str(tx_stats)
-        assert rx_stats == stats_dict
-        rx.start_capture()
-        tx.start_send()
-        time.sleep(1)
-        rx.stop_capture()
-        tx.stop_send()
-
+        self.assertEqual(utils.sanitize_dict(tx_stats),
+                         utils.sanitize_dict(stats_dict))
+        self.assertEqual(utils.sanitize_dict(rx_stats),
+                         utils.sanitize_dict(stats_dict))
+        utils.send_and_receive(tx, rx)
         tx_stats = tx.get_stats()
         rx_stats = rx.get_stats()
         rx.get_capture(save_as='capture.pcap')
-        assert tx_stats['tx_pkts'] == 10
-        assert rx_stats['rx_pkts'] == 10
-        assert tx_stats['tx_bytes'] == 600
-        assert rx_stats['rx_bytes'] == 600
+        self.assertEqual(int(tx_stats['tx_pkts']), 10)
+        self.assertEqual(int(rx_stats['rx_pkts']), 10)
+        self.assertEqual(int(tx_stats['tx_bytes']), 600)
+        self.assertEqual(int(rx_stats['rx_bytes']), 600)
         if utils.is_pypy():
             # due to a bug in pypy, lxml (on which pyshark relied) is broken
             # for pypy, so this code crashes.
             # https://www.mail-archive.com/pypy-dev%40python.org/msg06518.html
             return
         for packet in pyshark.FileCapture('capture.pcap'):
-            assert packet['eth'].dst == 'ff:ff:ff:ff:ff:ff'
-            assert packet['eth'].src == '00:00:00:00:00:00'
-            assert int(packet['eth'].type, 16) == 2048
-            assert packet['ip'].dst == '127.0.0.1'
-            assert packet['ip'].src == '127.0.0.1'
-            assert int(packet['ip'].flags, 16) == 0
-            assert int(packet['ip'].len) == 46
-            assert int(packet['ip'].ttl) == 127
-            assert int(packet['ip'].version) == 4
-            assert int(packet['ip'].checksum, 16) == 15816
+            self.assertEqual(packet['eth'].dst, 'ff:ff:ff:ff:ff:ff')
+            self.assertEqual(packet['eth'].src, '00:00:00:00:00:00')
+            self.assertEqual(int(packet['eth'].type, 16), 2048)
+            self.assertEqual(packet['ip'].dst, '127.0.0.1')
+            self.assertEqual(packet['ip'].src, '127.0.0.1')
+            self.assertEqual(int(packet['ip'].flags, 16), 0)
+            self.assertEqual(int(packet['ip'].len), 46)
+            self.assertEqual(int(packet['ip'].ttl), 127)
+            self.assertEqual(int(packet['ip'].version), 4)
+            self.assertEqual(int(packet['ip'].checksum, 16), 15816)
