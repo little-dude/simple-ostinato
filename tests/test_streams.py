@@ -44,7 +44,7 @@ class StreamCRUD(unittest.TestCase):
         port.fetch_streams()
         self.assertEqual(len(port.streams), 100)
 
-        other_port = self.layer.get_fresh_port('ost1')
+        other_port = utils.get_fresh_port('ost1')
         self.assertEqual(len(other_port.streams), 0)
         other_port.fetch_streams()
         self.assertEqual(len(other_port.streams), 100)
@@ -56,7 +56,7 @@ class StreamCRUD(unittest.TestCase):
         port.fetch_streams()
         self.assertEqual(len(port.streams), 0)
 
-        other_port = self.layer.get_fresh_port('ost1')
+        other_port = utils.get_fresh_port('ost1')
         other_port.fetch_streams()
         self.assertEqual(len(other_port.streams), 0)
 
@@ -69,7 +69,7 @@ class StreamCRUD(unittest.TestCase):
         port.fetch_streams()
         self.assertEqual(len(port.streams), 1)
 
-        other_port = self.layer.get_fresh_port('ost1')
+        other_port = utils.get_fresh_port('ost1')
         self.assertEqual(len(other_port.streams), 0)
         other_port.fetch_streams()
         self.assertEqual(len(other_port.streams), 1)
@@ -79,7 +79,7 @@ class StreamCRUD(unittest.TestCase):
         port.fetch_streams()
         self.assertEqual(len(port.streams), 0)
 
-        other_port = self.layer.get_fresh_port('ost1')
+        other_port = utils.get_fresh_port('ost1')
         other_port.fetch_streams()
         self.assertEqual(len(other_port.streams), 0)
 
@@ -124,7 +124,7 @@ class StreamCRUD(unittest.TestCase):
         self.assertEqual(stream.packets_per_sec, 2)
         self.assertEqual(stream.bursts_per_sec, 2)
 
-        other_port = self.layer.get_fresh_port('ost3')
+        other_port = utils.get_fresh_port('ost3')
         other_port.fetch_streams()
         other_stream = other_port.streams[0]
         self.assertEqual(other_stream.name, 'test_stream')
@@ -160,7 +160,7 @@ class StreamCRUD(unittest.TestCase):
         stream.fetch()
         self.assertEqual(stream.to_dict(), expected)
 
-        other_port = self.layer.get_fresh_port('ost4')
+        other_port = utils.get_fresh_port('ost4')
         other_port.fetch_streams()
         other_stream = other_port.streams[0]
         self.assertEqual(other_stream.to_dict(), expected)
@@ -208,7 +208,7 @@ class StreamCRUD(unittest.TestCase):
         self.assertEqual(stream.packets_per_sec, 999)
         self.assertEqual(stream.bursts_per_sec, 999)
 
-        other_port = self.layer.get_fresh_port('ost5')
+        other_port = utils.get_fresh_port('ost5')
         other_port.fetch_streams()
         other_stream = other_port.streams[0]
         self.assertEqual(other_stream.name, 'test_from_dict')

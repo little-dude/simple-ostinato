@@ -317,7 +317,7 @@ class Port(object):
                     'ignoring "{}" (read only attribute)'.format(key))
             elif key == 'streams':
                 while self.streams:
-                    self.del_stream(self.streams[0])
+                    self.del_stream(self.streams[0].stream_id)
                 for stream_dict in value:
                     stream = self.add_stream()
                     stream.from_dict(stream_dict)

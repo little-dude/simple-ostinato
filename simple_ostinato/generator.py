@@ -80,7 +80,12 @@ def generate_classes():
                 'dscp':             (1,  0,           0xff      , 0xff,       'tos'       , None,     'Differentiated Services Code Point (DSCP) field (previously known as Type Of Service (TOS) field'),
                 'total_length':     (2,  0,           0xffff    , 0xffff,     'totlen'    , 'totlen', 'Total length of the IP packet in bytes. The minimum valid value is 20, and the maxium is 65,535'),
                 'identification':   (2,  0,           0xffff    , 0xffff,     'id'        , None,     'Identification field. This is used to identify packet fragments'),
-                'flags':            (6,  0,           0xff      , 0xe0,       'flags'     , None,     'A three bits field: bit 0 is reserved, bit 1 is the Don\'t Fragment (DF) flag, and bit 2 is the More Fragments (MF) flags'),
+                # normally the mask is 0b10000000 but it has special handling in ostinato
+                'flag_unused':      (6,  0,           0xff      , 0x04,       'flags'     , None,     'A 1 bit unused flag'),
+                # normally the mask is 0b01000000 but it has special handling in ostinato
+                'flag_df':          (6,  0,           0xff      , 0x02,       'flags'     , None,     'The "Don\'t Fragment" (DF) 1 bit flag'),
+                # normally the mask is 0b00100000 but it has special handling in ostinato
+                'flag_mf':          (6,  0,           0xff      , 0x01,       'flags'     , None,     'The "More Fragments" (MF) 1 bit flag'),
                 'fragments_offset': (6,  0,           0xffff    , 0x1fff,     'frag_ofs'  , None,     'The Fragment Offset field indicates the offset of a packet fragment in the original IP packet'),
                 'ttl':              (8,  127,         0xff      , 0xff,       'ttl'       , None,     'Time To Live (TTL) field.'),
                 'protocol':         (9,  0,           0xff      , 0xff,       'proto'     , 'proto',  'Indicates the protocol that is encapsulated in the IP packet.'),

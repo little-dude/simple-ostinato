@@ -130,3 +130,9 @@ def send_and_receive(tx, rx, duration=1, clear_stats=True, save_as=None):
 
 def sanitize_dict(dictionary):
     return json.loads(json.dumps(dictionary))
+
+
+def get_fresh_port(name):
+    drone = Drone('localhost')
+    drone.fetch_ports()
+    return drone.get_port(name)

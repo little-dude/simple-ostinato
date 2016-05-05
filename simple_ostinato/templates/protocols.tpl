@@ -30,12 +30,12 @@ class _{{class.class_name}}(baseclass.Protocol):
         """
         {{ attribute.doc }}
         """
-        {% if attribute.shift is equalto 0 %}return self._{{ attribute.ext_name }}{% else %}return (self._{{ attribute.ext_name }} & {{ attribute.mask }}) >> {{ attribute.shift }}{% endif %}
+        {% if attribute.shift is equalto 0 %}return self._{{ attribute.ext_name }} & {{ attribute.mask }}{% else %}return (self._{{ attribute.ext_name }} & {{ attribute.mask }}) >> {{ attribute.shift }}{% endif %}
 
     @{{ attribute.name }}.setter
     def {{ attribute.name }}(self, value):
-        {% if attribute.shift is equalto 0 %}self._{{ attribute.ext_name }} = utils.parse(value){% else %}current_value = getattr(self, '_{{ attribute.ext_name }}', 0)
-        self._{{ attribute.ext_name }} = (current_value & (~{{ attribute.mask }} & {{ attribute.full_mask }})) + ((value << {{ attribute.shift }}) & {{ attribute.mask }}){% endif %}
+        current_value = getattr(self, '_{{ attribute.ext_name }}', 0)
+        self._{{ attribute.ext_name }} = (current_value & (~{{ attribute.mask }} & {{ attribute.full_mask }})) + ((utils.parse(value) << {{ attribute.shift }}) & {{ attribute.mask }})
 
     @property
     def {{ attribute.name }}_mode(self):

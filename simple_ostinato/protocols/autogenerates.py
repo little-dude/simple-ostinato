@@ -32,11 +32,12 @@ class _Mac(baseclass.Protocol):
         """
         Source MAC address
         """
-        return self._src_mac
+        return self._src_mac & 281474976710655
 
     @source.setter
     def source(self, value):
-        self._src_mac = utils.parse(value)
+        current_value = getattr(self, '_src_mac', 0)
+        self._src_mac = (current_value & (~281474976710655 & 281474976710655)) + ((utils.parse(value) << 0) & 281474976710655)
 
     @property
     def source_mode(self):
@@ -109,11 +110,12 @@ class _Mac(baseclass.Protocol):
         """
         Destination MAC address
         """
-        return self._dst_mac
+        return self._dst_mac & 281474976710655
 
     @destination.setter
     def destination(self, value):
-        self._dst_mac = utils.parse(value)
+        current_value = getattr(self, '_dst_mac', 0)
+        self._dst_mac = (current_value & (~281474976710655 & 281474976710655)) + ((utils.parse(value) << 0) & 281474976710655)
 
     @property
     def destination_mode(self):
@@ -232,11 +234,12 @@ class _Ethernet(baseclass.Protocol):
         """
         Ethernet type field. 0x800 is for IPv4 inner packets.. By default, this attribute is set automatically. Set :attr:`ether_type_override` to ``True`` to override this field
         """
-        return self._type
+        return self._type & 65535
 
     @ether_type.setter
     def ether_type(self, value):
-        self._type = utils.parse(value)
+        current_value = getattr(self, '_type', 0)
+        self._type = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def ether_type_mode(self):
@@ -349,22 +352,25 @@ class _IPv4(baseclass.Protocol):
     _protocol_id = 301
     _extension = ip4_pb2.ip4
 
-    def __init__(self, protocol=0, flags=0, dscp=0, ttl=127, header_length=5, fragments_offset=0, tos=0, destination='127.0.0.1', source='127.0.0.1', version=4, identification=0, checksum=0, total_length=0, **kwargs):
-        super(_IPv4, self).__init__(protocol=protocol, flags=flags, dscp=dscp, ttl=ttl, header_length=header_length, fragments_offset=fragments_offset, tos=tos, destination=destination, source=source, version=version, identification=identification, checksum=checksum, total_length=total_length, **kwargs)
+    def __init__(self, flag_unused=0, dscp=0, flag_mf=0, ttl=127, protocol=0, header_length=5, fragments_offset=0, tos=0, destination='127.0.0.1', source='127.0.0.1', version=4, identification=0, checksum=0, flag_df=0, total_length=0, **kwargs):
+        super(_IPv4, self).__init__(flag_unused=flag_unused, dscp=dscp, flag_mf=flag_mf, ttl=ttl, protocol=protocol, header_length=header_length, fragments_offset=fragments_offset, tos=tos, destination=destination, source=source, version=version, identification=identification, checksum=checksum, flag_df=flag_df, total_length=total_length, **kwargs)
         
+        self.flag_unused_mode = 'FIXED'
+        self.flag_unused_step = 1
+        self.flag_unused_count = 1
+        self.dscp_mode = 'FIXED'
+        self.dscp_step = 1
+        self.dscp_count = 1
+        self.flag_mf_mode = 'FIXED'
+        self.flag_mf_step = 1
+        self.flag_mf_count = 1
+        self.ttl_mode = 'FIXED'
+        self.ttl_step = 1
+        self.ttl_count = 1
         self.protocol_mode = 'FIXED'
         self.protocol_step = 1
         self.protocol_count = 1
         self.protocol_override = False
-        self.flags_mode = 'FIXED'
-        self.flags_step = 1
-        self.flags_count = 1
-        self.dscp_mode = 'FIXED'
-        self.dscp_step = 1
-        self.dscp_count = 1
-        self.ttl_mode = 'FIXED'
-        self.ttl_step = 1
-        self.ttl_count = 1
         self.header_length_mode = 'FIXED'
         self.header_length_step = 1
         self.header_length_count = 1
@@ -392,21 +398,337 @@ class _IPv4(baseclass.Protocol):
         self.checksum_step = 1
         self.checksum_count = 1
         self.checksum_override = False
+        self.flag_df_mode = 'FIXED'
+        self.flag_df_step = 1
+        self.flag_df_count = 1
         self.total_length_mode = 'FIXED'
         self.total_length_step = 1
         self.total_length_count = 1
         self.total_length_override = False
 
     @property
+    def flag_unused(self):
+        """
+        A 1 bit unused flag
+        """
+        return (self._flags & 4) >> 2
+
+    @flag_unused.setter
+    def flag_unused(self, value):
+        current_value = getattr(self, '_flags', 0)
+        self._flags = (current_value & (~4 & 255)) + ((utils.parse(value) << 2) & 4)
+
+    @property
+    def flag_unused_mode(self):
+        """
+        By default, :attr:`flag_unused_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._flag_unused_mode)
+
+    @flag_unused_mode.setter
+    def flag_unused_mode(self, mode):
+        self._flag_unused_mode = baseclass.FieldMode.get_value(mode)
+
+    _flag_unused_offset = 6
+    _flag_unused_type = 0
+    _flag_unused_full_mask = 255
+    _flag_unused_mask = 4
+
+    @property
+    def flag_unused_step(self):
+        """
+        If :attr:`flag_unused_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._flag_unused_step
+
+    @flag_unused_step.setter
+    def flag_unused_step(self, step):
+        self._flag_unused_step = step
+
+    @property
+    def flag_unused_count(self):
+        """
+        If :attr:`flag_unused_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._flag_unused_count
+
+    @flag_unused_count.setter
+    def flag_unused_count(self, count):
+        self._flag_unused_count = count
+
+    def _save_flag_unused(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.flag_unused_mode == 'FIXED':
+            ext.flags = self._flags
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._flag_unused_step
+            o_variable_field.mask = self._flag_unused_mask
+            o_variable_field.type = self._flag_unused_type
+            o_variable_field.offset = self._flag_unused_offset
+            o_variable_field.mode = self._flag_unused_mode
+            o_variable_field.count = self._flag_unused_count
+            o_variable_field.value = self._flags
+
+    def _fetch_flag_unused(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._flag_unused_offset and mask == self._flag_unused_mask:
+                self._flags = o_variable_field.value
+                self._flag_unused_mode = o_variable_field.mode
+                self._flag_unused_count = o_variable_field.count
+                self._flag_unused_step = o_variable_field.step
+                return
+        else:
+            self._flags = ext.flags
+
+    @property
+    def dscp(self):
+        """
+        Differentiated Services Code Point (DSCP) field (previously known as Type Of Service (TOS) field
+        """
+        return self._tos & 255
+
+    @dscp.setter
+    def dscp(self, value):
+        current_value = getattr(self, '_tos', 0)
+        self._tos = (current_value & (~255 & 255)) + ((utils.parse(value) << 0) & 255)
+
+    @property
+    def dscp_mode(self):
+        """
+        By default, :attr:`dscp_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._dscp_mode)
+
+    @dscp_mode.setter
+    def dscp_mode(self, mode):
+        self._dscp_mode = baseclass.FieldMode.get_value(mode)
+
+    _dscp_offset = 1
+    _dscp_type = 0
+    _dscp_full_mask = 255
+    _dscp_mask = 255
+
+    @property
+    def dscp_step(self):
+        """
+        If :attr:`dscp_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._dscp_step
+
+    @dscp_step.setter
+    def dscp_step(self, step):
+        self._dscp_step = step
+
+    @property
+    def dscp_count(self):
+        """
+        If :attr:`dscp_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._dscp_count
+
+    @dscp_count.setter
+    def dscp_count(self, count):
+        self._dscp_count = count
+
+    def _save_dscp(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.dscp_mode == 'FIXED':
+            ext.tos = self._tos
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._dscp_step
+            o_variable_field.mask = self._dscp_mask
+            o_variable_field.type = self._dscp_type
+            o_variable_field.offset = self._dscp_offset
+            o_variable_field.mode = self._dscp_mode
+            o_variable_field.count = self._dscp_count
+            o_variable_field.value = self._tos
+
+    def _fetch_dscp(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._dscp_offset and mask == self._dscp_mask:
+                self._tos = o_variable_field.value
+                self._dscp_mode = o_variable_field.mode
+                self._dscp_count = o_variable_field.count
+                self._dscp_step = o_variable_field.step
+                return
+        else:
+            self._tos = ext.tos
+
+    @property
+    def flag_mf(self):
+        """
+        The "More Fragments" (MF) 1 bit flag
+        """
+        return self._flags & 1
+
+    @flag_mf.setter
+    def flag_mf(self, value):
+        current_value = getattr(self, '_flags', 0)
+        self._flags = (current_value & (~1 & 255)) + ((utils.parse(value) << 0) & 1)
+
+    @property
+    def flag_mf_mode(self):
+        """
+        By default, :attr:`flag_mf_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._flag_mf_mode)
+
+    @flag_mf_mode.setter
+    def flag_mf_mode(self, mode):
+        self._flag_mf_mode = baseclass.FieldMode.get_value(mode)
+
+    _flag_mf_offset = 6
+    _flag_mf_type = 0
+    _flag_mf_full_mask = 255
+    _flag_mf_mask = 1
+
+    @property
+    def flag_mf_step(self):
+        """
+        If :attr:`flag_mf_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._flag_mf_step
+
+    @flag_mf_step.setter
+    def flag_mf_step(self, step):
+        self._flag_mf_step = step
+
+    @property
+    def flag_mf_count(self):
+        """
+        If :attr:`flag_mf_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._flag_mf_count
+
+    @flag_mf_count.setter
+    def flag_mf_count(self, count):
+        self._flag_mf_count = count
+
+    def _save_flag_mf(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.flag_mf_mode == 'FIXED':
+            ext.flags = self._flags
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._flag_mf_step
+            o_variable_field.mask = self._flag_mf_mask
+            o_variable_field.type = self._flag_mf_type
+            o_variable_field.offset = self._flag_mf_offset
+            o_variable_field.mode = self._flag_mf_mode
+            o_variable_field.count = self._flag_mf_count
+            o_variable_field.value = self._flags
+
+    def _fetch_flag_mf(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._flag_mf_offset and mask == self._flag_mf_mask:
+                self._flags = o_variable_field.value
+                self._flag_mf_mode = o_variable_field.mode
+                self._flag_mf_count = o_variable_field.count
+                self._flag_mf_step = o_variable_field.step
+                return
+        else:
+            self._flags = ext.flags
+
+    @property
+    def ttl(self):
+        """
+        Time To Live (TTL) field.
+        """
+        return self._ttl & 255
+
+    @ttl.setter
+    def ttl(self, value):
+        current_value = getattr(self, '_ttl', 0)
+        self._ttl = (current_value & (~255 & 255)) + ((utils.parse(value) << 0) & 255)
+
+    @property
+    def ttl_mode(self):
+        """
+        By default, :attr:`ttl_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._ttl_mode)
+
+    @ttl_mode.setter
+    def ttl_mode(self, mode):
+        self._ttl_mode = baseclass.FieldMode.get_value(mode)
+
+    _ttl_offset = 8
+    _ttl_type = 0
+    _ttl_full_mask = 255
+    _ttl_mask = 255
+
+    @property
+    def ttl_step(self):
+        """
+        If :attr:`ttl_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._ttl_step
+
+    @ttl_step.setter
+    def ttl_step(self, step):
+        self._ttl_step = step
+
+    @property
+    def ttl_count(self):
+        """
+        If :attr:`ttl_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._ttl_count
+
+    @ttl_count.setter
+    def ttl_count(self, count):
+        self._ttl_count = count
+
+    def _save_ttl(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.ttl_mode == 'FIXED':
+            ext.ttl = self._ttl
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._ttl_step
+            o_variable_field.mask = self._ttl_mask
+            o_variable_field.type = self._ttl_type
+            o_variable_field.offset = self._ttl_offset
+            o_variable_field.mode = self._ttl_mode
+            o_variable_field.count = self._ttl_count
+            o_variable_field.value = self._ttl
+
+    def _fetch_ttl(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._ttl_offset and mask == self._ttl_mask:
+                self._ttl = o_variable_field.value
+                self._ttl_mode = o_variable_field.mode
+                self._ttl_count = o_variable_field.count
+                self._ttl_step = o_variable_field.step
+                return
+        else:
+            self._ttl = ext.ttl
+
+    @property
     def protocol(self):
         """
         Indicates the protocol that is encapsulated in the IP packet.. By default, this attribute is set automatically. Set :attr:`protocol_override` to ``True`` to override this field
         """
-        return self._proto
+        return self._proto & 255
 
     @protocol.setter
     def protocol(self, value):
-        self._proto = utils.parse(value)
+        current_value = getattr(self, '_proto', 0)
+        self._proto = (current_value & (~255 & 255)) + ((utils.parse(value) << 0) & 255)
 
     @property
     def protocol_mode(self):
@@ -485,247 +807,16 @@ class _IPv4(baseclass.Protocol):
             self._proto = ext.proto
 
     @property
-    def flags(self):
-        """
-        A three bits field: bit 0 is reserved, bit 1 is the Don't Fragment (DF) flag, and bit 2 is the More Fragments (MF) flags
-        """
-        return (self._flags & 224) >> 5
-
-    @flags.setter
-    def flags(self, value):
-        current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~224 & 255)) + ((value << 5) & 224)
-
-    @property
-    def flags_mode(self):
-        """
-        By default, :attr:`flags_mode` is ``FIXED``.
-        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
-        """
-        return baseclass.FieldMode.get_key(self._flags_mode)
-
-    @flags_mode.setter
-    def flags_mode(self, mode):
-        self._flags_mode = baseclass.FieldMode.get_value(mode)
-
-    _flags_offset = 6
-    _flags_type = 0
-    _flags_full_mask = 255
-    _flags_mask = 224
-
-    @property
-    def flags_step(self):
-        """
-        If :attr:`flags_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
-        """
-        return self._flags_step
-
-    @flags_step.setter
-    def flags_step(self, step):
-        self._flags_step = step
-
-    @property
-    def flags_count(self):
-        """
-        If :attr:`flags_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
-        """
-        return self._flags_count
-
-    @flags_count.setter
-    def flags_count(self, count):
-        self._flags_count = count
-
-    def _save_flags(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
-        if self.flags_mode == 'FIXED':
-            ext.flags = self._flags
-        else:
-            o_variable_field = o_protocol.variable_field.add()
-            o_variable_field.step = self._flags_step
-            o_variable_field.mask = self._flags_mask
-            o_variable_field.type = self._flags_type
-            o_variable_field.offset = self._flags_offset
-            o_variable_field.mode = self._flags_mode
-            o_variable_field.count = self._flags_count
-            o_variable_field.value = self._flags
-
-    def _fetch_flags(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
-        for o_variable_field in o_protocol.variable_field:
-            offset, mask = o_variable_field.offset, o_variable_field.mask
-            if offset == self._flags_offset and mask == self._flags_mask:
-                self._flags = o_variable_field.value
-                self._flags_mode = o_variable_field.mode
-                self._flags_count = o_variable_field.count
-                self._flags_step = o_variable_field.step
-                return
-        else:
-            self._flags = ext.flags
-
-    @property
-    def dscp(self):
-        """
-        Differentiated Services Code Point (DSCP) field (previously known as Type Of Service (TOS) field
-        """
-        return self._tos
-
-    @dscp.setter
-    def dscp(self, value):
-        self._tos = utils.parse(value)
-
-    @property
-    def dscp_mode(self):
-        """
-        By default, :attr:`dscp_mode` is ``FIXED``.
-        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
-        """
-        return baseclass.FieldMode.get_key(self._dscp_mode)
-
-    @dscp_mode.setter
-    def dscp_mode(self, mode):
-        self._dscp_mode = baseclass.FieldMode.get_value(mode)
-
-    _dscp_offset = 1
-    _dscp_type = 0
-    _dscp_full_mask = 255
-    _dscp_mask = 255
-
-    @property
-    def dscp_step(self):
-        """
-        If :attr:`dscp_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
-        """
-        return self._dscp_step
-
-    @dscp_step.setter
-    def dscp_step(self, step):
-        self._dscp_step = step
-
-    @property
-    def dscp_count(self):
-        """
-        If :attr:`dscp_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
-        """
-        return self._dscp_count
-
-    @dscp_count.setter
-    def dscp_count(self, count):
-        self._dscp_count = count
-
-    def _save_dscp(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
-        if self.dscp_mode == 'FIXED':
-            ext.tos = self._tos
-        else:
-            o_variable_field = o_protocol.variable_field.add()
-            o_variable_field.step = self._dscp_step
-            o_variable_field.mask = self._dscp_mask
-            o_variable_field.type = self._dscp_type
-            o_variable_field.offset = self._dscp_offset
-            o_variable_field.mode = self._dscp_mode
-            o_variable_field.count = self._dscp_count
-            o_variable_field.value = self._tos
-
-    def _fetch_dscp(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
-        for o_variable_field in o_protocol.variable_field:
-            offset, mask = o_variable_field.offset, o_variable_field.mask
-            if offset == self._dscp_offset and mask == self._dscp_mask:
-                self._tos = o_variable_field.value
-                self._dscp_mode = o_variable_field.mode
-                self._dscp_count = o_variable_field.count
-                self._dscp_step = o_variable_field.step
-                return
-        else:
-            self._tos = ext.tos
-
-    @property
-    def ttl(self):
-        """
-        Time To Live (TTL) field.
-        """
-        return self._ttl
-
-    @ttl.setter
-    def ttl(self, value):
-        self._ttl = utils.parse(value)
-
-    @property
-    def ttl_mode(self):
-        """
-        By default, :attr:`ttl_mode` is ``FIXED``.
-        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
-        """
-        return baseclass.FieldMode.get_key(self._ttl_mode)
-
-    @ttl_mode.setter
-    def ttl_mode(self, mode):
-        self._ttl_mode = baseclass.FieldMode.get_value(mode)
-
-    _ttl_offset = 8
-    _ttl_type = 0
-    _ttl_full_mask = 255
-    _ttl_mask = 255
-
-    @property
-    def ttl_step(self):
-        """
-        If :attr:`ttl_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
-        """
-        return self._ttl_step
-
-    @ttl_step.setter
-    def ttl_step(self, step):
-        self._ttl_step = step
-
-    @property
-    def ttl_count(self):
-        """
-        If :attr:`ttl_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
-        """
-        return self._ttl_count
-
-    @ttl_count.setter
-    def ttl_count(self, count):
-        self._ttl_count = count
-
-    def _save_ttl(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
-        if self.ttl_mode == 'FIXED':
-            ext.ttl = self._ttl
-        else:
-            o_variable_field = o_protocol.variable_field.add()
-            o_variable_field.step = self._ttl_step
-            o_variable_field.mask = self._ttl_mask
-            o_variable_field.type = self._ttl_type
-            o_variable_field.offset = self._ttl_offset
-            o_variable_field.mode = self._ttl_mode
-            o_variable_field.count = self._ttl_count
-            o_variable_field.value = self._ttl
-
-    def _fetch_ttl(self, o_protocol):
-        ext = o_protocol.Extensions[self._extension]
-        for o_variable_field in o_protocol.variable_field:
-            offset, mask = o_variable_field.offset, o_variable_field.mask
-            if offset == self._ttl_offset and mask == self._ttl_mask:
-                self._ttl = o_variable_field.value
-                self._ttl_mode = o_variable_field.mode
-                self._ttl_count = o_variable_field.count
-                self._ttl_step = o_variable_field.step
-                return
-        else:
-            self._ttl = ext.ttl
-
-    @property
     def header_length(self):
         """
         Internet Header Length (IHL): number of 4 bytes words in the header. The minimum valid value is 5, and maximum valid value is 15.. By default, this attribute is set automatically. Set :attr:`header_length_override` to ``True`` to override this field
         """
-        return self._ver_hdrlen
+        return self._ver_hdrlen & 15
 
     @header_length.setter
     def header_length(self, value):
-        self._ver_hdrlen = utils.parse(value)
+        current_value = getattr(self, '_ver_hdrlen', 0)
+        self._ver_hdrlen = (current_value & (~15 & 255)) + ((utils.parse(value) << 0) & 15)
 
     @property
     def header_length_mode(self):
@@ -808,11 +899,12 @@ class _IPv4(baseclass.Protocol):
         """
         The Fragment Offset field indicates the offset of a packet fragment in the original IP packet
         """
-        return self._frag_ofs
+        return self._frag_ofs & 8191
 
     @fragments_offset.setter
     def fragments_offset(self, value):
-        self._frag_ofs = utils.parse(value)
+        current_value = getattr(self, '_frag_ofs', 0)
+        self._frag_ofs = (current_value & (~8191 & 65535)) + ((utils.parse(value) << 0) & 8191)
 
     @property
     def fragments_offset_mode(self):
@@ -885,11 +977,12 @@ class _IPv4(baseclass.Protocol):
         """
         Type Of Service (TOS) field. This field is now the Differentiated Services Code Point (DSCP) field.
         """
-        return self._tos
+        return self._tos & 255
 
     @tos.setter
     def tos(self, value):
-        self._tos = utils.parse(value)
+        current_value = getattr(self, '_tos', 0)
+        self._tos = (current_value & (~255 & 255)) + ((utils.parse(value) << 0) & 255)
 
     @property
     def tos_mode(self):
@@ -962,11 +1055,12 @@ class _IPv4(baseclass.Protocol):
         """
         Destination IP address
         """
-        return self._dst_ip
+        return self._dst_ip & 4294967295
 
     @destination.setter
     def destination(self, value):
-        self._dst_ip = utils.parse(value)
+        current_value = getattr(self, '_dst_ip', 0)
+        self._dst_ip = (current_value & (~4294967295 & 4294967295)) + ((utils.parse(value) << 0) & 4294967295)
 
     @property
     def destination_mode(self):
@@ -1039,11 +1133,12 @@ class _IPv4(baseclass.Protocol):
         """
         Source IP address
         """
-        return self._src_ip
+        return self._src_ip & 4294967295
 
     @source.setter
     def source(self, value):
-        self._src_ip = utils.parse(value)
+        current_value = getattr(self, '_src_ip', 0)
+        self._src_ip = (current_value & (~4294967295 & 4294967295)) + ((utils.parse(value) << 0) & 4294967295)
 
     @property
     def source_mode(self):
@@ -1121,7 +1216,7 @@ class _IPv4(baseclass.Protocol):
     @version.setter
     def version(self, value):
         current_value = getattr(self, '_ver_hdrlen', 0)
-        self._ver_hdrlen = (current_value & (~240 & 255)) + ((value << 4) & 240)
+        self._ver_hdrlen = (current_value & (~240 & 255)) + ((utils.parse(value) << 4) & 240)
 
     @property
     def version_mode(self):
@@ -1204,11 +1299,12 @@ class _IPv4(baseclass.Protocol):
         """
         Identification field. This is used to identify packet fragments
         """
-        return self._id
+        return self._id & 65535
 
     @identification.setter
     def identification(self, value):
-        self._id = utils.parse(value)
+        current_value = getattr(self, '_id', 0)
+        self._id = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def identification_mode(self):
@@ -1281,11 +1377,12 @@ class _IPv4(baseclass.Protocol):
         """
         Header checksum. By default, this attribute is set automatically. Set :attr:`checksum_override` to ``True`` to override this field
         """
-        return self._cksum
+        return self._cksum & 65535
 
     @checksum.setter
     def checksum(self, value):
-        self._cksum = utils.parse(value)
+        current_value = getattr(self, '_cksum', 0)
+        self._cksum = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def checksum_mode(self):
@@ -1364,15 +1461,94 @@ class _IPv4(baseclass.Protocol):
             self._cksum = ext.cksum
 
     @property
+    def flag_df(self):
+        """
+        The "Don't Fragment" (DF) 1 bit flag
+        """
+        return (self._flags & 2) >> 1
+
+    @flag_df.setter
+    def flag_df(self, value):
+        current_value = getattr(self, '_flags', 0)
+        self._flags = (current_value & (~2 & 255)) + ((utils.parse(value) << 1) & 2)
+
+    @property
+    def flag_df_mode(self):
+        """
+        By default, :attr:`flag_df_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._flag_df_mode)
+
+    @flag_df_mode.setter
+    def flag_df_mode(self, mode):
+        self._flag_df_mode = baseclass.FieldMode.get_value(mode)
+
+    _flag_df_offset = 6
+    _flag_df_type = 0
+    _flag_df_full_mask = 255
+    _flag_df_mask = 2
+
+    @property
+    def flag_df_step(self):
+        """
+        If :attr:`flag_df_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._flag_df_step
+
+    @flag_df_step.setter
+    def flag_df_step(self, step):
+        self._flag_df_step = step
+
+    @property
+    def flag_df_count(self):
+        """
+        If :attr:`flag_df_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._flag_df_count
+
+    @flag_df_count.setter
+    def flag_df_count(self, count):
+        self._flag_df_count = count
+
+    def _save_flag_df(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.flag_df_mode == 'FIXED':
+            ext.flags = self._flags
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._flag_df_step
+            o_variable_field.mask = self._flag_df_mask
+            o_variable_field.type = self._flag_df_type
+            o_variable_field.offset = self._flag_df_offset
+            o_variable_field.mode = self._flag_df_mode
+            o_variable_field.count = self._flag_df_count
+            o_variable_field.value = self._flags
+
+    def _fetch_flag_df(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._flag_df_offset and mask == self._flag_df_mask:
+                self._flags = o_variable_field.value
+                self._flag_df_mode = o_variable_field.mode
+                self._flag_df_count = o_variable_field.count
+                self._flag_df_step = o_variable_field.step
+                return
+        else:
+            self._flags = ext.flags
+
+    @property
     def total_length(self):
         """
         Total length of the IP packet in bytes. The minimum valid value is 20, and the maxium is 65,535. By default, this attribute is set automatically. Set :attr:`total_length_override` to ``True`` to override this field
         """
-        return self._totlen
+        return self._totlen & 65535
 
     @total_length.setter
     def total_length(self, value):
-        self._totlen = utils.parse(value)
+        current_value = getattr(self, '_totlen', 0)
+        self._totlen = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def total_length_mode(self):
@@ -1451,7 +1627,7 @@ class _IPv4(baseclass.Protocol):
             self._totlen = ext.totlen
 
     def __str__(self):
-        return 'IPv4(protocol={},flags={},dscp={},ttl={},header_length={},fragments_offset={},tos={},destination={},source={},version={},identification={},checksum={},total_length={},)'.format(self.protocol,self.flags,self.dscp,self.ttl,self.header_length,self.fragments_offset,self.tos,self.destination,self.source,self.version,self.identification,self.checksum,self.total_length,)
+        return 'IPv4(flag_unused={},dscp={},flag_mf={},ttl={},protocol={},header_length={},fragments_offset={},tos={},destination={},source={},version={},identification={},checksum={},flag_df={},total_length={},)'.format(self.flag_unused,self.dscp,self.flag_mf,self.ttl,self.protocol,self.header_length,self.fragments_offset,self.tos,self.destination,self.source,self.version,self.identification,self.checksum,self.flag_df,self.total_length,)
 
     def to_dict(self):
         """
@@ -1459,23 +1635,27 @@ class _IPv4(baseclass.Protocol):
         dictionnary.
         """
         return { 
+            'flag_unused': self.flag_unused,
+            'flag_unused_mode': self.flag_unused_mode,
+            'flag_unused_count': self.flag_unused_count,
+            'flag_unused_step': self.flag_unused_step,
+            'dscp': self.dscp,
+            'dscp_mode': self.dscp_mode,
+            'dscp_count': self.dscp_count,
+            'dscp_step': self.dscp_step,
+            'flag_mf': self.flag_mf,
+            'flag_mf_mode': self.flag_mf_mode,
+            'flag_mf_count': self.flag_mf_count,
+            'flag_mf_step': self.flag_mf_step,
+            'ttl': self.ttl,
+            'ttl_mode': self.ttl_mode,
+            'ttl_count': self.ttl_count,
+            'ttl_step': self.ttl_step,
             'protocol': self.protocol,
             'protocol_mode': self.protocol_mode,
             'protocol_count': self.protocol_count,
             'protocol_step': self.protocol_step,
             'protocol_override': self.protocol_override,
-            'flags': self.flags,
-            'flags_mode': self.flags_mode,
-            'flags_count': self.flags_count,
-            'flags_step': self.flags_step,
-            'dscp': self.dscp,
-            'dscp_mode': self.dscp_mode,
-            'dscp_count': self.dscp_count,
-            'dscp_step': self.dscp_step,
-            'ttl': self.ttl,
-            'ttl_mode': self.ttl_mode,
-            'ttl_count': self.ttl_count,
-            'ttl_step': self.ttl_step,
             'header_length': self.header_length,
             'header_length_mode': self.header_length_mode,
             'header_length_count': self.header_length_count,
@@ -1511,6 +1691,10 @@ class _IPv4(baseclass.Protocol):
             'checksum_count': self.checksum_count,
             'checksum_step': self.checksum_step,
             'checksum_override': self.checksum_override,
+            'flag_df': self.flag_df,
+            'flag_df_mode': self.flag_df_mode,
+            'flag_df_count': self.flag_df_count,
+            'flag_df_step': self.flag_df_step,
             'total_length': self.total_length,
             'total_length_mode': self.total_length_mode,
             'total_length_count': self.total_length_count,
@@ -1562,11 +1746,12 @@ class _Udp(baseclass.Protocol):
         """
         Source port number. By default, this attribute is set automatically. Set :attr:`source_override` to ``True`` to override this field
         """
-        return self._src_port
+        return self._src_port & 65535
 
     @source.setter
     def source(self, value):
-        self._src_port = utils.parse(value)
+        current_value = getattr(self, '_src_port', 0)
+        self._src_port = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def source_mode(self):
@@ -1649,11 +1834,12 @@ class _Udp(baseclass.Protocol):
         """
         Length of the UDP datagram (header and payload).. By default, this attribute is set automatically. Set :attr:`length_override` to ``True`` to override this field
         """
-        return self._totlen
+        return self._totlen & 65535
 
     @length.setter
     def length(self, value):
-        self._totlen = utils.parse(value)
+        current_value = getattr(self, '_totlen', 0)
+        self._totlen = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def length_mode(self):
@@ -1736,11 +1922,12 @@ class _Udp(baseclass.Protocol):
         """
         Destination port number. By default, this attribute is set automatically. Set :attr:`destination_override` to ``True`` to override this field
         """
-        return self._dst_port
+        return self._dst_port & 65535
 
     @destination.setter
     def destination(self, value):
-        self._dst_port = utils.parse(value)
+        current_value = getattr(self, '_dst_port', 0)
+        self._dst_port = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def destination_mode(self):
@@ -1823,11 +2010,12 @@ class _Udp(baseclass.Protocol):
         """
         Checksum of the datagram, calculated based on the IP pseudo-header.. By default, this attribute is set automatically. Set :attr:`checksum_override` to ``True`` to override this field
         """
-        return self._cksum
+        return self._cksum & 65535
 
     @checksum.setter
     def checksum(self, value):
-        self._cksum = utils.parse(value)
+        current_value = getattr(self, '_cksum', 0)
+        self._cksum = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def checksum_mode(self):
@@ -2029,7 +2217,7 @@ class _Tcp(baseclass.Protocol):
     @flag_ack.setter
     def flag_ack(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~16 & 255)) + ((value << 4) & 16)
+        self._flags = (current_value & (~16 & 255)) + ((utils.parse(value) << 4) & 16)
 
     @property
     def flag_ack_mode(self):
@@ -2107,7 +2295,7 @@ class _Tcp(baseclass.Protocol):
     @header_length.setter
     def header_length(self, value):
         current_value = getattr(self, '_hdrlen_rsvd', 0)
-        self._hdrlen_rsvd = (current_value & (~240 & 255)) + ((value << 4) & 240)
+        self._hdrlen_rsvd = (current_value & (~240 & 255)) + ((utils.parse(value) << 4) & 240)
 
     @property
     def header_length_mode(self):
@@ -2195,7 +2383,7 @@ class _Tcp(baseclass.Protocol):
     @reserved.setter
     def reserved(self, value):
         current_value = getattr(self, '_hdrlen_rsvd', 0)
-        self._hdrlen_rsvd = (current_value & (~14 & 255)) + ((value << 1) & 14)
+        self._hdrlen_rsvd = (current_value & (~14 & 255)) + ((utils.parse(value) << 1) & 14)
 
     @property
     def reserved_mode(self):
@@ -2278,11 +2466,12 @@ class _Tcp(baseclass.Protocol):
         """
         Acknowledgement number
         """
-        return self._ack_num
+        return self._ack_num & 4294967295
 
     @ack_num.setter
     def ack_num(self, value):
-        self._ack_num = utils.parse(value)
+        current_value = getattr(self, '_ack_num', 0)
+        self._ack_num = (current_value & (~4294967295 & 4294967295)) + ((utils.parse(value) << 0) & 4294967295)
 
     @property
     def ack_num_mode(self):
@@ -2360,7 +2549,7 @@ class _Tcp(baseclass.Protocol):
     @flag_rst.setter
     def flag_rst(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~4 & 255)) + ((value << 2) & 4)
+        self._flags = (current_value & (~4 & 255)) + ((utils.parse(value) << 2) & 4)
 
     @property
     def flag_rst_mode(self):
@@ -2433,11 +2622,12 @@ class _Tcp(baseclass.Protocol):
         """
         Size of the receive window, which specifies the number of window size units that the sender of this segment is currently willing to receive
         """
-        return self._window
+        return self._window & 65535
 
     @window_size.setter
     def window_size(self, value):
-        self._window = utils.parse(value)
+        current_value = getattr(self, '_window', 0)
+        self._window = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def window_size_mode(self):
@@ -2510,11 +2700,12 @@ class _Tcp(baseclass.Protocol):
         """
         Destination port number. By default, this attribute is set automatically. Set :attr:`destination_override` to ``True`` to override this field
         """
-        return self._dst_port
+        return self._dst_port & 65535
 
     @destination.setter
     def destination(self, value):
-        self._dst_port = utils.parse(value)
+        current_value = getattr(self, '_dst_port', 0)
+        self._dst_port = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def destination_mode(self):
@@ -2602,7 +2793,7 @@ class _Tcp(baseclass.Protocol):
     @flag_psh.setter
     def flag_psh(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~8 & 255)) + ((value << 3) & 8)
+        self._flags = (current_value & (~8 & 255)) + ((utils.parse(value) << 3) & 8)
 
     @property
     def flag_psh_mode(self):
@@ -2675,11 +2866,12 @@ class _Tcp(baseclass.Protocol):
         """
         Urgent pointer.
         """
-        return self._urg_ptr
+        return self._urg_ptr & 65535
 
     @urgent_pointer.setter
     def urgent_pointer(self, value):
-        self._urg_ptr = utils.parse(value)
+        current_value = getattr(self, '_urg_ptr', 0)
+        self._urg_ptr = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def urgent_pointer_mode(self):
@@ -2752,11 +2944,12 @@ class _Tcp(baseclass.Protocol):
         """
         Source port number. By default, this attribute is set automatically. Set :attr:`source_override` to ``True`` to override this field
         """
-        return self._src_port
+        return self._src_port & 65535
 
     @source.setter
     def source(self, value):
-        self._src_port = utils.parse(value)
+        current_value = getattr(self, '_src_port', 0)
+        self._src_port = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def source_mode(self):
@@ -2844,7 +3037,7 @@ class _Tcp(baseclass.Protocol):
     @flag_ece.setter
     def flag_ece(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~64 & 255)) + ((value << 6) & 64)
+        self._flags = (current_value & (~64 & 255)) + ((utils.parse(value) << 6) & 64)
 
     @property
     def flag_ece_mode(self):
@@ -2922,7 +3115,7 @@ class _Tcp(baseclass.Protocol):
     @flag_urg.setter
     def flag_urg(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~32 & 255)) + ((value << 5) & 32)
+        self._flags = (current_value & (~32 & 255)) + ((utils.parse(value) << 5) & 32)
 
     @property
     def flag_urg_mode(self):
@@ -2995,11 +3188,12 @@ class _Tcp(baseclass.Protocol):
         """
         Sequence number of the datagram. Its meaning depends on the :attr:`syn` flag value.
         """
-        return self._seq_num
+        return self._seq_num & 4294967295
 
     @sequence_num.setter
     def sequence_num(self, value):
-        self._seq_num = utils.parse(value)
+        current_value = getattr(self, '_seq_num', 0)
+        self._seq_num = (current_value & (~4294967295 & 4294967295)) + ((utils.parse(value) << 0) & 4294967295)
 
     @property
     def sequence_num_mode(self):
@@ -3072,11 +3266,12 @@ class _Tcp(baseclass.Protocol):
         """
         Checksum of the datagram, calculated based on the IP pseudo-header. Its meaning depends on the value og the :attr:`ack` flag.. By default, this attribute is set automatically. Set :attr:`checksum_override` to ``True`` to override this field
         """
-        return self._cksum
+        return self._cksum & 65535
 
     @checksum.setter
     def checksum(self, value):
-        self._cksum = utils.parse(value)
+        current_value = getattr(self, '_cksum', 0)
+        self._cksum = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
 
     @property
     def checksum_mode(self):
@@ -3164,7 +3359,7 @@ class _Tcp(baseclass.Protocol):
     @flag_syn.setter
     def flag_syn(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~2 & 255)) + ((value << 1) & 2)
+        self._flags = (current_value & (~2 & 255)) + ((utils.parse(value) << 1) & 2)
 
     @property
     def flag_syn_mode(self):
@@ -3242,7 +3437,7 @@ class _Tcp(baseclass.Protocol):
     @flag_cwr.setter
     def flag_cwr(self, value):
         current_value = getattr(self, '_flags', 0)
-        self._flags = (current_value & (~128 & 255)) + ((value << 7) & 128)
+        self._flags = (current_value & (~128 & 255)) + ((utils.parse(value) << 7) & 128)
 
     @property
     def flag_cwr_mode(self):
@@ -3315,11 +3510,12 @@ class _Tcp(baseclass.Protocol):
         """
         No more data from sender
         """
-        return self._flags
+        return self._flags & 1
 
     @flag_fin.setter
     def flag_fin(self, value):
-        self._flags = utils.parse(value)
+        current_value = getattr(self, '_flags', 0)
+        self._flags = (current_value & (~1 & 255)) + ((utils.parse(value) << 0) & 1)
 
     @property
     def flag_fin_mode(self):
@@ -3392,11 +3588,12 @@ class _Tcp(baseclass.Protocol):
         """
         ECN-nonce concealment protection (experimental). By default, this attribute is set automatically. Set :attr:`flag_ns_override` to ``True`` to override this field
         """
-        return self._hdrlen_rsvd
+        return self._hdrlen_rsvd & 1
 
     @flag_ns.setter
     def flag_ns(self, value):
-        self._hdrlen_rsvd = utils.parse(value)
+        current_value = getattr(self, '_hdrlen_rsvd', 0)
+        self._hdrlen_rsvd = (current_value & (~1 & 255)) + ((utils.parse(value) << 0) & 1)
 
     @property
     def flag_ns_mode(self):

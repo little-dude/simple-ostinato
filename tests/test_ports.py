@@ -46,12 +46,6 @@ class PortsFetchedLayer(BaseLayer):
     def tearDown(cls):
         pass
 
-    @classmethod
-    def get_fresh_port(cls, name):
-        drone = Drone('localhost')
-        drone.fetch_ports()
-        return drone.get_port(name)
-
 
 class TestPortConfig(unittest.TestCase):
 
@@ -89,7 +83,7 @@ class TestPortConfig(unittest.TestCase):
         port.fetch()
         assert port.transmit_mode == 'INTERLEAVED'
 
-        other_port = self.layer.get_fresh_port('ost3')
+        other_port = utils.get_fresh_port('ost3')
         assert other_port.transmit_mode == 'INTERLEAVED'
 
     def test_to_dict(self):
@@ -112,7 +106,7 @@ class TestPortConfig(unittest.TestCase):
         assert port.to_dict() == expected
 
         port.save()
-        other_port = self.layer.get_fresh_port('ost4')
+        other_port = utils.get_fresh_port('ost4')
         assert other_port.to_dict() == expected
 
     def test_from_dict(self):
@@ -132,7 +126,7 @@ class TestPortConfig(unittest.TestCase):
         assert port.streams == []
 
         port.save()
-        other_port = self.layer.get_fresh_port('ost5')
+        other_port = utils.get_fresh_port('ost5')
         assert other_port.is_enabled is True
         assert other_port.transmit_mode == 'INTERLEAVED'
         assert other_port.name == 'ost5'
