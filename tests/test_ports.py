@@ -91,23 +91,33 @@ class TestPortConfig(unittest.TestCase):
         expected = {
             'name': 'ost4',
             'transmit_mode': 'SEQUENTIAL',
+            'user_name': '',
+            'is_exclusive_control': False,
             'is_enabled': True,
             'streams': []
         }
-        assert port.to_dict() == expected
+        self.assertDictEqual(
+            utils.sanitize_dict(port.to_dict()),
+            utils.sanitize_dict(expected))
 
         port.transmit_mode = 'INTERLEAVED'
         expected = {
             'name': 'ost4',
             'transmit_mode': 'INTERLEAVED',
+            'user_name': '',
+            'is_exclusive_control': False,
             'is_enabled': True,
             'streams': []
         }
-        assert port.to_dict() == expected
+        self.assertDictEqual(
+            utils.sanitize_dict(port.to_dict()),
+            utils.sanitize_dict(expected))
 
         port.save()
         other_port = utils.get_fresh_port('ost4')
-        assert other_port.to_dict() == expected
+        self.assertDictEqual(
+            utils.sanitize_dict(other_port.to_dict()),
+            utils.sanitize_dict(expected))
 
     def test_from_dict(self):
         port = self.layer.ost5

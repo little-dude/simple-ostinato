@@ -139,7 +139,7 @@ class Port(object):
 
     @is_enabled.setter
     def is_enabled(self, value):
-        self._is_enabled = value
+        raise ValueError('Read-only attribute')
 
     @property
     def is_exclusive_control(self):
@@ -149,9 +149,7 @@ class Port(object):
 
     @is_exclusive_control.setter
     def is_exclusive_control(self, value):
-        if not isinstance(value, bool):
-            raise TypeError('Expected boolean')
-        self._is_exclusive_control = value
+        raise ValueError('Read-only attribute')
 
     class _TransmitMode(utils.Enum):
 
@@ -265,7 +263,7 @@ class Port(object):
                 'streams': stream_dicts}
 
     def from_dict(self, values):
-        read_only = ['name', 'is_exclusive_control', 'user_name']
+        read_only = ['name', 'is_exclusive_control', 'user_name', 'is_enabled']
         for key, value in values.iteritems():
             if key in read_only:
                 pass
