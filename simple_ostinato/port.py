@@ -2,8 +2,6 @@
 This module implement a class that represents a remote port, controlled by a
 :class:`Drone` instance.
 """
-import time
-import pprint
 from ostinato.core import ost_pb
 from .stream import Stream
 from . import utils
@@ -110,15 +108,15 @@ class Port(object):
                 stream.fetch()
 
     @property
-    def id(self):
+    def port_id(self):
         """
         ID of the port. This is a read-only attribute.
         """
-        return self.port_id
+        return self._port_id
 
-    @id.setter
-    def id(self, value):
-        raise ValueError('read-only attribute')
+    @port_id.setter
+    def port_id(self, value):
+        self._port_id = value
 
     @property
     def name(self):
@@ -256,24 +254,13 @@ class Port(object):
         """
         self._drone.stopTransmit(self._get_o_port_id_list())
 
-    def start_capture(self, block=-1, stop=False):
+    def start_capture(self):
         """
         Start capturing. By default, this method is non-blocking and returns
         immediately, and :meth:`stop_send()` must be called to stop the
         capture.
-
-        Args:
-
-            block (int): make this method blocking for ``block`` seconds
-
-            stop (bool): if True, and if ``block`` is a positive integer, the \
-                capture will be stopped after ``block`` seconds.
         """
         self._drone.startCapture(self._get_o_port_id_list())
-        if block > 0:
-            time.sleep(block)
-            if stop:
-                self.stop_capture()
 
     def stop_capture(self):
         """
@@ -357,12 +344,6 @@ class Port(object):
         o_port_ids = ost_pb.PortIdList()
         o_port_ids.port_id.add().id = self.port_id
         return o_port_ids
-
-    def dump_streams(self):
-        streams = []
-        for stream in self.streams:
-            streams.append(stream.to_dict())
-        return pprint.pformat(streams)
 
     def __str__(self):
         if not self.name:
