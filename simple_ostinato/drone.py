@@ -3,7 +3,6 @@ The module defines the ``Drone`` class, which is a wrapper for all the protocol
 buffer methods. It is usually the object to create when using
 ``ostinato-simple``:
 """
-from . import log
 from ostinato.core import DroneProxy
 from .port import Port
 
@@ -28,7 +27,6 @@ class Drone(object):
     """
 
     def __init__(self, host, connect=True):
-        self.log = log.new_logger('{}'.format(host))
         self._drone = DroneProxy(host)
         if connect is True:
             self.connect()
@@ -40,14 +38,12 @@ class Drone(object):
         when the object is created.
         """
         self._drone.connect()
-        self.log.info('connected')
 
     def disconnect(self):
         """
         Disconnect from the remote drone instance.
         """
         self._drone.disconnect()
-        self.log.info('disconnected')
 
     def reconnect(self):
         """
@@ -55,14 +51,12 @@ class Drone(object):
         """
         self._drone.disconnect()
         self._drone.connect()
-        self.log.info('reconnected')
 
     def fetch_ports(self):
         """
         Get the list of all the ports on the remote host. They are stored in
         the :attr:`ports` dictionnary.
         """
-        self.log.info('fetching ports')
         o_ports = self._drone.getPortConfig(self._drone.getPortIdList())
         for o_port in o_ports.port:
             port_id = o_port.port_id.id

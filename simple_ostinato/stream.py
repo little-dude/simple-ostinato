@@ -47,7 +47,6 @@ class Stream(object):
         self.port_id = port.port_id
         self._drone = port._drone
         self.stream_id = stream_id
-        self.log = port.log.getChild(str(self))
         self.fetch()
         if layers:
             self.layers.extend(layers)
@@ -64,7 +63,6 @@ class Stream(object):
         self._layers = value
 
     def _fetch_layers(self, o_stream):
-        self.log.debug('fetching layers')
         o_protocols = o_stream.protocol
         self.layers = []
         for o_protocol in o_protocols:
@@ -90,7 +88,6 @@ class Stream(object):
         """
         Save the current stream configuration (including the protocols).
         """
-        self.log.info('saving current state')
         o_streams = self._fetch()
         o_stream = o_streams.stream[0]
         o_stream.core.is_enabled = self._is_enabled
@@ -111,7 +108,6 @@ class Stream(object):
         Fetch the stream configuration on the remote drone instance (including
         all the layers).
         """
-        self.log.info('fetching state')
         o_stream = self._fetch().stream[0]
         self._name = o_stream.core.name
         self._is_enabled = o_stream.core.is_enabled
@@ -124,7 +120,6 @@ class Stream(object):
         self._bursts_per_sec = o_stream.control.bursts_per_sec
         self._packets_per_sec = o_stream.control.packets_per_sec
         self._fetch_layers(o_stream)
-        self.log.debug('state after fetch: {}'.format(self.to_dict()))
 
     def _fetch(self):
         o_stream_ids = ost_pb.StreamIdList()
