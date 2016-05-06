@@ -13,6 +13,8 @@ class BaseLayer(object):
         utils.create_veth_pair('v_mac_eth')
         utils.create_port('ip4')
         utils.create_veth_pair('v_ip4')
+        utils.create_port('udp')
+        utils.create_veth_pair('v_udp')
         cls.drone = utils.restart_drone()
 
     @classmethod
@@ -22,6 +24,8 @@ class BaseLayer(object):
         utils.delete_veth_pair('v_mac_eth')
         utils.delete_port('ip4')
         utils.delete_veth_pair('v_ip4')
+        utils.delete_port('udp')
+        utils.delete_veth_pair('v_udp')
 
 
 class ToFromDict(unittest.TestCase):
@@ -29,7 +33,7 @@ class ToFromDict(unittest.TestCase):
     layer = BaseLayer
     maxDiff = None
 
-    @params('mac_eth', 'ip4')
+    @params('mac_eth', 'ip4', 'udp')
     def test_mac_eth(self, protocol):
         port = self.layer.drone.get_port(protocol)
         port_config = utils.load_json('{}.json'.format(protocol))
@@ -182,3 +186,63 @@ class TrafficIp4(TrafficTests):
     #     capture = pyshark.FileCapture('capture.pcap')
     #     for num_pkt, pkt in enumerate(capture):
     #         self.assertEqual((num_pkt + 1) * 10, int(pkt.eth.len))
+
+
+class TrafficUdpLayer(BaseLayer):
+
+    @classmethod
+    def setUp(cls):
+        cls.tx = cls.drone.get_port('v_udp0')
+        cls.rx = cls.drone.get_port('v_udp1')
+        port_config = utils.load_json('udp.json')
+        cls.tx.from_dict(port_config)
+        cls.tx.save()
+
+
+class TrafficUdp(TrafficTests):
+
+    layer = TrafficUdpLayer
+
+    def test_traffic_default(self):
+        tx = self.layer.tx
+        rx = self.layer.rx
+        tx.streams[0].is_enabled = True
+        tx.streams[0].save()
+        utils.send_and_receive(tx, rx, duration=0.5, save_as='capture.pcap')
+        if utils.is_pypy():
+            return
+        capture = pyshark.FileCapture('capture.pcap')
+        packet = capture[0]
+        self.assertEqual(int(packet.udp.srcport), 0)
+        self.assertEqual(int(packet.udp.dstport), 0)
+        self.assertEqual(int(packet.udp.length), 26)
+        self.assertEqual(int(packet.udp.checksum, 16), 65466)
+
+    def test_traffic_static(self):
+        tx = self.layer.tx
+        rx = self.layer.rx
+        tx.streams[1].is_enabled = True
+        tx.streams[1].save()
+        utils.send_and_receive(tx, rx, duration=0.5, save_as='capture.pcap')
+        if utils.is_pypy():
+            return
+        capture = pyshark.FileCapture('capture.pcap')
+        packet = capture[0]
+        self.assertEqual(int(packet.udp.srcport), 9999)
+        self.assertEqual(int(packet.udp.dstport), 8888)
+        self.assertEqual(int(packet.udp.length), 1234)
+        self.assertEqual(int(packet.udp.checksum, 16), 65535)
+
+    def test_traffic_variable(self):
+        tx = self.layer.tx
+        rx = self.layer.rx
+        tx.streams[2].is_enabled = True
+        tx.streams[2].save()
+        utils.send_and_receive(tx, rx, duration=1, save_as='capture.pcap')
+        if utils.is_pypy():
+            return
+        capture = pyshark.FileCapture('capture.pcap')
+        for num_pkt, pkt in enumerate(capture):
+            self.assertEqual(int(pkt.udp.dstport), 100 - (num_pkt % 100))
+            self.assertEqual(int(pkt.udp.srcport), 1 + (num_pkt % 100))
+            self.assertEqual(int(pkt.udp.length), 0 + ((num_pkt % 100) * 10))
