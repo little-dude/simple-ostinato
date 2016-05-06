@@ -69,38 +69,3 @@ class Protocol(object):
         for method in dir(self):
             if method.startswith('_fetch_'):
                 getattr(self, method)(o_protocol)
-
-    @property
-    def fields(self):
-        fields = []
-        for field in self._fields:
-            fields.append(getattr(self, field))
-        return fields
-
-    # @variable_fields.setter
-    # def variable_fields(self, variable_fields):
-    #     self._variable_fields = variable_fields
-
-    # def set_variable_field(self, offset, mask, mode='INCREMENT', step=1):
-    #     variable_field = VariableField(offset, mask=mask, mode=mode, step=step)
-    #     for field in self.variable_fields:
-    #         if self._fields_overlap(field, variable_field):
-    #             raise ValueError('new field overlap with {}'.format(field))
-
-    # def get_variable_field(self, offset, mask):
-    #     for field in self.variable_fields:
-    #         if field.offset == offset and field.mask == mask:
-    #             return field
-
-    # def del_variable_field(self, offset, mask):
-    #     self.variable_fields.remove(self.get_variable_field(offset, mask))
-
-    # def _fields_overlap(field, offset, mask):
-    #     field_offset = field.offset
-    #     diff_offset = abs(field_offset - offset)
-    #     if diff_offset > 4:
-    #         return False
-    #     shift = diff_offset * 8
-    #     max_offset = max(offset, field.offset)
-    #     min_offset = min(offset, field.offset)
-    #     return (max_offset >> shift) & min_offset > 0

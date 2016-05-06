@@ -57,9 +57,6 @@ class Enum(object):
         keys = cls.keys()
         if key in keys:
             return getattr(cls, key)
-        if isinstance(key, str):
-            if key.upper() in keys:
-                return getattr(cls, key.upper())
         enum = cls.__name__
         valid = ','.join([k for k in keys])
         err = '{} not a valid {}. Must be one of: {}.'.format(key, enum, valid)
