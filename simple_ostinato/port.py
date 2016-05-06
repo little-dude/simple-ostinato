@@ -82,6 +82,7 @@ class Port(object):
         self._is_enabled = o_port.is_enabled
         self._transmit_mode = o_port.transmit_mode
         self._user_name = o_port.user_name
+        self._is_exclusive_control = o_port.is_exclusive_control
 
     def _fetch_stream_ids(self):
         o_port_ids = ost_pb.PortIdList()
@@ -129,28 +130,6 @@ class Port(object):
     def name(self, value):
         raise ValueError('Read-only attribute')
 
-    # @property
-    # def description(self):
-    #     """
-    #     Optional description for the port.
-    #     """
-    #     return self._description
-
-    # @description.setter
-    # def description(self, value):
-    #     self._description = str(value)
-
-    # @property
-    # def notes(self):
-    #     """
-    #     Optional note for the port.
-    #     """
-    #     return self._notes
-
-    # @notes.setter
-    # def notes(self, value):
-    #     self._notes = str(value)
-
     @property
     def is_enabled(self):
         """
@@ -160,7 +139,7 @@ class Port(object):
 
     @is_enabled.setter
     def is_enabled(self, value):
-        raise ValueError('Read-only attribute')
+        self._is_enabled = value
 
     @property
     def is_exclusive_control(self):
@@ -281,11 +260,14 @@ class Port(object):
         return {'name': self.name,
                 'transmit_mode': self.transmit_mode,
                 'is_enabled': self.is_enabled,
+                'is_exclusive_control': self.is_exclusive_control,
+                'user_name': self.user_name,
                 'streams': stream_dicts}
 
     def from_dict(self, values):
+        read_only = ['name', 'is_exclusive_control', 'user_name']
         for key, value in values.iteritems():
-            if key in ['name', 'is_enabled']:
+            if key in read_only:
                 pass
             elif key == 'streams':
                 while self.streams:

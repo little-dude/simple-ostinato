@@ -39,6 +39,8 @@ class ToFromDict(unittest.TestCase):
         port_config = utils.load_json('{}.json'.format(protocol))
         port_config['name'] = port.name
         port_config['is_enabled'] = port.is_enabled
+        port_config['is_exclusive_control'] = port.is_exclusive_control
+        port_config['user_name'] = port.user_name
         port.from_dict(port_config)
         self.assertDictEqual(utils.sanitize_dict(port.to_dict()), port_config)
         port.save()
