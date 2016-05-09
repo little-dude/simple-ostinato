@@ -1,10 +1,11 @@
 {
     "is_enabled": true,
-    "name": "lo",
+    "is_exclusive_control": false,
+    "name": "v_udp0",
     "streams": [
         {
             "bursts_per_sec": 1.0,
-            "is_enabled": true,
+            "is_enabled": false,
             "layers": [
                 [
                     100,
@@ -48,7 +49,7 @@
                         "flag_df": 0,
                         "flag_df_count": 1,
                         "flag_df_mode": "FIXED",
-                        "flag_df_step": 1,
+                        "flag_df_step": 2,
                         "flag_mf": 0,
                         "flag_mf_count": 1,
                         "flag_mf_mode": "FIXED",
@@ -56,7 +57,7 @@
                         "flag_unused": 0,
                         "flag_unused_count": 1,
                         "flag_unused_mode": "FIXED",
-                        "flag_unused_step": 1,
+                        "flag_unused_step": 4,
                         "fragments_offset": 0,
                         "fragments_offset_count": 1,
                         "fragments_offset_mode": "FIXED",
@@ -96,7 +97,7 @@
                         "version_count": 1,
                         "version_mode": "FIXED",
                         "version_override": false,
-                        "version_step": 1
+                        "version_step": 16
                     }
                 ],
                 [
@@ -143,7 +144,7 @@
         },
         {
             "bursts_per_sec": 1.0,
-            "is_enabled": true,
+            "is_enabled": false,
             "layers": [
                 [
                     100,
@@ -187,7 +188,7 @@
                         "flag_df": 0,
                         "flag_df_count": 1,
                         "flag_df_mode": "FIXED",
-                        "flag_df_step": 1,
+                        "flag_df_step": 2,
                         "flag_mf": 0,
                         "flag_mf_count": 1,
                         "flag_mf_mode": "FIXED",
@@ -195,7 +196,7 @@
                         "flag_unused": 0,
                         "flag_unused_count": 1,
                         "flag_unused_mode": "FIXED",
-                        "flag_unused_step": 1,
+                        "flag_unused_step": 4,
                         "fragments_offset": 0,
                         "fragments_offset_count": 1,
                         "fragments_offset_mode": "FIXED",
@@ -235,7 +236,7 @@
                         "version_count": 1,
                         "version_mode": "FIXED",
                         "version_override": false,
-                        "version_step": 1
+                        "version_step": 16
                     }
                 ],
                 [
@@ -282,7 +283,7 @@
         },
         {
             "bursts_per_sec": 1.0,
-            "is_enabled": true,
+            "is_enabled": false,
             "layers": [
                 [
                     100,
@@ -326,7 +327,7 @@
                         "flag_df": 0,
                         "flag_df_count": 1,
                         "flag_df_mode": "FIXED",
-                        "flag_df_step": 1,
+                        "flag_df_step": 2,
                         "flag_mf": 0,
                         "flag_mf_count": 1,
                         "flag_mf_mode": "FIXED",
@@ -334,7 +335,7 @@
                         "flag_unused": 0,
                         "flag_unused_count": 1,
                         "flag_unused_mode": "FIXED",
-                        "flag_unused_step": 1,
+                        "flag_unused_step": 4,
                         "fragments_offset": 0,
                         "fragments_offset_count": 1,
                         "fragments_offset_mode": "FIXED",
@@ -374,7 +375,7 @@
                         "version_count": 1,
                         "version_mode": "FIXED",
                         "version_override": false,
-                        "version_step": 1
+                        "version_step": 16
                     }
                 ],
                 [
@@ -416,9 +417,10 @@
             "num_bursts": 1,
             "num_packets": 101,
             "packets_per_burst": 10,
-            "packets_per_sec": 1000,
+            "packets_per_sec": 1000.0,
             "unit": "PACKETS"
         }
     ],
-    "transmit_mode": "SEQUENTIAL"
+    "transmit_mode": "SEQUENTIAL",
+    "user_name": ""
 }

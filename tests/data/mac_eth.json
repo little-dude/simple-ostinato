@@ -1,1 +1,141 @@
-{"is_enabled": true, "transmit_mode": "SEQUENTIAL", "streams": [{"is_enabled": false, "bursts_per_sec": 1.0, "unit": "PACKETS", "layers": [[100, {"source": "00-00-00-00-00-00", "source_count": 1, "destination_count": 1, "destination": "00-00-00-00-00-00", "source_mode": "FIXED", "destination_step": 1, "destination_mode": "FIXED", "source_step": 1}], [200, {"ether_type_mode": "FIXED", "ether_type_override": false, "ether_type_step": 1, "ether_type": 0, "ether_type_count": 1}], [101, {"pattern": "0", "mode": "FIXED_WORD"}]], "name": "mac_eth_default", "packets_per_sec": 1000, "next": "GOTO_NEXT", "num_bursts": 1, "num_packets": 1, "mode": "FIXED", "packets_per_burst": 10}, {"is_enabled": false, "bursts_per_sec": 1.0, "unit": "PACKETS", "layers": [[100, {"source": "11-22-33-44-55-66", "source_count": 1, "destination_count": 1, "destination": "AA-BB-CC-DD-EE-FF", "source_mode": "FIXED", "destination_step": 1, "destination_mode": "FIXED", "source_step": 1}], [200, {"ether_type_mode": "FIXED", "ether_type_override": true, "ether_type_step": 1, "ether_type": 2457, "ether_type_count": 1}], [101, {"pattern": "0", "mode": "INCREMENT_BYTE"}]], "name": "mac_eth_static", "packets_per_sec": 1000, "next": "GOTO_NEXT", "num_bursts": 1, "num_packets": 1, "mode": "FIXED", "packets_per_burst": 10}, {"is_enabled": false, "bursts_per_sec": 1.0, "unit": "PACKETS", "layers": [[100, {"source": "00-00-00-00-00-00", "source_count": 1, "destination_count": 1, "destination": "00-00-00-00-00-00", "source_mode": "FIXED", "destination_step": 1, "destination_mode": "FIXED", "source_step": 1}], [200, {"ether_type_mode": "INCREMENT", "ether_type_override": true, "ether_type_step": 10, "ether_type": 10, "ether_type_count": 100}], [101, {"pattern": "0", "mode": "DECREMENT_BYTE"}]], "name": "mac_eth_variable", "packets_per_sec": 1000, "next": "GOTO_NEXT", "num_bursts": 1, "num_packets": 100, "mode": "FIXED", "packets_per_burst": 10}], "name": "any"}
+{
+    "is_enabled": true,
+    "is_exclusive_control": false,
+    "name": "v_mac_eth0",
+    "streams": [
+        {
+            "bursts_per_sec": 1.0,
+            "is_enabled": false,
+            "layers": [
+                [
+                    100,
+                    {
+                        "destination": "00-00-00-00-00-00",
+                        "destination_count": 1,
+                        "destination_mode": "FIXED",
+                        "destination_step": 1,
+                        "source": "00-00-00-00-00-00",
+                        "source_count": 1,
+                        "source_mode": "FIXED",
+                        "source_step": 1
+                    }
+                ],
+                [
+                    200,
+                    {
+                        "ether_type": 0,
+                        "ether_type_count": 1,
+                        "ether_type_mode": "FIXED",
+                        "ether_type_override": false,
+                        "ether_type_step": 1
+                    }
+                ],
+                [
+                    101,
+                    {
+                        "mode": "FIXED_WORD",
+                        "pattern": "0"
+                    }
+                ]
+            ],
+            "mode": "FIXED",
+            "name": "mac_eth_default",
+            "next": "GOTO_NEXT",
+            "num_bursts": 1,
+            "num_packets": 1,
+            "packets_per_burst": 10,
+            "packets_per_sec": 1000.0,
+            "unit": "PACKETS"
+        },
+        {
+            "bursts_per_sec": 1.0,
+            "is_enabled": false,
+            "layers": [
+                [
+                    100,
+                    {
+                        "destination": "AA-BB-CC-DD-EE-FF",
+                        "destination_count": 1,
+                        "destination_mode": "FIXED",
+                        "destination_step": 1,
+                        "source": "11-22-33-44-55-66",
+                        "source_count": 1,
+                        "source_mode": "FIXED",
+                        "source_step": 1
+                    }
+                ],
+                [
+                    200,
+                    {
+                        "ether_type": 2457,
+                        "ether_type_count": 1,
+                        "ether_type_mode": "FIXED",
+                        "ether_type_override": true,
+                        "ether_type_step": 1
+                    }
+                ],
+                [
+                    101,
+                    {
+                        "mode": "INCREMENT_BYTE",
+                        "pattern": "0"
+                    }
+                ]
+            ],
+            "mode": "FIXED",
+            "name": "mac_eth_static",
+            "next": "GOTO_NEXT",
+            "num_bursts": 1,
+            "num_packets": 1,
+            "packets_per_burst": 10,
+            "packets_per_sec": 1000.0,
+            "unit": "PACKETS"
+        },
+        {
+            "bursts_per_sec": 1.0,
+            "is_enabled": false,
+            "layers": [
+                [
+                    100,
+                    {
+                        "destination": "00-00-00-00-00-00",
+                        "destination_count": 1,
+                        "destination_mode": "FIXED",
+                        "destination_step": 1,
+                        "source": "00-00-00-00-00-00",
+                        "source_count": 1,
+                        "source_mode": "FIXED",
+                        "source_step": 1
+                    }
+                ],
+                [
+                    200,
+                    {
+                        "ether_type": 10,
+                        "ether_type_count": 100,
+                        "ether_type_mode": "INCREMENT",
+                        "ether_type_override": true,
+                        "ether_type_step": 10
+                    }
+                ],
+                [
+                    101,
+                    {
+                        "mode": "DECREMENT_BYTE",
+                        "pattern": "0"
+                    }
+                ]
+            ],
+            "mode": "FIXED",
+            "name": "mac_eth_variable",
+            "next": "GOTO_NEXT",
+            "num_bursts": 1,
+            "num_packets": 100,
+            "packets_per_burst": 10,
+            "packets_per_sec": 1000.0,
+            "unit": "PACKETS"
+        }
+    ],
+    "transmit_mode": "SEQUENTIAL",
+    "user_name": ""
+}

@@ -21,10 +21,10 @@ class _Mac(baseclass.Protocol):
         super(_Mac, self).__init__(source=source, destination=destination, **kwargs)
         
         self.source_mode = 'FIXED'
-        self.source_step = 1
+        self.source_step = 1 << 0
         self.source_count = 1
         self.destination_mode = 'FIXED'
-        self.destination_step = 1
+        self.destination_step = 1 << 0
         self.destination_count = 1
 
     @property
@@ -61,11 +61,11 @@ class _Mac(baseclass.Protocol):
         """
         If :attr:`source_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._source_step
+        return self._source_step >> 0
 
     @source_step.setter
     def source_step(self, step):
-        self._source_step = step
+        self._source_step = step << 0
 
     @property
     def source_count(self):
@@ -139,11 +139,11 @@ class _Mac(baseclass.Protocol):
         """
         If :attr:`destination_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._destination_step
+        return self._destination_step >> 0
 
     @destination_step.setter
     def destination_step(self, step):
-        self._destination_step = step
+        self._destination_step = step << 0
 
     @property
     def destination_count(self):
@@ -225,7 +225,7 @@ class _Ethernet(baseclass.Protocol):
         super(_Ethernet, self).__init__(ether_type=ether_type, **kwargs)
         
         self.ether_type_mode = 'FIXED'
-        self.ether_type_step = 1
+        self.ether_type_step = 1 << 0
         self.ether_type_count = 1
         self.ether_type_override = False
 
@@ -263,11 +263,11 @@ class _Ethernet(baseclass.Protocol):
         """
         If :attr:`ether_type_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._ether_type_step
+        return self._ether_type_step >> 0
 
     @ether_type_step.setter
     def ether_type_step(self, step):
-        self._ether_type_step = step
+        self._ether_type_step = step << 0
 
     @property
     def ether_type_count(self):
@@ -356,53 +356,53 @@ class _IPv4(baseclass.Protocol):
         super(_IPv4, self).__init__(flag_unused=flag_unused, dscp=dscp, flag_mf=flag_mf, ttl=ttl, protocol=protocol, header_length=header_length, fragments_offset=fragments_offset, tos=tos, destination=destination, source=source, version=version, identification=identification, checksum=checksum, flag_df=flag_df, total_length=total_length, **kwargs)
         
         self.flag_unused_mode = 'FIXED'
-        self.flag_unused_step = 1
+        self.flag_unused_step = 1 << 2
         self.flag_unused_count = 1
         self.dscp_mode = 'FIXED'
-        self.dscp_step = 1
+        self.dscp_step = 1 << 0
         self.dscp_count = 1
         self.flag_mf_mode = 'FIXED'
-        self.flag_mf_step = 1
+        self.flag_mf_step = 1 << 0
         self.flag_mf_count = 1
         self.ttl_mode = 'FIXED'
-        self.ttl_step = 1
+        self.ttl_step = 1 << 0
         self.ttl_count = 1
         self.protocol_mode = 'FIXED'
-        self.protocol_step = 1
+        self.protocol_step = 1 << 0
         self.protocol_count = 1
         self.protocol_override = False
         self.header_length_mode = 'FIXED'
-        self.header_length_step = 1
+        self.header_length_step = 1 << 0
         self.header_length_count = 1
         self.header_length_override = False
         self.fragments_offset_mode = 'FIXED'
-        self.fragments_offset_step = 1
+        self.fragments_offset_step = 1 << 0
         self.fragments_offset_count = 1
         self.tos_mode = 'FIXED'
-        self.tos_step = 1
+        self.tos_step = 1 << 0
         self.tos_count = 1
         self.destination_mode = 'FIXED'
-        self.destination_step = 1
+        self.destination_step = 1 << 0
         self.destination_count = 1
         self.source_mode = 'FIXED'
-        self.source_step = 1
+        self.source_step = 1 << 0
         self.source_count = 1
         self.version_mode = 'FIXED'
-        self.version_step = 1
+        self.version_step = 1 << 4
         self.version_count = 1
         self.version_override = False
         self.identification_mode = 'FIXED'
-        self.identification_step = 1
+        self.identification_step = 1 << 0
         self.identification_count = 1
         self.checksum_mode = 'FIXED'
-        self.checksum_step = 1
+        self.checksum_step = 1 << 0
         self.checksum_count = 1
         self.checksum_override = False
         self.flag_df_mode = 'FIXED'
-        self.flag_df_step = 1
+        self.flag_df_step = 1 << 1
         self.flag_df_count = 1
         self.total_length_mode = 'FIXED'
-        self.total_length_step = 1
+        self.total_length_step = 1 << 0
         self.total_length_count = 1
         self.total_length_override = False
 
@@ -440,11 +440,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`flag_unused_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_unused_step
+        return self._flag_unused_step >> 2
 
     @flag_unused_step.setter
     def flag_unused_step(self, step):
-        self._flag_unused_step = step
+        self._flag_unused_step = step << 2
 
     @property
     def flag_unused_count(self):
@@ -518,11 +518,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`dscp_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._dscp_step
+        return self._dscp_step >> 0
 
     @dscp_step.setter
     def dscp_step(self, step):
-        self._dscp_step = step
+        self._dscp_step = step << 0
 
     @property
     def dscp_count(self):
@@ -596,11 +596,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`flag_mf_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_mf_step
+        return self._flag_mf_step >> 0
 
     @flag_mf_step.setter
     def flag_mf_step(self, step):
-        self._flag_mf_step = step
+        self._flag_mf_step = step << 0
 
     @property
     def flag_mf_count(self):
@@ -674,11 +674,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`ttl_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._ttl_step
+        return self._ttl_step >> 0
 
     @ttl_step.setter
     def ttl_step(self, step):
-        self._ttl_step = step
+        self._ttl_step = step << 0
 
     @property
     def ttl_count(self):
@@ -752,11 +752,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`protocol_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._protocol_step
+        return self._protocol_step >> 0
 
     @protocol_step.setter
     def protocol_step(self, step):
-        self._protocol_step = step
+        self._protocol_step = step << 0
 
     @property
     def protocol_count(self):
@@ -840,11 +840,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`header_length_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._header_length_step
+        return self._header_length_step >> 0
 
     @header_length_step.setter
     def header_length_step(self, step):
-        self._header_length_step = step
+        self._header_length_step = step << 0
 
     @property
     def header_length_count(self):
@@ -928,11 +928,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`fragments_offset_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._fragments_offset_step
+        return self._fragments_offset_step >> 0
 
     @fragments_offset_step.setter
     def fragments_offset_step(self, step):
-        self._fragments_offset_step = step
+        self._fragments_offset_step = step << 0
 
     @property
     def fragments_offset_count(self):
@@ -1006,11 +1006,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`tos_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._tos_step
+        return self._tos_step >> 0
 
     @tos_step.setter
     def tos_step(self, step):
-        self._tos_step = step
+        self._tos_step = step << 0
 
     @property
     def tos_count(self):
@@ -1084,11 +1084,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`destination_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._destination_step
+        return self._destination_step >> 0
 
     @destination_step.setter
     def destination_step(self, step):
-        self._destination_step = step
+        self._destination_step = step << 0
 
     @property
     def destination_count(self):
@@ -1162,11 +1162,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`source_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._source_step
+        return self._source_step >> 0
 
     @source_step.setter
     def source_step(self, step):
-        self._source_step = step
+        self._source_step = step << 0
 
     @property
     def source_count(self):
@@ -1240,11 +1240,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`version_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._version_step
+        return self._version_step >> 4
 
     @version_step.setter
     def version_step(self, step):
-        self._version_step = step
+        self._version_step = step << 4
 
     @property
     def version_count(self):
@@ -1328,11 +1328,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`identification_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._identification_step
+        return self._identification_step >> 0
 
     @identification_step.setter
     def identification_step(self, step):
-        self._identification_step = step
+        self._identification_step = step << 0
 
     @property
     def identification_count(self):
@@ -1406,11 +1406,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`checksum_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._checksum_step
+        return self._checksum_step >> 0
 
     @checksum_step.setter
     def checksum_step(self, step):
-        self._checksum_step = step
+        self._checksum_step = step << 0
 
     @property
     def checksum_count(self):
@@ -1494,11 +1494,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`flag_df_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_df_step
+        return self._flag_df_step >> 1
 
     @flag_df_step.setter
     def flag_df_step(self, step):
-        self._flag_df_step = step
+        self._flag_df_step = step << 1
 
     @property
     def flag_df_count(self):
@@ -1572,11 +1572,11 @@ class _IPv4(baseclass.Protocol):
         """
         If :attr:`total_length_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._total_length_step
+        return self._total_length_step >> 0
 
     @total_length_step.setter
     def total_length_step(self, step):
-        self._total_length_step = step
+        self._total_length_step = step << 0
 
     @property
     def total_length_count(self):
@@ -1725,19 +1725,19 @@ class _Udp(baseclass.Protocol):
         super(_Udp, self).__init__(source=source, length=length, destination=destination, checksum=checksum, **kwargs)
         
         self.source_mode = 'FIXED'
-        self.source_step = 1
+        self.source_step = 1 << 0
         self.source_count = 1
         self.source_override = False
         self.length_mode = 'FIXED'
-        self.length_step = 1
+        self.length_step = 1 << 0
         self.length_count = 1
         self.length_override = False
         self.destination_mode = 'FIXED'
-        self.destination_step = 1
+        self.destination_step = 1 << 0
         self.destination_count = 1
         self.destination_override = False
         self.checksum_mode = 'FIXED'
-        self.checksum_step = 1
+        self.checksum_step = 1 << 0
         self.checksum_count = 1
         self.checksum_override = False
 
@@ -1775,11 +1775,11 @@ class _Udp(baseclass.Protocol):
         """
         If :attr:`source_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._source_step
+        return self._source_step >> 0
 
     @source_step.setter
     def source_step(self, step):
-        self._source_step = step
+        self._source_step = step << 0
 
     @property
     def source_count(self):
@@ -1863,11 +1863,11 @@ class _Udp(baseclass.Protocol):
         """
         If :attr:`length_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._length_step
+        return self._length_step >> 0
 
     @length_step.setter
     def length_step(self, step):
-        self._length_step = step
+        self._length_step = step << 0
 
     @property
     def length_count(self):
@@ -1951,11 +1951,11 @@ class _Udp(baseclass.Protocol):
         """
         If :attr:`destination_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._destination_step
+        return self._destination_step >> 0
 
     @destination_step.setter
     def destination_step(self, step):
-        self._destination_step = step
+        self._destination_step = step << 0
 
     @property
     def destination_count(self):
@@ -2039,11 +2039,11 @@ class _Udp(baseclass.Protocol):
         """
         If :attr:`checksum_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._checksum_step
+        return self._checksum_step >> 0
 
     @checksum_step.setter
     def checksum_step(self, step):
-        self._checksum_step = step
+        self._checksum_step = step << 0
 
     @property
     def checksum_count(self):
@@ -2147,63 +2147,63 @@ class _Tcp(baseclass.Protocol):
         super(_Tcp, self).__init__(flag_ack=flag_ack, header_length=header_length, reserved=reserved, ack_num=ack_num, flag_rst=flag_rst, window_size=window_size, destination=destination, flag_psh=flag_psh, urgent_pointer=urgent_pointer, source=source, flag_ece=flag_ece, flag_urg=flag_urg, sequence_num=sequence_num, checksum=checksum, flag_syn=flag_syn, flag_cwr=flag_cwr, flag_fin=flag_fin, flag_ns=flag_ns, **kwargs)
         
         self.flag_ack_mode = 'FIXED'
-        self.flag_ack_step = 1
+        self.flag_ack_step = 1 << 4
         self.flag_ack_count = 1
         self.header_length_mode = 'FIXED'
-        self.header_length_step = 1
+        self.header_length_step = 1 << 4
         self.header_length_count = 1
         self.header_length_override = False
         self.reserved_mode = 'FIXED'
-        self.reserved_step = 1
+        self.reserved_step = 1 << 1
         self.reserved_count = 1
         self.reserved_override = False
         self.ack_num_mode = 'FIXED'
-        self.ack_num_step = 1
+        self.ack_num_step = 1 << 0
         self.ack_num_count = 1
         self.flag_rst_mode = 'FIXED'
-        self.flag_rst_step = 1
+        self.flag_rst_step = 1 << 2
         self.flag_rst_count = 1
         self.window_size_mode = 'FIXED'
-        self.window_size_step = 1
+        self.window_size_step = 1 << 0
         self.window_size_count = 1
         self.destination_mode = 'FIXED'
-        self.destination_step = 1
+        self.destination_step = 1 << 0
         self.destination_count = 1
         self.destination_override = False
         self.flag_psh_mode = 'FIXED'
-        self.flag_psh_step = 1
+        self.flag_psh_step = 1 << 3
         self.flag_psh_count = 1
         self.urgent_pointer_mode = 'FIXED'
-        self.urgent_pointer_step = 1
+        self.urgent_pointer_step = 1 << 0
         self.urgent_pointer_count = 1
         self.source_mode = 'FIXED'
-        self.source_step = 1
+        self.source_step = 1 << 0
         self.source_count = 1
         self.source_override = False
         self.flag_ece_mode = 'FIXED'
-        self.flag_ece_step = 1
+        self.flag_ece_step = 1 << 6
         self.flag_ece_count = 1
         self.flag_urg_mode = 'FIXED'
-        self.flag_urg_step = 1
+        self.flag_urg_step = 1 << 5
         self.flag_urg_count = 1
         self.sequence_num_mode = 'FIXED'
-        self.sequence_num_step = 1
+        self.sequence_num_step = 1 << 0
         self.sequence_num_count = 1
         self.checksum_mode = 'FIXED'
-        self.checksum_step = 1
+        self.checksum_step = 1 << 0
         self.checksum_count = 1
         self.checksum_override = False
         self.flag_syn_mode = 'FIXED'
-        self.flag_syn_step = 1
+        self.flag_syn_step = 1 << 1
         self.flag_syn_count = 1
         self.flag_cwr_mode = 'FIXED'
-        self.flag_cwr_step = 1
+        self.flag_cwr_step = 1 << 7
         self.flag_cwr_count = 1
         self.flag_fin_mode = 'FIXED'
-        self.flag_fin_step = 1
+        self.flag_fin_step = 1 << 0
         self.flag_fin_count = 1
         self.flag_ns_mode = 'FIXED'
-        self.flag_ns_step = 1
+        self.flag_ns_step = 1 << 0
         self.flag_ns_count = 1
         self.flag_ns_override = False
 
@@ -2241,11 +2241,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_ack_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_ack_step
+        return self._flag_ack_step >> 4
 
     @flag_ack_step.setter
     def flag_ack_step(self, step):
-        self._flag_ack_step = step
+        self._flag_ack_step = step << 4
 
     @property
     def flag_ack_count(self):
@@ -2319,11 +2319,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`header_length_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._header_length_step
+        return self._header_length_step >> 4
 
     @header_length_step.setter
     def header_length_step(self, step):
-        self._header_length_step = step
+        self._header_length_step = step << 4
 
     @property
     def header_length_count(self):
@@ -2407,11 +2407,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`reserved_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._reserved_step
+        return self._reserved_step >> 1
 
     @reserved_step.setter
     def reserved_step(self, step):
-        self._reserved_step = step
+        self._reserved_step = step << 1
 
     @property
     def reserved_count(self):
@@ -2495,11 +2495,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`ack_num_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._ack_num_step
+        return self._ack_num_step >> 0
 
     @ack_num_step.setter
     def ack_num_step(self, step):
-        self._ack_num_step = step
+        self._ack_num_step = step << 0
 
     @property
     def ack_num_count(self):
@@ -2573,11 +2573,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_rst_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_rst_step
+        return self._flag_rst_step >> 2
 
     @flag_rst_step.setter
     def flag_rst_step(self, step):
-        self._flag_rst_step = step
+        self._flag_rst_step = step << 2
 
     @property
     def flag_rst_count(self):
@@ -2651,11 +2651,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`window_size_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._window_size_step
+        return self._window_size_step >> 0
 
     @window_size_step.setter
     def window_size_step(self, step):
-        self._window_size_step = step
+        self._window_size_step = step << 0
 
     @property
     def window_size_count(self):
@@ -2729,11 +2729,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`destination_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._destination_step
+        return self._destination_step >> 0
 
     @destination_step.setter
     def destination_step(self, step):
-        self._destination_step = step
+        self._destination_step = step << 0
 
     @property
     def destination_count(self):
@@ -2817,11 +2817,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_psh_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_psh_step
+        return self._flag_psh_step >> 3
 
     @flag_psh_step.setter
     def flag_psh_step(self, step):
-        self._flag_psh_step = step
+        self._flag_psh_step = step << 3
 
     @property
     def flag_psh_count(self):
@@ -2895,11 +2895,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`urgent_pointer_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._urgent_pointer_step
+        return self._urgent_pointer_step >> 0
 
     @urgent_pointer_step.setter
     def urgent_pointer_step(self, step):
-        self._urgent_pointer_step = step
+        self._urgent_pointer_step = step << 0
 
     @property
     def urgent_pointer_count(self):
@@ -2973,11 +2973,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`source_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._source_step
+        return self._source_step >> 0
 
     @source_step.setter
     def source_step(self, step):
-        self._source_step = step
+        self._source_step = step << 0
 
     @property
     def source_count(self):
@@ -3061,11 +3061,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_ece_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_ece_step
+        return self._flag_ece_step >> 6
 
     @flag_ece_step.setter
     def flag_ece_step(self, step):
-        self._flag_ece_step = step
+        self._flag_ece_step = step << 6
 
     @property
     def flag_ece_count(self):
@@ -3139,11 +3139,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_urg_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_urg_step
+        return self._flag_urg_step >> 5
 
     @flag_urg_step.setter
     def flag_urg_step(self, step):
-        self._flag_urg_step = step
+        self._flag_urg_step = step << 5
 
     @property
     def flag_urg_count(self):
@@ -3217,11 +3217,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`sequence_num_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._sequence_num_step
+        return self._sequence_num_step >> 0
 
     @sequence_num_step.setter
     def sequence_num_step(self, step):
-        self._sequence_num_step = step
+        self._sequence_num_step = step << 0
 
     @property
     def sequence_num_count(self):
@@ -3295,11 +3295,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`checksum_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._checksum_step
+        return self._checksum_step >> 0
 
     @checksum_step.setter
     def checksum_step(self, step):
-        self._checksum_step = step
+        self._checksum_step = step << 0
 
     @property
     def checksum_count(self):
@@ -3383,11 +3383,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_syn_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_syn_step
+        return self._flag_syn_step >> 1
 
     @flag_syn_step.setter
     def flag_syn_step(self, step):
-        self._flag_syn_step = step
+        self._flag_syn_step = step << 1
 
     @property
     def flag_syn_count(self):
@@ -3461,11 +3461,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_cwr_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_cwr_step
+        return self._flag_cwr_step >> 7
 
     @flag_cwr_step.setter
     def flag_cwr_step(self, step):
-        self._flag_cwr_step = step
+        self._flag_cwr_step = step << 7
 
     @property
     def flag_cwr_count(self):
@@ -3539,11 +3539,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_fin_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_fin_step
+        return self._flag_fin_step >> 0
 
     @flag_fin_step.setter
     def flag_fin_step(self, step):
-        self._flag_fin_step = step
+        self._flag_fin_step = step << 0
 
     @property
     def flag_fin_count(self):
@@ -3617,11 +3617,11 @@ class _Tcp(baseclass.Protocol):
         """
         If :attr:`flag_ns_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._flag_ns_step
+        return self._flag_ns_step >> 0
 
     @flag_ns_step.setter
     def flag_ns_step(self, step):
-        self._flag_ns_step = step
+        self._flag_ns_step = step << 0
 
     @property
     def flag_ns_count(self):
