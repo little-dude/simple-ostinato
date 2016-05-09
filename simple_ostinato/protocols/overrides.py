@@ -1,61 +1,8 @@
 import netaddr
-from ostinato.protocols import mac_pb2, ip4_pb2, payload_pb2
+from ostinato.protocols import payload_pb2
 from . import autogenerates
 from . import baseclass
 from .. import utils
-
-
-class MacAddress(object):
-
-    """
-    Represent a MAC address
-    """
-
-    class _Mode(utils.Enum):
-        INCREMENT = mac_pb2.Mac.e_mm_dec
-        FIXED = mac_pb2.Mac.e_mm_fixed
-        DECREMENT = mac_pb2.Mac.e_mm_inc
-
-    def __init__(self, address='00:00:00:00:00:00', mode='FIXED',
-                 count=16, step=1):
-        self.address = address
-        self.mode = mode
-        self.count = count
-        self.step = step
-
-    @property
-    def address(self):
-        """
-        The MAC address value. If :attr:`mode` is set to ``INCREMENT``,
-        ``DECREMENT`` or ``RANDOM``, it is the address of the inital frame, the
-        next being calculated from this one.
-        """
-        return str(netaddr.EUI(self._address))
-
-    @address.setter
-    def address(self, value):
-        self._address = netaddr.EUI(value).value
-
-    @property
-    def mode(self):
-        """
-        If there are several frames in the stream, the mode determine how the
-        MAC address of the frames are calculated.
-
-        - ``FIXED``: all the frames will have the MAC address :attr:`address`
-        - ``INCREMENT``: the MAC addresses are incremented by :attr:`step` \
-            for each frame, starting from :attr:`address`. After the \
-            :attr:`count` th frame, it restarts from :attr:`address`.
-        - ``DECREMENT``: the MAC addresses are decremented by :attr:`step` \
-            for each frame, starting from :attr:`address`. After the \
-            :attr:`count` th frame, it restarts from :attr:`address`.
-        - ``RANDOM``: the MAC addresses are random
-        """
-        return self._Mode.get_key(self._mode)
-
-    @mode.setter
-    def mode(self, value):
-        self._mode = self._Mode.get_value(value)
 
 
 class Mac(autogenerates._Mac):
@@ -83,74 +30,6 @@ class Mac(autogenerates._Mac):
     @destination.setter
     def destination(self, value):
         self._dst_mac = netaddr.EUI(value).value
-
-
-class IPv4Address(object):
-
-    """
-    Represent an IPv4 address.
-    """
-
-    class _Mode(utils.Enum):
-        DECREMENT = ip4_pb2.Ip4.e_im_dec_host
-        FIXED = ip4_pb2.Ip4.e_im_fixed
-        INCREMENT = ip4_pb2.Ip4.e_im_inc_host
-        RANDOM = ip4_pb2.Ip4.e_im_random_host
-
-    def __init__(self, address='0.0.0.0', mode='FIXED', count=16,
-                 mask='255.255.255.0'):
-        self.address = address
-        self.mode = mode
-        self.count = count
-        self.mask = mask
-
-    @property
-    def mask(self):
-        """
-        Control which bytes are affected when :attr:`mode` is not set to
-        ``FIXED``.
-        """
-        return str(netaddr.IPAddress(self._mask))
-
-    @mask.setter
-    def mask(self, value):
-        self._mask = netaddr.IPAddress(value).value
-
-    @property
-    def address(self):
-        """
-        Actual value of the IPv4 address. If :attr:`mode` is one of
-        ``INCREMENT``, ``DECREMENT`` or ``RANDOM``, it is the address of the
-        initial packet, the next being calculated from this one.
-        """
-        return str(netaddr.IPAddress(self._address))
-
-    @address.setter
-    def address(self, value):
-        self._address = netaddr.IPAddress(value).value
-
-    @property
-    def mode(self):
-        """
-        If there are several packets in the stream, the mode determines how the
-        IPv4 address of the packets are calculated.
-
-        - ``FIXED``: all the packets will have the IPv4 address :attr:`address`
-        - ``INCREMENT``: the IPv4 addresses are incremented by :attr:`step` \
-            for each frame, starting from :attr:`address`. After the \
-            :attr:`count` th pakcet, it restarts from :attr:`address`. \
-            :attr:`mask` controls which bytes are incremented.
-        - ``DECREMENT``: the IPv4 addresses are decremented by :attr:`step` \
-            for each packet, starting from :attr:`address`. After the \
-            :attr:`count` th packet, it restarts from :attr:`address`. \
-            :attr:`mask` controls which bytes are incremented.
-        - ``RANDOM``: bytes specified by :attr:`mask` are random
-        """
-        return self._Mode.get_key(self._mode)
-
-    @mode.setter
-    def mode(self, value):
-        self._mode = self._Mode.get_value(value)
 
 
 class IPv4(autogenerates._IPv4):
@@ -210,7 +89,8 @@ class Payload(baseclass.Protocol):
     @property
     def pattern(self):
         """
-        Payload initial word. Depending on the chosen mode, this word will be repeated unchanged, incremented/decremented, or randomized
+        Payload initial word. Depending on the chosen mode, this word will be
+        repeated unchanged, incremented/decremented, or randomized
         """
         return utils.to_str(self._pattern)
 
