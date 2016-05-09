@@ -21,7 +21,7 @@ class _{{class.class_name}}(baseclass.Protocol):
         super(_{{class.class_name}}, self).__init__({% for attribute in class.attributes %}{{ attribute.name}}={{ attribute.name }}, {% endfor %}**kwargs)
         {% for attribute in class.attributes %}
         self.{{ attribute.name }}_mode = 'FIXED'
-        self.{{ attribute.name }}_step = 1
+        self.{{ attribute.name }}_step = 1 << {{ attribute.shift }}
         self.{{ attribute.name }}_count = 1{% if attribute.auto == true %}
         self.{{ attribute.name }}_override = False{% endif %}{% endfor %}{% for attribute in class.attributes %}
 
@@ -59,11 +59,11 @@ class _{{class.class_name}}(baseclass.Protocol):
         """
         If :attr:`{{ attribute.name }}_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
         """
-        return self._{{ attribute.name }}_step
+        return self._{{ attribute.name }}_step >> {{ attribute.shift }}
 
     @{{ attribute.name }}_step.setter
     def {{ attribute.name }}_step(self, step):
-        self._{{ attribute.name}}_step = step
+        self._{{ attribute.name}}_step = step << {{ attribute.shift }}
 
     @property
     def {{ attribute.name }}_count(self):
