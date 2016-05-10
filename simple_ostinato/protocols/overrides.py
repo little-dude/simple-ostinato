@@ -1,5 +1,5 @@
 import netaddr
-from ostinato.protocols import payload_pb2
+from ostinato.protocols import payload_pb2, mac_pb2
 from . import autogenerates
 from . import baseclass
 from .. import utils
@@ -8,6 +8,11 @@ from .. import utils
 class Mac(autogenerates._Mac):
 
     __metaclass__ = baseclass.make_protocol_class
+
+    class _Mode(utils.Enum):
+        FIXED = mac_pb2.Mac.e_mm_fixed
+        INCREMENT = mac_pb2.Mac.e_mm_inc
+        DECREMENT = mac_pb2.Mac.e_mm_dec
 
     @property
     def source(self):
@@ -21,6 +26,28 @@ class Mac(autogenerates._Mac):
         self._src_mac = netaddr.EUI(value).value
 
     @property
+    def source_mode(self):
+        return self._Mode.get_key(self._source_mode)
+
+    @source_mode.setter
+    def source_mode(self, value):
+        self._source_mode = self._Mode.get_value(value)
+
+    def _save_source(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        ext.src_mac = self._src_mac
+        ext.src_mac_step = self._source_step
+        ext.src_mac_mode = self._source_mode
+        ext.src_mac_count = self._source_count
+
+    def _fetch_source(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        self._src_mac = ext.src_mac
+        self._source_step = ext.src_mac_step
+        self._source_mode = ext.src_mac_mode
+        self._source_count = ext.src_mac_count
+
+    @property
     def destination(self):
         """
         destination MAC address
@@ -30,6 +57,28 @@ class Mac(autogenerates._Mac):
     @destination.setter
     def destination(self, value):
         self._dst_mac = netaddr.EUI(value).value
+
+    @property
+    def destination_mode(self):
+        return self._Mode.get_key(self._destination_mode)
+
+    @destination_mode.setter
+    def destination_mode(self, value):
+        self._destination_mode = self._Mode.get_value(value)
+
+    def _save_destination(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        ext.dst_mac = self._dst_mac
+        ext.dst_mac_step = self._destination_step
+        ext.dst_mac_mode = self._destination_mode
+        ext.dst_mac_count = self._destination_count
+
+    def _fetch_destination(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        self._dst_mac = ext.dst_mac
+        self._destination_step = ext.dst_mac_step
+        self._destination_mode = ext.dst_mac_mode
+        self._destination_count = ext.dst_mac_count
 
 
 class IPv4(autogenerates._IPv4):
