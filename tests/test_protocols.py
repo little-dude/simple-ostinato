@@ -1,5 +1,6 @@
 import os
 import pyshark
+import netaddr
 from nose2.compat import unittest
 from nose2.tools.params import params
 from . import utils
@@ -124,6 +125,10 @@ class TrafficMacEth(TrafficTests):
         capture = pyshark.FileCapture('capture.pcap')
         for num_pkt, pkt in enumerate(capture):
             self.assertEqual((num_pkt + 1) * 10, int(pkt.eth.len))
+            src = netaddr.EUI(pkt.eth.src).value
+            self.assertEqual(num_pkt * 0x100, src)
+            dst = netaddr.EUI(pkt.eth.dst).value
+            self.assertEqual(0xffffffffffff - num_pkt * 0x1000000, dst)
 
 
 class TrafficIp4Layer(BaseLayer):

@@ -98,14 +98,14 @@
                 [
                     100,
                     {
-                        "destination": "00-00-00-00-00-00",
-                        "destination_count": 1,
-                        "destination_mode": "FIXED",
-                        "destination_step": 1,
+                        "destination": "FF-FF-FF-FF-FF-FF",
+                        "destination_count": 100,
+                        "destination_mode": "DECREMENT",
+                        "destination_step": 16777216,
                         "source": "00-00-00-00-00-00",
-                        "source_count": 1,
-                        "source_mode": "FIXED",
-                        "source_step": 1
+                        "source_count": 100,
+                        "source_mode": "INCREMENT",
+                        "source_step": 256
                     }
                 ],
                 [
