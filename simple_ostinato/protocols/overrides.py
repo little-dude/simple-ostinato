@@ -185,3 +185,8 @@ class Udp(autogenerates._Udp):
 class Tcp(autogenerates._Tcp):
 
     __metaclass__ = baseclass.make_protocol_class
+
+
+class Vlan(autogenerates._Vlan):
+
+    __metaclass__ = baseclass.make_protocol_class

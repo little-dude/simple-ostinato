@@ -3768,3 +3768,219 @@ class _Tcp(baseclass.Protocol):
         """
         for attribute, value in dict_.items():
             setattr(self, attribute, value)
+
+
+class _Vlan(baseclass.Protocol):
+
+    """
+    Represent a VLAN tagged frame
+    """
+
+    _protocol_id = 205
+    _extension = vlan_pb2.vlan
+
+    def __init__(self, tp_id=0, vlan_tag=0, **kwargs):
+        super(_Vlan, self).__init__(tp_id=tp_id, vlan_tag=vlan_tag, **kwargs)
+        
+        self.tp_id_mode = 'FIXED'
+        self.tp_id_step = 1 << 0
+        self.tp_id_count = 1
+        self.tp_id_override = False
+        self.vlan_tag_mode = 'FIXED'
+        self.vlan_tag_step = 1 << 0
+        self.vlan_tag_count = 1
+
+    @property
+    def tp_id(self):
+        """
+        Tag protocol identifier. By default, this attribute is set automatically. Set :attr:`tp_id_override` to ``True`` to override this field
+        """
+        return self._tpid & 65535
+
+    @tp_id.setter
+    def tp_id(self, value):
+        current_value = getattr(self, '_tpid', 0)
+        self._tpid = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def tp_id_mode(self):
+        """
+        By default, :attr:`tp_id_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._tp_id_mode)
+
+    @tp_id_mode.setter
+    def tp_id_mode(self, mode):
+        self._tp_id_mode = baseclass.FieldMode.get_value(mode)
+
+    _tp_id_offset = 12
+    _tp_id_type = 1
+    _tp_id_full_mask = 65535
+    _tp_id_mask = 65535
+
+    @property
+    def tp_id_step(self):
+        """
+        If :attr:`tp_id_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._tp_id_step >> 0
+
+    @tp_id_step.setter
+    def tp_id_step(self, step):
+        self._tp_id_step = step << 0
+
+    @property
+    def tp_id_count(self):
+        """
+        If :attr:`tp_id_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._tp_id_count
+
+    @tp_id_count.setter
+    def tp_id_count(self, count):
+        self._tp_id_count = count
+
+    @property
+    def tp_id_override(self):
+        return self._tp_id_override
+
+    @tp_id_override.setter
+    def tp_id_override(self, override):
+        self._tp_id_override = override
+
+    def _save_tp_id(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        ext.is_override_tpid = self.tp_id_override
+        if self.tp_id_mode == 'FIXED':
+            ext.tpid = self._tpid
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._tp_id_step
+            o_variable_field.mask = self._tp_id_mask
+            o_variable_field.type = self._tp_id_type
+            o_variable_field.offset = self._tp_id_offset
+            o_variable_field.mode = self._tp_id_mode
+            o_variable_field.count = self._tp_id_count
+            o_variable_field.value = self._tpid
+
+    def _fetch_tp_id(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        self.tp_id_override = ext.is_override_tpid
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._tp_id_offset and mask == self._tp_id_mask:
+                self._tpid = o_variable_field.value
+                self._tp_id_mode = o_variable_field.mode
+                self._tp_id_count = o_variable_field.count
+                self._tp_id_step = o_variable_field.step
+                return
+        else:
+            self._tpid = ext.tpid
+
+    @property
+    def vlan_tag(self):
+        """
+        Tag control information, contains the vlan tag
+        """
+        return self._vlan_tag & 65535
+
+    @vlan_tag.setter
+    def vlan_tag(self, value):
+        current_value = getattr(self, '_vlan_tag', 0)
+        self._vlan_tag = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def vlan_tag_mode(self):
+        """
+        By default, :attr:`vlan_tag_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._vlan_tag_mode)
+
+    @vlan_tag_mode.setter
+    def vlan_tag_mode(self, mode):
+        self._vlan_tag_mode = baseclass.FieldMode.get_value(mode)
+
+    _vlan_tag_offset = 14
+    _vlan_tag_type = 1
+    _vlan_tag_full_mask = 65535
+    _vlan_tag_mask = 65535
+
+    @property
+    def vlan_tag_step(self):
+        """
+        If :attr:`vlan_tag_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._vlan_tag_step >> 0
+
+    @vlan_tag_step.setter
+    def vlan_tag_step(self, step):
+        self._vlan_tag_step = step << 0
+
+    @property
+    def vlan_tag_count(self):
+        """
+        If :attr:`vlan_tag_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._vlan_tag_count
+
+    @vlan_tag_count.setter
+    def vlan_tag_count(self, count):
+        self._vlan_tag_count = count
+
+    def _save_vlan_tag(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.vlan_tag_mode == 'FIXED':
+            ext.vlan_tag = self._vlan_tag
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._vlan_tag_step
+            o_variable_field.mask = self._vlan_tag_mask
+            o_variable_field.type = self._vlan_tag_type
+            o_variable_field.offset = self._vlan_tag_offset
+            o_variable_field.mode = self._vlan_tag_mode
+            o_variable_field.count = self._vlan_tag_count
+            o_variable_field.value = self._vlan_tag
+
+    def _fetch_vlan_tag(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._vlan_tag_offset and mask == self._vlan_tag_mask:
+                self._vlan_tag = o_variable_field.value
+                self._vlan_tag_mode = o_variable_field.mode
+                self._vlan_tag_count = o_variable_field.count
+                self._vlan_tag_step = o_variable_field.step
+                return
+        else:
+            self._vlan_tag = ext.vlan_tag
+
+    def __str__(self):
+        return 'Vlan(tp_id={},vlan_tag={},)'.format(self.tp_id,self.vlan_tag,)
+
+    def to_dict(self):
+        """
+        Return the Vlan layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'tp_id': self.tp_id,
+            'tp_id_mode': self.tp_id_mode,
+            'tp_id_count': self.tp_id_count,
+            'tp_id_step': self.tp_id_step,
+            'tp_id_override': self.tp_id_override,
+            'vlan_tag': self.vlan_tag,
+            'vlan_tag_mode': self.vlan_tag_mode,
+            'vlan_tag_count': self.vlan_tag_count,
+            'vlan_tag_step': self.vlan_tag_step,
+        }
+
+    def from_dict(self, dict_):
+        """
+        Set the Vlan layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
