@@ -3768,3 +3768,802 @@ class _Tcp(baseclass.Protocol):
         """
         for attribute, value in dict_.items():
             setattr(self, attribute, value)
+
+
+class _Arp(baseclass.Protocol):
+
+    """
+    Represent an ARP table
+    """
+
+    _protocol_id = 300
+    _extension = arp_pb2.arp
+
+    def __init__(self, target_protocol_addr=0, target_hardware_addr=0, hardware_type=1, sender_protocol_addr=0, sender_hardware_addr=0, hardware_addr_length=6, operation_code=1, protocol_addr_length=4, protocol_type=2048, **kwargs):
+        super(_Arp, self).__init__(target_protocol_addr=target_protocol_addr, target_hardware_addr=target_hardware_addr, hardware_type=hardware_type, sender_protocol_addr=sender_protocol_addr, sender_hardware_addr=sender_hardware_addr, hardware_addr_length=hardware_addr_length, operation_code=operation_code, protocol_addr_length=protocol_addr_length, protocol_type=protocol_type, **kwargs)
+        
+        self.target_protocol_addr_mode = 'FIXED'
+        self.target_protocol_addr_step = 1 << 0
+        self.target_protocol_addr_count = 1
+        self.target_hardware_addr_mode = 'FIXED'
+        self.target_hardware_addr_step = 1 << 0
+        self.target_hardware_addr_count = 1
+        self.hardware_type_mode = 'FIXED'
+        self.hardware_type_step = 1 << 0
+        self.hardware_type_count = 1
+        self.sender_protocol_addr_mode = 'FIXED'
+        self.sender_protocol_addr_step = 1 << 0
+        self.sender_protocol_addr_count = 1
+        self.sender_hardware_addr_mode = 'FIXED'
+        self.sender_hardware_addr_step = 1 << 0
+        self.sender_hardware_addr_count = 1
+        self.hardware_addr_length_mode = 'FIXED'
+        self.hardware_addr_length_step = 1 << 0
+        self.hardware_addr_length_count = 1
+        self.operation_code_mode = 'FIXED'
+        self.operation_code_step = 1 << 0
+        self.operation_code_count = 1
+        self.protocol_addr_length_mode = 'FIXED'
+        self.protocol_addr_length_step = 1 << 0
+        self.protocol_addr_length_count = 1
+        self.protocol_type_mode = 'FIXED'
+        self.protocol_type_step = 1 << 0
+        self.protocol_type_count = 1
+
+    @property
+    def target_protocol_addr(self):
+        """
+        Logical address of the intended receiever
+        """
+        return self._target_proto_addr & 4294967295
+
+    @target_protocol_addr.setter
+    def target_protocol_addr(self, value):
+        current_value = getattr(self, '_target_proto_addr', 0)
+        self._target_proto_addr = (current_value & (~4294967295 & 4294967295)) + ((utils.parse(value) << 0) & 4294967295)
+
+    @property
+    def target_protocol_addr_mode(self):
+        """
+        By default, :attr:`target_protocol_addr_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._target_protocol_addr_mode)
+
+    @target_protocol_addr_mode.setter
+    def target_protocol_addr_mode(self, mode):
+        self._target_protocol_addr_mode = baseclass.FieldMode.get_value(mode)
+
+    _target_protocol_addr_offset = 24
+    _target_protocol_addr_type = 2
+    _target_protocol_addr_full_mask = 4294967295
+    _target_protocol_addr_mask = 4294967295
+
+    @property
+    def target_protocol_addr_step(self):
+        """
+        If :attr:`target_protocol_addr_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._target_protocol_addr_step >> 0
+
+    @target_protocol_addr_step.setter
+    def target_protocol_addr_step(self, step):
+        self._target_protocol_addr_step = step << 0
+
+    @property
+    def target_protocol_addr_count(self):
+        """
+        If :attr:`target_protocol_addr_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._target_protocol_addr_count
+
+    @target_protocol_addr_count.setter
+    def target_protocol_addr_count(self, count):
+        self._target_protocol_addr_count = count
+
+    def _save_target_protocol_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.target_protocol_addr_mode == 'FIXED':
+            ext.target_proto_addr = self._target_proto_addr
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._target_protocol_addr_step
+            o_variable_field.mask = self._target_protocol_addr_mask
+            o_variable_field.type = self._target_protocol_addr_type
+            o_variable_field.offset = self._target_protocol_addr_offset
+            o_variable_field.mode = self._target_protocol_addr_mode
+            o_variable_field.count = self._target_protocol_addr_count
+            o_variable_field.value = self._target_proto_addr
+
+    def _fetch_target_protocol_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._target_protocol_addr_offset and mask == self._target_protocol_addr_mask:
+                self._target_proto_addr = o_variable_field.value
+                self._target_protocol_addr_mode = o_variable_field.mode
+                self._target_protocol_addr_count = o_variable_field.count
+                self._target_protocol_addr_step = o_variable_field.step
+                return
+        else:
+            self._target_proto_addr = ext.target_proto_addr
+
+    @property
+    def target_hardware_addr(self):
+        """
+        Hardware address of the intended receiever
+        """
+        return self._target_hw_addr & 281474976710655
+
+    @target_hardware_addr.setter
+    def target_hardware_addr(self, value):
+        current_value = getattr(self, '_target_hw_addr', 0)
+        self._target_hw_addr = (current_value & (~281474976710655 & 281474976710655)) + ((utils.parse(value) << 0) & 281474976710655)
+
+    @property
+    def target_hardware_addr_mode(self):
+        """
+        By default, :attr:`target_hardware_addr_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._target_hardware_addr_mode)
+
+    @target_hardware_addr_mode.setter
+    def target_hardware_addr_mode(self, mode):
+        self._target_hardware_addr_mode = baseclass.FieldMode.get_value(mode)
+
+    _target_hardware_addr_offset = 18
+    _target_hardware_addr_type = 2
+    _target_hardware_addr_full_mask = 281474976710655
+    _target_hardware_addr_mask = 281474976710655
+
+    @property
+    def target_hardware_addr_step(self):
+        """
+        If :attr:`target_hardware_addr_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._target_hardware_addr_step >> 0
+
+    @target_hardware_addr_step.setter
+    def target_hardware_addr_step(self, step):
+        self._target_hardware_addr_step = step << 0
+
+    @property
+    def target_hardware_addr_count(self):
+        """
+        If :attr:`target_hardware_addr_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._target_hardware_addr_count
+
+    @target_hardware_addr_count.setter
+    def target_hardware_addr_count(self, count):
+        self._target_hardware_addr_count = count
+
+    def _save_target_hardware_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.target_hardware_addr_mode == 'FIXED':
+            ext.target_hw_addr = self._target_hw_addr
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._target_hardware_addr_step
+            o_variable_field.mask = self._target_hardware_addr_mask
+            o_variable_field.type = self._target_hardware_addr_type
+            o_variable_field.offset = self._target_hardware_addr_offset
+            o_variable_field.mode = self._target_hardware_addr_mode
+            o_variable_field.count = self._target_hardware_addr_count
+            o_variable_field.value = self._target_hw_addr
+
+    def _fetch_target_hardware_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._target_hardware_addr_offset and mask == self._target_hardware_addr_mask:
+                self._target_hw_addr = o_variable_field.value
+                self._target_hardware_addr_mode = o_variable_field.mode
+                self._target_hardware_addr_count = o_variable_field.count
+                self._target_hardware_addr_step = o_variable_field.step
+                return
+        else:
+            self._target_hw_addr = ext.target_hw_addr
+
+    @property
+    def hardware_type(self):
+        """
+        Network protocol type
+        """
+        return self._hw_type & 65535
+
+    @hardware_type.setter
+    def hardware_type(self, value):
+        current_value = getattr(self, '_hw_type', 0)
+        self._hw_type = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def hardware_type_mode(self):
+        """
+        By default, :attr:`hardware_type_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._hardware_type_mode)
+
+    @hardware_type_mode.setter
+    def hardware_type_mode(self, mode):
+        self._hardware_type_mode = baseclass.FieldMode.get_value(mode)
+
+    _hardware_type_offset = 0
+    _hardware_type_type = 1
+    _hardware_type_full_mask = 65535
+    _hardware_type_mask = 65535
+
+    @property
+    def hardware_type_step(self):
+        """
+        If :attr:`hardware_type_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._hardware_type_step >> 0
+
+    @hardware_type_step.setter
+    def hardware_type_step(self, step):
+        self._hardware_type_step = step << 0
+
+    @property
+    def hardware_type_count(self):
+        """
+        If :attr:`hardware_type_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._hardware_type_count
+
+    @hardware_type_count.setter
+    def hardware_type_count(self, count):
+        self._hardware_type_count = count
+
+    def _save_hardware_type(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.hardware_type_mode == 'FIXED':
+            ext.hw_type = self._hw_type
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._hardware_type_step
+            o_variable_field.mask = self._hardware_type_mask
+            o_variable_field.type = self._hardware_type_type
+            o_variable_field.offset = self._hardware_type_offset
+            o_variable_field.mode = self._hardware_type_mode
+            o_variable_field.count = self._hardware_type_count
+            o_variable_field.value = self._hw_type
+
+    def _fetch_hardware_type(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._hardware_type_offset and mask == self._hardware_type_mask:
+                self._hw_type = o_variable_field.value
+                self._hardware_type_mode = o_variable_field.mode
+                self._hardware_type_count = o_variable_field.count
+                self._hardware_type_step = o_variable_field.step
+                return
+        else:
+            self._hw_type = ext.hw_type
+
+    @property
+    def sender_protocol_addr(self):
+        """
+        Logical address of the sender
+        """
+        return self._sender_proto_addr & 4294967295
+
+    @sender_protocol_addr.setter
+    def sender_protocol_addr(self, value):
+        current_value = getattr(self, '_sender_proto_addr', 0)
+        self._sender_proto_addr = (current_value & (~4294967295 & 4294967295)) + ((utils.parse(value) << 0) & 4294967295)
+
+    @property
+    def sender_protocol_addr_mode(self):
+        """
+        By default, :attr:`sender_protocol_addr_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._sender_protocol_addr_mode)
+
+    @sender_protocol_addr_mode.setter
+    def sender_protocol_addr_mode(self, mode):
+        self._sender_protocol_addr_mode = baseclass.FieldMode.get_value(mode)
+
+    _sender_protocol_addr_offset = 14
+    _sender_protocol_addr_type = 2
+    _sender_protocol_addr_full_mask = 4294967295
+    _sender_protocol_addr_mask = 4294967295
+
+    @property
+    def sender_protocol_addr_step(self):
+        """
+        If :attr:`sender_protocol_addr_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._sender_protocol_addr_step >> 0
+
+    @sender_protocol_addr_step.setter
+    def sender_protocol_addr_step(self, step):
+        self._sender_protocol_addr_step = step << 0
+
+    @property
+    def sender_protocol_addr_count(self):
+        """
+        If :attr:`sender_protocol_addr_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._sender_protocol_addr_count
+
+    @sender_protocol_addr_count.setter
+    def sender_protocol_addr_count(self, count):
+        self._sender_protocol_addr_count = count
+
+    def _save_sender_protocol_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.sender_protocol_addr_mode == 'FIXED':
+            ext.sender_proto_addr = self._sender_proto_addr
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._sender_protocol_addr_step
+            o_variable_field.mask = self._sender_protocol_addr_mask
+            o_variable_field.type = self._sender_protocol_addr_type
+            o_variable_field.offset = self._sender_protocol_addr_offset
+            o_variable_field.mode = self._sender_protocol_addr_mode
+            o_variable_field.count = self._sender_protocol_addr_count
+            o_variable_field.value = self._sender_proto_addr
+
+    def _fetch_sender_protocol_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._sender_protocol_addr_offset and mask == self._sender_protocol_addr_mask:
+                self._sender_proto_addr = o_variable_field.value
+                self._sender_protocol_addr_mode = o_variable_field.mode
+                self._sender_protocol_addr_count = o_variable_field.count
+                self._sender_protocol_addr_step = o_variable_field.step
+                return
+        else:
+            self._sender_proto_addr = ext.sender_proto_addr
+
+    @property
+    def sender_hardware_addr(self):
+        """
+        Hardware address of the sender
+        """
+        return self._sender_hw_addr & 281474976710655
+
+    @sender_hardware_addr.setter
+    def sender_hardware_addr(self, value):
+        current_value = getattr(self, '_sender_hw_addr', 0)
+        self._sender_hw_addr = (current_value & (~281474976710655 & 281474976710655)) + ((utils.parse(value) << 0) & 281474976710655)
+
+    @property
+    def sender_hardware_addr_mode(self):
+        """
+        By default, :attr:`sender_hardware_addr_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._sender_hardware_addr_mode)
+
+    @sender_hardware_addr_mode.setter
+    def sender_hardware_addr_mode(self, mode):
+        self._sender_hardware_addr_mode = baseclass.FieldMode.get_value(mode)
+
+    _sender_hardware_addr_offset = 8
+    _sender_hardware_addr_type = 2
+    _sender_hardware_addr_full_mask = 281474976710655
+    _sender_hardware_addr_mask = 281474976710655
+
+    @property
+    def sender_hardware_addr_step(self):
+        """
+        If :attr:`sender_hardware_addr_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._sender_hardware_addr_step >> 0
+
+    @sender_hardware_addr_step.setter
+    def sender_hardware_addr_step(self, step):
+        self._sender_hardware_addr_step = step << 0
+
+    @property
+    def sender_hardware_addr_count(self):
+        """
+        If :attr:`sender_hardware_addr_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._sender_hardware_addr_count
+
+    @sender_hardware_addr_count.setter
+    def sender_hardware_addr_count(self, count):
+        self._sender_hardware_addr_count = count
+
+    def _save_sender_hardware_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.sender_hardware_addr_mode == 'FIXED':
+            ext.sender_hw_addr = self._sender_hw_addr
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._sender_hardware_addr_step
+            o_variable_field.mask = self._sender_hardware_addr_mask
+            o_variable_field.type = self._sender_hardware_addr_type
+            o_variable_field.offset = self._sender_hardware_addr_offset
+            o_variable_field.mode = self._sender_hardware_addr_mode
+            o_variable_field.count = self._sender_hardware_addr_count
+            o_variable_field.value = self._sender_hw_addr
+
+    def _fetch_sender_hardware_addr(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._sender_hardware_addr_offset and mask == self._sender_hardware_addr_mask:
+                self._sender_hw_addr = o_variable_field.value
+                self._sender_hardware_addr_mode = o_variable_field.mode
+                self._sender_hardware_addr_count = o_variable_field.count
+                self._sender_hardware_addr_step = o_variable_field.step
+                return
+        else:
+            self._sender_hw_addr = ext.sender_hw_addr
+
+    @property
+    def hardware_addr_length(self):
+        """
+        Length in octets of hardware address
+        """
+        return self._hw_addr_len & 65535
+
+    @hardware_addr_length.setter
+    def hardware_addr_length(self, value):
+        current_value = getattr(self, '_hw_addr_len', 0)
+        self._hw_addr_len = (current_value & (~65535 & 255)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def hardware_addr_length_mode(self):
+        """
+        By default, :attr:`hardware_addr_length_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._hardware_addr_length_mode)
+
+    @hardware_addr_length_mode.setter
+    def hardware_addr_length_mode(self, mode):
+        self._hardware_addr_length_mode = baseclass.FieldMode.get_value(mode)
+
+    _hardware_addr_length_offset = 4
+    _hardware_addr_length_type = 0
+    _hardware_addr_length_full_mask = 255
+    _hardware_addr_length_mask = 65535
+
+    @property
+    def hardware_addr_length_step(self):
+        """
+        If :attr:`hardware_addr_length_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._hardware_addr_length_step >> 0
+
+    @hardware_addr_length_step.setter
+    def hardware_addr_length_step(self, step):
+        self._hardware_addr_length_step = step << 0
+
+    @property
+    def hardware_addr_length_count(self):
+        """
+        If :attr:`hardware_addr_length_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._hardware_addr_length_count
+
+    @hardware_addr_length_count.setter
+    def hardware_addr_length_count(self, count):
+        self._hardware_addr_length_count = count
+
+    def _save_hardware_addr_length(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.hardware_addr_length_mode == 'FIXED':
+            ext.hw_addr_len = self._hw_addr_len
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._hardware_addr_length_step
+            o_variable_field.mask = self._hardware_addr_length_mask
+            o_variable_field.type = self._hardware_addr_length_type
+            o_variable_field.offset = self._hardware_addr_length_offset
+            o_variable_field.mode = self._hardware_addr_length_mode
+            o_variable_field.count = self._hardware_addr_length_count
+            o_variable_field.value = self._hw_addr_len
+
+    def _fetch_hardware_addr_length(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._hardware_addr_length_offset and mask == self._hardware_addr_length_mask:
+                self._hw_addr_len = o_variable_field.value
+                self._hardware_addr_length_mode = o_variable_field.mode
+                self._hardware_addr_length_count = o_variable_field.count
+                self._hardware_addr_length_step = o_variable_field.step
+                return
+        else:
+            self._hw_addr_len = ext.hw_addr_len
+
+    @property
+    def operation_code(self):
+        """
+        Operation code with respect to sender Eg: 1 for request, 2 for reply
+        """
+        return self._op_code & 65535
+
+    @operation_code.setter
+    def operation_code(self, value):
+        current_value = getattr(self, '_op_code', 0)
+        self._op_code = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def operation_code_mode(self):
+        """
+        By default, :attr:`operation_code_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._operation_code_mode)
+
+    @operation_code_mode.setter
+    def operation_code_mode(self, mode):
+        self._operation_code_mode = baseclass.FieldMode.get_value(mode)
+
+    _operation_code_offset = 6
+    _operation_code_type = 1
+    _operation_code_full_mask = 65535
+    _operation_code_mask = 65535
+
+    @property
+    def operation_code_step(self):
+        """
+        If :attr:`operation_code_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._operation_code_step >> 0
+
+    @operation_code_step.setter
+    def operation_code_step(self, step):
+        self._operation_code_step = step << 0
+
+    @property
+    def operation_code_count(self):
+        """
+        If :attr:`operation_code_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._operation_code_count
+
+    @operation_code_count.setter
+    def operation_code_count(self, count):
+        self._operation_code_count = count
+
+    def _save_operation_code(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.operation_code_mode == 'FIXED':
+            ext.op_code = self._op_code
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._operation_code_step
+            o_variable_field.mask = self._operation_code_mask
+            o_variable_field.type = self._operation_code_type
+            o_variable_field.offset = self._operation_code_offset
+            o_variable_field.mode = self._operation_code_mode
+            o_variable_field.count = self._operation_code_count
+            o_variable_field.value = self._op_code
+
+    def _fetch_operation_code(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._operation_code_offset and mask == self._operation_code_mask:
+                self._op_code = o_variable_field.value
+                self._operation_code_mode = o_variable_field.mode
+                self._operation_code_count = o_variable_field.count
+                self._operation_code_step = o_variable_field.step
+                return
+        else:
+            self._op_code = ext.op_code
+
+    @property
+    def protocol_addr_length(self):
+        """
+        Length in octets of logical address Eg: 4 bytes for IPv4
+        """
+        return self._proto_addr_len & 65535
+
+    @protocol_addr_length.setter
+    def protocol_addr_length(self, value):
+        current_value = getattr(self, '_proto_addr_len', 0)
+        self._proto_addr_len = (current_value & (~65535 & 255)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def protocol_addr_length_mode(self):
+        """
+        By default, :attr:`protocol_addr_length_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._protocol_addr_length_mode)
+
+    @protocol_addr_length_mode.setter
+    def protocol_addr_length_mode(self, mode):
+        self._protocol_addr_length_mode = baseclass.FieldMode.get_value(mode)
+
+    _protocol_addr_length_offset = 5
+    _protocol_addr_length_type = 0
+    _protocol_addr_length_full_mask = 255
+    _protocol_addr_length_mask = 65535
+
+    @property
+    def protocol_addr_length_step(self):
+        """
+        If :attr:`protocol_addr_length_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._protocol_addr_length_step >> 0
+
+    @protocol_addr_length_step.setter
+    def protocol_addr_length_step(self, step):
+        self._protocol_addr_length_step = step << 0
+
+    @property
+    def protocol_addr_length_count(self):
+        """
+        If :attr:`protocol_addr_length_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._protocol_addr_length_count
+
+    @protocol_addr_length_count.setter
+    def protocol_addr_length_count(self, count):
+        self._protocol_addr_length_count = count
+
+    def _save_protocol_addr_length(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.protocol_addr_length_mode == 'FIXED':
+            ext.proto_addr_len = self._proto_addr_len
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._protocol_addr_length_step
+            o_variable_field.mask = self._protocol_addr_length_mask
+            o_variable_field.type = self._protocol_addr_length_type
+            o_variable_field.offset = self._protocol_addr_length_offset
+            o_variable_field.mode = self._protocol_addr_length_mode
+            o_variable_field.count = self._protocol_addr_length_count
+            o_variable_field.value = self._proto_addr_len
+
+    def _fetch_protocol_addr_length(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._protocol_addr_length_offset and mask == self._protocol_addr_length_mask:
+                self._proto_addr_len = o_variable_field.value
+                self._protocol_addr_length_mode = o_variable_field.mode
+                self._protocol_addr_length_count = o_variable_field.count
+                self._protocol_addr_length_step = o_variable_field.step
+                return
+        else:
+            self._proto_addr_len = ext.proto_addr_len
+
+    @property
+    def protocol_type(self):
+        """
+        Internetwork protocol for which ARP request is intened
+        """
+        return self._proto_type & 65535
+
+    @protocol_type.setter
+    def protocol_type(self, value):
+        current_value = getattr(self, '_proto_type', 0)
+        self._proto_type = (current_value & (~65535 & 65535)) + ((utils.parse(value) << 0) & 65535)
+
+    @property
+    def protocol_type_mode(self):
+        """
+        By default, :attr:`protocol_type_mode` is ``FIXED``.
+        Possible values are: ``INCREMENT``, ``DECREMENT``, ``RANDOM``, ``FIXED``.
+        """
+        return baseclass.FieldMode.get_key(self._protocol_type_mode)
+
+    @protocol_type_mode.setter
+    def protocol_type_mode(self, mode):
+        self._protocol_type_mode = baseclass.FieldMode.get_value(mode)
+
+    _protocol_type_offset = 2
+    _protocol_type_type = 1
+    _protocol_type_full_mask = 65535
+    _protocol_type_mask = 65535
+
+    @property
+    def protocol_type_step(self):
+        """
+        If :attr:`protocol_type_mode` is set to ``INCREMENT`` or ``DECREMENT``, specifies the increment or decrement step.
+        """
+        return self._protocol_type_step >> 0
+
+    @protocol_type_step.setter
+    def protocol_type_step(self, step):
+        self._protocol_type_step = step << 0
+
+    @property
+    def protocol_type_count(self):
+        """
+        If :attr:`protocol_type_mode` is ``INCREMENT``, ``DECREMENT``, specifies the number of packets before resetting the field to its initial value.
+        """
+        return self._protocol_type_count
+
+    @protocol_type_count.setter
+    def protocol_type_count(self, count):
+        self._protocol_type_count = count
+
+    def _save_protocol_type(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        if self.protocol_type_mode == 'FIXED':
+            ext.proto_type = self._proto_type
+        else:
+            o_variable_field = o_protocol.variable_field.add()
+            o_variable_field.step = self._protocol_type_step
+            o_variable_field.mask = self._protocol_type_mask
+            o_variable_field.type = self._protocol_type_type
+            o_variable_field.offset = self._protocol_type_offset
+            o_variable_field.mode = self._protocol_type_mode
+            o_variable_field.count = self._protocol_type_count
+            o_variable_field.value = self._proto_type
+
+    def _fetch_protocol_type(self, o_protocol):
+        ext = o_protocol.Extensions[self._extension]
+        for o_variable_field in o_protocol.variable_field:
+            offset, mask = o_variable_field.offset, o_variable_field.mask
+            if offset == self._protocol_type_offset and mask == self._protocol_type_mask:
+                self._proto_type = o_variable_field.value
+                self._protocol_type_mode = o_variable_field.mode
+                self._protocol_type_count = o_variable_field.count
+                self._protocol_type_step = o_variable_field.step
+                return
+        else:
+            self._proto_type = ext.proto_type
+
+    def __str__(self):
+        return 'Arp(target_protocol_addr={},target_hardware_addr={},hardware_type={},sender_protocol_addr={},sender_hardware_addr={},hardware_addr_length={},operation_code={},protocol_addr_length={},protocol_type={},)'.format(self.target_protocol_addr,self.target_hardware_addr,self.hardware_type,self.sender_protocol_addr,self.sender_hardware_addr,self.hardware_addr_length,self.operation_code,self.protocol_addr_length,self.protocol_type,)
+
+    def to_dict(self):
+        """
+        Return the Arp layer configuration as a
+        dictionnary.
+        """
+        return { 
+            'target_protocol_addr': self.target_protocol_addr,
+            'target_protocol_addr_mode': self.target_protocol_addr_mode,
+            'target_protocol_addr_count': self.target_protocol_addr_count,
+            'target_protocol_addr_step': self.target_protocol_addr_step,
+            'target_hardware_addr': self.target_hardware_addr,
+            'target_hardware_addr_mode': self.target_hardware_addr_mode,
+            'target_hardware_addr_count': self.target_hardware_addr_count,
+            'target_hardware_addr_step': self.target_hardware_addr_step,
+            'hardware_type': self.hardware_type,
+            'hardware_type_mode': self.hardware_type_mode,
+            'hardware_type_count': self.hardware_type_count,
+            'hardware_type_step': self.hardware_type_step,
+            'sender_protocol_addr': self.sender_protocol_addr,
+            'sender_protocol_addr_mode': self.sender_protocol_addr_mode,
+            'sender_protocol_addr_count': self.sender_protocol_addr_count,
+            'sender_protocol_addr_step': self.sender_protocol_addr_step,
+            'sender_hardware_addr': self.sender_hardware_addr,
+            'sender_hardware_addr_mode': self.sender_hardware_addr_mode,
+            'sender_hardware_addr_count': self.sender_hardware_addr_count,
+            'sender_hardware_addr_step': self.sender_hardware_addr_step,
+            'hardware_addr_length': self.hardware_addr_length,
+            'hardware_addr_length_mode': self.hardware_addr_length_mode,
+            'hardware_addr_length_count': self.hardware_addr_length_count,
+            'hardware_addr_length_step': self.hardware_addr_length_step,
+            'operation_code': self.operation_code,
+            'operation_code_mode': self.operation_code_mode,
+            'operation_code_count': self.operation_code_count,
+            'operation_code_step': self.operation_code_step,
+            'protocol_addr_length': self.protocol_addr_length,
+            'protocol_addr_length_mode': self.protocol_addr_length_mode,
+            'protocol_addr_length_count': self.protocol_addr_length_count,
+            'protocol_addr_length_step': self.protocol_addr_length_step,
+            'protocol_type': self.protocol_type,
+            'protocol_type_mode': self.protocol_type_mode,
+            'protocol_type_count': self.protocol_type_count,
+            'protocol_type_step': self.protocol_type_step,
+        }
+
+    def from_dict(self, dict_):
+        """
+        Set the Arp layer configuration from a
+        dictionary. Keys must be the same as the attributes names, and values
+        but by valid values for these attributes.
+        """
+        for attribute, value in dict_.items():
+            setattr(self, attribute, value)
