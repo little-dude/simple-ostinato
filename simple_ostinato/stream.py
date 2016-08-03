@@ -1,7 +1,7 @@
 """
 This module provide a class to manipulate streams.
 """
-from ostinato.protocols.protocol_pb2 import StreamControl
+from ostinato.protocols.protocol_pb2 import StreamControl, StreamCore
 from ostinato.core import ost_pb
 import time
 from . import utils
@@ -26,6 +26,13 @@ class _SendNext(utils.Enum):
     STOP = StreamControl.NextWhat.Value('e_nw_stop')
     GOTO_NEXT = StreamControl.NextWhat.Value('e_nw_goto_next')
     GOTO_ID = StreamControl.NextWhat.Value('e_nw_goto_id')
+
+class _FrameLengthMode(utils.Enum):
+
+    FIXED = StreamCore.FrameLengthMode.Value('e_fl_fixed')
+    INC = StreamCore.FrameLengthMode.Value('e_fl_inc')
+    DEC = StreamCore.FrameLengthMode.Value('e_fl_dec')
+    RANDOM = StreamCore.FrameLengthMode.Value('e_fl_random')
 
 
 class Stream(object):
@@ -92,6 +99,10 @@ class Stream(object):
         o_stream = o_streams.stream[0]
         o_stream.core.is_enabled = self._is_enabled
         o_stream.core.name = self._name
+        o_stream.core.len_mode = self._len_mode
+        o_stream.core.frame_len = self._frame_len
+        o_stream.core.frame_len_min = self._frame_len_min
+        o_stream.core.frame_len_max = self._frame_len_max
         o_stream.control.unit = self._unit
         o_stream.control.mode = self._mode
         o_stream.control.num_bursts = self._num_bursts
@@ -111,6 +122,10 @@ class Stream(object):
         o_stream = self._fetch().stream[0]
         self._name = o_stream.core.name
         self._is_enabled = o_stream.core.is_enabled
+        self._len_mode = o_stream.core.len_mode
+        self._frame_len = o_stream.core.frame_len
+        self._frame_len_min = o_stream.core.frame_len_min
+        self._frame_len_max = o_stream.core.frame_len_max
         self._unit = o_stream.control.unit
         self._mode = o_stream.control.mode
         self._num_bursts = o_stream.control.num_bursts
@@ -141,6 +156,42 @@ class Stream(object):
     @name.setter
     def name(self, value):
         self._name = value
+
+    @property
+    def len_mode(self):
+        """
+        Length mode. It must be either ``FIXED`` (the default), ``INC``,
+        ``DEC`` or ``RANDOM``
+        """
+        return _FrameLengthMode.get_key(self._len_mode)
+
+    @len_mode.setter
+    def len_mode(self, mode):
+        self._len_mode = _FrameLengthMode.get_value(mode)
+
+    @property
+    def frame_len(self):
+        return self._frame_len
+
+    @frame_len.setter
+    def frame_len(self, value):
+        self._frame_len = value
+
+    @property
+    def frame_len_min(self):
+        return self._frame_len_min
+
+    @frame_len_min.setter
+    def frame_len_min(self, value):
+        self._frame_len_min = value
+
+    @property
+    def frame_len_max(self):
+        return self._frame_len_max
+
+    @frame_len_max.setter
+    def frame_len_max(self, value):
+        self._frame_len_max = value
 
     def enable(self):
         """
