@@ -371,6 +371,7 @@ def _protocol_factory(protocol_id, o_protocol=None):
         constants._Protocols.TCP: protocols.Tcp,
         constants._Protocols.UDP: protocols.Udp,
         constants._Protocols.PAYLOAD: protocols.Payload,
+        constants._Protocols.ARP: protocols.Arp,
     }
     protocol_cls = proto_cls_mapping[protocol_id]
     protocol = protocol_cls()

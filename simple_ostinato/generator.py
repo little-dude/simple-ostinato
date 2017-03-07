@@ -132,6 +132,23 @@ def generate_classes():
                 'urgent_pointer':   (18, 0,     0xffff    , 0xffff,      'urg_ptr',     None,       'Urgent pointer.')
             },
         },
+    {
+        'class_name': 'Arp',
+        'doc':        'Represent an ARP table',
+        'protocol_id': constants._Protocols.ARP,
+        'extension':   'arp_pb2.arp',
+        'attributes': {
+        'hardware_type':        (0,  1,     0xffff,         0xffff,         'hw_type',           None, 'Network protocol type'),
+        'protocol_type':        (2,  0x800, 0xffff,         0xffff,         'proto_type',        None, 'Internetwork protocol for which ARP request is intened'),
+        'hardware_addr_length': (4,  6,     0xff,           0xffff,         'hw_addr_len',       None, 'Length in octets of hardware address'),
+        'protocol_addr_length': (5,  4,     0xff,           0xffff,         'proto_addr_len',    None, 'Length in octets of logical address Eg: 4 bytes for IPv4'),
+        'operation_code':       (6,  1,     0xffff,         0xffff,         'op_code',           None, 'Operation code with respect to sender Eg: 1 for request, 2 for reply'),
+        'sender_hardware_addr': (8,  0,     0xffffffffffff, 0xffffffffffff, 'sender_hw_addr',    None, 'Hardware address of the sender'),
+        'sender_protocol_addr': (14, 0,     0xffffffff,     0xffffffff,     'sender_proto_addr', None, 'Logical address of the sender'),
+        'target_hardware_addr': (18, 0,     0xffffffffffff, 0xffffffffffff, 'target_hw_addr',    None, 'Hardware address of the intended receiever'),
+        'target_protocol_addr': (24, 0,     0xffffffff,     0xffffffff,     'target_proto_addr', None, 'Logical address of the intended receiever')
+        },
+    },
         # {
         #     'class_name': 'Payload',
         #     'doc':        'Represent the payload. This layer can be encapsulated in any other layer',
