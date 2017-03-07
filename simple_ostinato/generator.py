@@ -132,6 +132,17 @@ def generate_classes():
                 'urgent_pointer':   (18, 0,     0xffff    , 0xffff,      'urg_ptr',     None,       'Urgent pointer.')
             },
         },
+        {
+            'class_name':  'Vlan',
+            'doc':         'Represent a VLAN tagged frame',
+            'protocol_id': constants._Protocols.VLAN,
+            'extension':   'vlan_pb2.vlan',
+            'attributes': {
+                'tp_id':    (12, 0, 0xffff, 0xffff, 'tpid',      'tpid', 'Tag protocol identifier'),
+                'vlan_tag': (14, 0, 0xffff, 0xffff, 'vlan_tag',  None,   'Tag control information, contains the vlan tag')
+            }
+        }
+
         # {
         #     'class_name': 'Payload',
         #     'doc':        'Represent the payload. This layer can be encapsulated in any other layer',
