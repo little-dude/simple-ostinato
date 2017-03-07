@@ -1,2 +1,2 @@
-python-ostinato>=0.7.1
+python-ostinato>=0.8.0
 netaddr

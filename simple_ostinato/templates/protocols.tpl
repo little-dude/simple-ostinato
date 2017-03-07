@@ -1,9 +1,10 @@
+from ostinato.core import ost_pb
 from ostinato.protocols import arp_pb2, gmp_pb2, ip4over6_pb2, mld_pb2, \
-    tcp_pb2, dot2llc_pb2, hexdump_pb2, ip6_pb2, payload_pb2, textproto_pb2, \
+    tcp_pb2, hexdump_pb2, ip6_pb2, payload_pb2, textproto_pb2, \
     dot2snap_pb2, icmp_pb2, ip6over4_pb2, protocol_pb2, udp_pb2, dot3_pb2, \
     igmp_pb2, ip6over6_pb2, sample_pb2, userscript_pb2, eth2_pb2, ip4_pb2, \
     llc_pb2, snap_pb2, vlan_pb2, fileformat_pb2, ip4over4_pb2, mac_pb2, \
-    svlan_pb2, vlanstack_pb2
+    svlan_pb2, vlanstack_pb2, dot2llc_pb2
 from . import baseclass
 from .. import utils{% for class in classes %}
 
