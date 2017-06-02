@@ -25,6 +25,7 @@ ip link set veth1 up
 The following script sends traffic on ``veth0`` and captures in on ``veth1``:
 
 ```python
+import time
 from simple_ostinato import Drone
 from simple_ostinato.protocols import Mac, Ethernet, IPv4, Payload
 
@@ -34,9 +35,8 @@ drone = Drone('localhost')
 # fetch port information
 drone.fetch_ports()
 
-# store the two ports we are going to use in dedicated variables
-port_tx = drone.get_port_by_name('veth0')[0]
-port_rx = drone.get_port_by_name('veth1')[0]
+port_tx = drone.get_port('veth0')
+port_rx = drone.get_port('veth1')
 
 # Create a new stream
 stream = port_tx.add_stream(
